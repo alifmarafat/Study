@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Chek</title>
+<title>Study</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -966,6 +966,45 @@ body:has(.chat-inbox-page){
   .timer-minimized{right:12px;bottom:78px}
   .chat-hover-actions{display:none!important}
 }
+
+
+/* Centered in-app chat notices/confirmations */
+.chat-dialog-backdrop{
+  position:fixed;inset:0;z-index:1000;
+  display:grid;place-items:center;padding:18px;
+  background:rgba(13,16,22,.42);
+  backdrop-filter:blur(9px);
+  animation:chatDialogFade .16s ease both;
+}
+.chat-dialog{
+  width:min(390px,calc(100vw - 32px));
+  background:rgba(255,255,255,.98);
+  border:1px solid rgba(20,25,35,.09);
+  border-radius:26px;
+  box-shadow:0 30px 90px rgba(12,18,28,.30);
+  padding:22px;
+  animation:chatDialogIn .22s cubic-bezier(.2,1.2,.3,1) both;
+  text-align:center;
+}
+.chat-dialog-icon{
+  width:56px;height:56px;margin:0 auto 13px;border-radius:18px;
+  display:grid;place-items:center;font-size:25px;
+  background:#f2f4f7;
+}
+.chat-dialog.danger .chat-dialog-icon{background:#fff0f3}
+.chat-dialog.success .chat-dialog-icon{background:#edf9f0}
+.chat-dialog-title{font:900 21px Nunito;margin:0 0 7px}
+.chat-dialog-message{margin:0;color:#6c7480;font-size:12px;line-height:1.55;white-space:pre-line}
+.chat-dialog-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:19px}
+.chat-dialog-actions.single{grid-template-columns:1fr}
+.chat-dialog-btn{
+  height:45px;border-radius:14px;font-weight:900;
+  background:#f1f3f5;
+}
+.chat-dialog-btn.primary{background:#111;color:#fff}
+.chat-dialog-btn.danger{background:#ef476f;color:#fff}
+@keyframes chatDialogFade{from{opacity:0}to{opacity:1}}
+@keyframes chatDialogIn{from{opacity:0;transform:translateY(12px) scale(.94)}to{opacity:1;transform:none}}
 
 </style>
 </head>
@@ -2405,8 +2444,38 @@ function closeSelectedChat(){
   loadChatList();
 }
 let pendingChatReply=null;
+let chatMessageCache=new Map();
 let activeChatActionId="";
 let chatLongPressTimer=null;
+
+function closeChatDialog(){
+  document.getElementById("chatDialogRoot")?.remove();
+}
+function showChatDialog({title="Notice",message="",icon="ℹ️",danger=false,confirmText="OK",cancelText="",onConfirm=null}={}){
+  closeChatDialog();
+  const root=document.createElement("div");
+  root.id="chatDialogRoot";
+  root.className="chat-dialog-backdrop";
+  const actions=cancelText
+    ? `<button class="chat-dialog-btn" id="chatDialogCancel">${esc(cancelText)}</button><button class="chat-dialog-btn ${danger?"danger":"primary"}" id="chatDialogConfirm">${esc(confirmText)}</button>`
+    : `<button class="chat-dialog-btn primary" id="chatDialogConfirm">${esc(confirmText)}</button>`;
+  root.innerHTML=`<div class="chat-dialog ${danger?"danger":""}" role="dialog" aria-modal="true">
+    <div class="chat-dialog-icon">${icon}</div>
+    <h3 class="chat-dialog-title">${esc(title)}</h3>
+    <p class="chat-dialog-message">${esc(message)}</p>
+    <div class="chat-dialog-actions ${cancelText?"":"single"}">${actions}</div>
+  </div>`;
+  document.body.appendChild(root);
+  root.querySelector("#chatDialogCancel")?.addEventListener("click",closeChatDialog);
+  root.querySelector("#chatDialogConfirm")?.addEventListener("click",async()=>{
+    closeChatDialog();
+    if(onConfirm)await onConfirm();
+  });
+  root.addEventListener("click",e=>{if(e.target===root && !cancelText)closeChatDialog()});
+}
+function chatWarning(title,message,icon="⚠️"){
+  showChatDialog({title,message,icon,danger:true,confirmText:"OK"});
+}
 
 function clearChatReply(){
   pendingChatReply=null;
@@ -2441,7 +2510,15 @@ function showReactionPicker(message,anchor){
   picker.id="chatReactionPicker";
   picker.className="chat-reaction-picker";
   const emojis=["❤️","😂","😮","😢","👍","👏"];
-  picker.innerHTML=emojis.map(e=>`<button type="button" aria-label="React ${e}" onclick="reactToChatMessage('${esc(message.id)}','${esc(e)}');event.stopPropagation()">${e}</button>`).join("");
+  picker.innerHTML=emojis.map(e=>`<button type="button" aria-label="React ${esc(e)}">${e}</button>`).join("");
+  picker.querySelectorAll("button").forEach((btn,i)=>{
+    btn.addEventListener("click",async ev=>{
+      ev.preventDefault();ev.stopPropagation();
+      const emoji=emojis[i];
+      closeReactionPicker();
+      await reactToChatMessage(message.id,emoji);
+    });
+  });
   document.body.appendChild(picker);
   const r=anchor.getBoundingClientRect();
   const w=picker.offsetWidth||260, h=picker.offsetHeight||52;
@@ -2452,8 +2529,9 @@ function showReactionPicker(message,anchor){
   setTimeout(()=>document.addEventListener("click",closeReactionPicker,{once:true}),0);
 }
 function openReactionPickerById(id,anchor){
+  const message=chatMessageCache.get(String(id));
   const el=document.querySelector(`[data-message-id="${CSS.escape(id)}"]`);
-  if(el&&el.__message)showReactionPicker(el.__message,anchor||el);
+  if(message&&el)showReactionPicker(message,anchor||el);
 }
 function showReactionPop(el,emoji){
   const wrap=el?.closest?.(".chat-bubble-wrap");if(!wrap)return;
@@ -2487,35 +2565,61 @@ function showChatActionMenu(message,anchor){
 }
 function setChatReplyById(id){
   closeChatActionMenu();
-  const el=document.querySelector(`[data-message-id="${CSS.escape(id)}"]`);
-  if(el&&el.__message)setChatReply(el.__message);
+  closeReactionPicker();
+  const message=chatMessageCache.get(String(id));
+  if(message)setChatReply(message);
 }
 async function reactToChatMessage(id,emoji){
   closeChatActionMenu();
+  closeReactionPicker();
   if(!firestore||!selectedChatId||!currentUid()||!id)return;
   try{
     const ref=doc(firestore,"chats",selectedChatId,"messages",id);
-    const snap=await getDoc(ref);if(!snap.exists)return;
-    const m=snap.data()||{}, reactions={...(m.reactions||{})};
+    const snap=await getDoc(ref);
+    if(!snap.exists)return;
+    const m=snap.data()||{};
+    const reactions={...(m.reactions||{})};
     const list=Array.isArray(reactions[emoji])?[...reactions[emoji]]:[];
-    const i=list.indexOf(currentUid());
-    if(i>=0)list.splice(i,1);else list.push(currentUid());
+    const uid=currentUid();
+    const i=list.indexOf(uid);
+    if(i>=0)list.splice(i,1);else list.push(uid);
     if(list.length)reactions[emoji]=list;else delete reactions[emoji];
-    await updateDoc(ref,{reactions});
+    // Merge keeps every other message field untouched.
+    await setDoc(ref,{reactions},{merge:true});
     const bubble=document.querySelector(`[data-message-id="${CSS.escape(id)}"]`);
     if(bubble)showReactionPop(bubble,emoji);
-  }catch(err){console.warn("Reaction update failed",err);alert("Reaction could not be saved. Check your Firestore message update permission.")}
+  }catch(err){
+    console.warn("Reaction update failed",err);
+    chatWarning("Reaction failed","Your reaction could not be saved right now. Please try again.","😕");
+  }
 }
 async function deleteChatMessage(id){
   closeChatActionMenu();
+  closeReactionPicker();
   if(!firestore||!selectedChatId||!currentUid()||!id)return;
-  if(!confirm("Delete this message?"))return;
-  try{
-    const ref=doc(firestore,"chats",selectedChatId,"messages",id);
-    const snap=await getDoc(ref);if(!snap.exists)return;
-    if(snap.data()?.senderId!==currentUid())return alert("You can only delete your own messages.");
-    await deleteDoc(ref);
-  }catch(err){console.warn("Delete message failed",err);alert("Message could not be deleted. Check your Firestore delete permission.")}
+  showChatDialog({
+    title:"Delete message?",
+    message:"This message will be permanently removed from this conversation.",
+    icon:"🗑️",
+    danger:true,
+    confirmText:"Delete",
+    cancelText:"Cancel",
+    onConfirm:async()=>{
+      try{
+        const ref=doc(firestore,"chats",selectedChatId,"messages",id);
+        const snap=await getDoc(ref);
+        if(!snap.exists)return;
+        if(snap.data()?.senderId!==currentUid()){
+          chatWarning("Can't delete this message","You can only delete messages that you sent.","🔒");
+          return;
+        }
+        await deleteDoc(ref);
+      }catch(err){
+        console.warn("Delete message failed",err);
+        chatWarning("Delete failed","The message could not be deleted. Please try again.","⚠️");
+      }
+    }
+  });
 }
 function bindChatMessagePress(el,message){
   el.__message=message;
@@ -2565,6 +2669,7 @@ function subscribeToMessages(forChatId){
 
     if(!docs.length){
       h.innerHTML=`<div class="chat-empty"><strong>Messages exchanged with your friends will be displayed here.</strong></div>`;
+      chatMessageCache=new Map();
       knownMsgIds=new Set();
       lastMsgCount=0;
       return;
@@ -2585,6 +2690,7 @@ function subscribeToMessages(forChatId){
     const hasIncoming=docs.some(d=>d.data()?.senderId===other);
     if(hasIncoming)markChatRead(expectedId);
 
+    chatMessageCache=new Map(docs.map(d=>[String(d.id),{id:d.id,...d.data()}]));
     h.innerHTML=docs.map(d=>{
       const m=d.data();
       const mine=m.senderId===me;
@@ -2617,7 +2723,7 @@ function handleChatKeydown(e){
 async function sendChatMessage(){
   const input=document.getElementById("chatMessageInput");if(!input||!selectedChatUser||!currentUid()||!firestore)return;
   const text=input.value.trim();if(!text)return;
-  if(chatBlockedByMe||chatBlockedMe)return alert("Messaging is unavailable for this user.");
+  if(chatBlockedByMe||chatBlockedMe){chatWarning("Messaging unavailable","You cannot send messages to this user right now.","🚫");return;}
   const otherUid=selectedChatUser.uid;
   const cid=chatIdFor(currentUid(),otherUid);
   selectedChatId=cid;
@@ -2630,7 +2736,7 @@ async function sendChatMessage(){
       getDoc(doc(firestore,"blocks",`${currentUid()}_${otherUid}`)),
       getDoc(doc(firestore,"blocks",`${otherUid}_${currentUid()}`))
     ]);
-    if(mine.exists||theirs.exists){await refreshBlockState(otherUid);renderChatWindow();subscribeToMessages(selectedChatId);if(btn)btn.disabled=false;return alert("Messaging is unavailable because one of you has blocked the other.")}
+    if(mine.exists||theirs.exists){await refreshBlockState(otherUid);renderChatWindow();subscribeToMessages(selectedChatId);if(btn)btn.disabled=false;chatWarning("Messaging unavailable","Messaging is unavailable because one of you has blocked the other.","🚫");return;}
     const chatRef=doc(firestore,"chats",cid);
     // Create/update chat first
     await setDoc(chatRef,{
@@ -2641,12 +2747,20 @@ async function sendChatMessage(){
       createdAt:serverTimestamp()
     },{merge:true});
     // Then add message
+    const replyTo=pendingChatReply?{
+      id:pendingChatReply.id,
+      text:pendingChatReply.text,
+      senderId:pendingChatReply.senderId,
+      senderName:pendingChatReply.senderName
+    }:null;
     await addDoc(collection(firestore,"chats",cid,"messages"),{
       senderId:currentUid(),
       receiverId:otherUid,
       text,
+      ...(replyTo?{replyTo}:{}),
       createdAt:serverTimestamp()
     });
+    clearChatReply();
     setTypingStatus(false);
   }catch(err){
     console.error("Send message failed",err);
