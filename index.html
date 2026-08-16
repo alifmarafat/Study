@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Stu — Focus App</title>
+<title>Study Circle — Focus App</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -426,6 +426,13 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 @media(max-width:1000px){.theme-fab{top:16px;right:16px}}
 @media(max-width:700px){.main > .card{margin-bottom:16px}.right > .card{margin-bottom:14px}.theme-fab{min-width:44px;width:44px;height:44px;padding:0;border-radius:14px}.theme-fab .theme-text{display:none}.logout-row{align-items:flex-start;flex-direction:column}.logout-btn{width:100%}.profile-note-inline{margin-top:12px}}
 
+
+/* Final note presentation: compact Instagram-style bubble; only note text is shown. */
+.profile-avatar-wrap{position:relative;overflow:visible!important}
+.profile-note-bubble{position:absolute!important;left:50%!important;top:-48px!important;transform:translateX(-50%)!important;width:auto!important;min-width:92px!important;max-width:190px!important;min-height:0!important;padding:8px 12px!important;border-radius:15px 15px 15px 5px!important;border:1px solid rgba(0,0,0,.07)!important;box-shadow:0 7px 18px rgba(30,40,55,.14)!important;font-size:11px!important;font-weight:700!important;line-height:1.25!important;z-index:20!important;white-space:normal!important;word-break:break-word!important;text-align:left!important}
+.profile-note-bubble:after{content:""!important;position:absolute!important;left:18px!important;bottom:-6px!important;width:11px!important;height:11px!important;background:inherit!important;border:0!important;transform:rotate(45deg)!important;z-index:-1!important}
+.profile-note-only{max-width:166px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+
 </style>
 </head>
 <body>
@@ -803,16 +810,52 @@ function targetPage(){
       <div id="taskList">${renderTasks()}</div>
     </section>`;
 }
+const NOTE_BG_STYLES={
+  sunset:'linear-gradient(135deg,#ffd36b,#ff9f9f)',
+  sky:'linear-gradient(135deg,#aee8ff,#b7c8ff)',
+  mint:'linear-gradient(135deg,#bff5dc,#8fe8cf)',
+  lavender:'linear-gradient(135deg,#dcc7ff,#bda8ff)',
+  rose:'linear-gradient(135deg,#ffc2d6,#ff9bb7)',
+  midnight:'linear-gradient(135deg,#303846,#161c27)'
+};
+function noteBgStyle(bg){return NOTE_BG_STYLES[bg]||NOTE_BG_STYLES.sunset}
+function noteTextColor(bg){return bg==='midnight'?'#fff':'#18202a'}
+function noteAvatarHTML(){
+  return state.user.dp?`<img src="${esc(state.user.dp)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:`${esc((state.user.name||'S').charAt(0).toUpperCase())}`;
+}
+function selectNoteBg(bg){
+  if(!NOTE_BG_STYLES[bg])bg='sunset';
+  state.note.bg=bg; save();
+  const preview=document.getElementById('notePreview');
+  if(preview){preview.style.background=noteBgStyle(bg);preview.style.color=noteTextColor(bg)}
+  document.querySelectorAll('.note-swatch').forEach(b=>b.classList.toggle('active',b.getAttribute('title')===bg));
+}
+function updateNotePreview(){
+  const input=document.getElementById('noteInput');
+  const text=(input?.value||'').slice(0,80);
+  const out=document.getElementById('notePreviewText');
+  const count=document.getElementById('noteCharCount');
+  if(out)out.textContent=text||'Write a little update…';
+  if(count)count.textContent=text.length+'/80';
+}
+function clearNoteDraft(){
+  const input=document.getElementById('noteInput');
+  if(input){input.value='';updateNotePreview();input.focus()}
+}
+function saveNote(){
+  const input=document.getElementById('noteInput');
+  const text=(input?.value||'').trim();
+  if(!text)return alert('Please write a note first.');
+  state.note={text:text.slice(0,80),expires:Date.now()+24*60*60*1000,bg:state.note.bg||'sunset'};
+  save();renderApp();
+}
+
 function profilePage(){
   const noteActive=state.note.text&&state.note.expires>Date.now();
   const noteTime=noteActive?new Date(state.note.expires).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):'';
   const noteBg=state.note.bg||'sunset';
   const swatches=[['sunset',''],['sky',''],['mint',''],['lavender',''],['rose',''],['midnight','']];
-  const noteBubble=noteActive?`<div class="profile-note-bubble" style="background:${noteBgStyle(noteBg)};color:${noteTextColor(noteBg)}">
-    <div class="profile-note-head"><b>${esc(state.user.name||'Your name')}</b><span>@${esc(state.user.username||'username')}</span></div>
-    <div class="profile-note-text">${esc(state.note.text)}</div>
-    <small class="profile-note-expiry">24h note · expires ${esc(noteTime)}</small>
-  </div>`:'';
+  const noteBubble=noteActive?`<div class="profile-note-bubble" style="background:${noteBgStyle(noteBg)};color:${noteTextColor(noteBg)}" title="${esc(state.note.text)}"><div class="profile-note-only">${esc(state.note.text)}</div></div>`:'';
   return `<div class="topbar"><div><h1 class="page-title">Profile</h1><div class="page-sub">Your study identity, your way.</div></div></div>
   <section class="card profile-card profile-hero">
     <div class="profile-identity">
