@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Study C</title>
+<title>Study Circle — Focus App</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -2348,6 +2348,17 @@ overflow:hidden
   justify-items: end;
   gap: 6px;
 }
+.note-modal{position:fixed;inset:0;z-index:220;display:grid;place-items:center;padding:18px;background:rgba(16,20,26,.28);backdrop-filter:blur(8px)}
+.note-modal-box{width:min(560px,100%);border:1px solid var(--line);border-radius:24px;background:#fff;color:var(--ink);box-shadow:0 24px 70px rgba(20,30,40,.18);padding:22px}
+.note-modal-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.note-modal-title{font-size:20px;font-weight:950;letter-spacing:-.4px}
+.note-modal-close{width:36px;height:36px;border:1px solid var(--line);border-radius:12px;background:#fff;font-weight:900;font-size:18px}
+.note-compact-card{padding:14px 16px!important;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.note-compact-copy{display:flex;align-items:center;gap:11px;min-width:0}
+.note-compact-dot{width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,#ffd36b,#ff9f9f);box-shadow:0 0 0 5px rgba(255,183,107,.12)}
+.note-compact-copy b{font-size:14px;font-weight:950}
+.note-compact-copy span{display:block;font-size:10px;color:var(--muted);margin-top:2px}
+.note-open-btn{height:42px;padding:0 18px;border:0;border-radius:13px;background:#111;color:#fff;font-weight:900;white-space:nowrap}
 .help-modal,
 .app-alert-modal,
 .timer-modal {
@@ -2604,9 +2615,9 @@ function avatarHTML(size="avatar"){
   if(state.user.dp)return `<img class="${size}" src="${esc(state.user.dp)}" alt="Profile">`;
   return `<div class="${size}">🙂</div>`;
 }
-function applyTheme(){document.documentElement.setAttribute("data-theme",state.theme||"light");}
-function toggleTheme(){state.theme=(state.theme||"light")==="dark"?"light":"dark";localStorage.setItem("study_circle_theme",state.theme);applyTheme();save();renderApp();}
-function themeButton(){const dark=state.theme==="dark";return `<button class="theme-fab" onclick="toggleTheme()" aria-label="Switch to ${dark?"day":"dark"} mode"><i data-lucide="${dark?"sun":"moon"}"></i><span class="theme-text">${dark?"Day mode":"Dark mode"}</span></button>`}
+function applyTheme(){state.theme="light";localStorage.setItem("study_circle_theme","light");document.documentElement.setAttribute("data-theme","light");}
+function toggleTheme(){applyTheme();save();renderApp();}
+function themeButton(){return ""}
 applyTheme();
 
 /* ---------- onboarding ---------- */
@@ -2736,6 +2747,7 @@ function ensureStateShape(){
   if(!state.filter) state.filter="1d";
 }
 ensureStateShape();
+state.theme="light";localStorage.setItem("study_circle_theme","light");
 
 function appAlert(message,title="Study Circle"){
   let host=document.getElementById("modalHost");
@@ -3081,7 +3093,6 @@ function renderApp(){
         ${sideTarget()}
       </aside>
 
-      ${themeButton()}
       <nav class="mobile-nav">
         <button class="bottom-item ${activePage==="home"?"active":""}" onclick="navigate('home')"><i data-lucide="house"></i><small>Home</small></button>
         <button class="bottom-item add ${activePage==="add"?"active":""}" onclick="navigate('add')"><i data-lucide="plus"></i><small>Add</small></button>
@@ -3228,6 +3239,23 @@ function saveNote(){
   save();renderApp();
 }
 
+function noteComposerHTML(){
+  const noteActive=state.note.text&&state.note.expires>Date.now();
+  const noteBg=state.note.bg||'sunset';
+  const swatches=[['sunset',''],['sky',''],['mint',''],['lavender',''],['rose',''],['midnight','']];
+  return `<div class="note-modal" onclick="if(event.target===this)closeNoteComposer()">
+    <section class="note-modal-box">
+      <div class="note-modal-top"><div><div class="note-modal-title">Share a note</div><div class="hero-sub" style="margin-top:4px">Only your note text will appear above your profile photo.</div></div><button class="note-modal-close" type="button" onclick="closeNoteComposer()">×</button></div>
+      <div id="notePreview" class="note-live-preview" style="background:${noteBgStyle(noteBg)};color:${noteTextColor(noteBg)};margin-bottom:14px"><div class="note-preview-avatar">${noteAvatarHTML()}</div><div class="note-preview-copy"><p id="notePreviewText">${esc(state.note.text||'Write a little update…')}</p></div></div>
+      <div class="profile-field"><label>YOUR NOTE</label><div class="note-input-wrap"><input id="noteInput" maxlength="80" value="${esc(state.note.text)}" oninput="updateNotePreview()" placeholder="Write your note..."><span id="noteCharCount" class="note-char">${String(state.note.text||'').length}/80</span></div></div>
+      <div><div class="note-style-title">NOTE BACKGROUND</div><div class="note-style-row" style="margin-top:8px">${swatches.map(([bg])=>`<button type="button" class="note-swatch ${noteBg===bg?'active':''}" title="${bg}" aria-label="${bg} note background" onclick="selectNoteBg('${bg}')" style="background:${noteBgStyle(bg)}"></button>`).join('')}</div></div>
+      <div class="note-actions"><button class="upload-btn" onclick="saveNote()">${noteActive?'Update note':'Post for 24 hours'}</button><button class="note-clear-btn" type="button" onclick="clearNoteDraft()">Clear</button></div>
+    </section>
+  </div>`;
+}
+function openNoteComposer(){const host=document.getElementById('modalHost');if(!host)return;host.innerHTML=noteComposerHTML();setTimeout(()=>document.getElementById('noteInput')?.focus(),30);}
+function closeNoteComposer(){const host=document.getElementById('modalHost');if(host)host.innerHTML='';}
+
 function profilePage(){
   const noteActive=state.note.text&&state.note.expires>Date.now();
   const noteTime=noteActive?new Date(state.note.expires).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):'';
@@ -3242,14 +3270,9 @@ function profilePage(){
     </div>
   </section>
   <section class="card profile-card"><div class="section-title">Edit profile</div><div class="edit-grid"><div class="profile-field"><label>NAME</label><input id="editName" value="${esc(state.user.name)}"></div><div class="profile-field"><label>USERNAME • UNIQUE</label><input id="editUsername" value="${esc(state.user.username)}" maxlength="20"></div><div class="profile-field"><label>BIO</label><textarea id="editBio" placeholder="Tell people a little about you...">${esc(state.user.bio)}</textarea></div><div class="profile-field"><label>PROFILE PHOTO</label><div class="photo-picker"><div id="photoPickerPreview" class="photo-picker-preview">${state.user.dp?`<img src="${esc(state.user.dp)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:'🙂'}</div><div class="photo-picker-copy"><b>Choose a profile picture</b><span>Upload from your device • JPG, PNG, WebP</span></div><button type="button" onclick="document.getElementById('dpFile').click()">Choose photo</button><input id="dpFile" class="hidden" type="file" accept="image/*" onchange="previewDP(event)"></div></div><button class="save-btn" onclick="saveProfile()">Save profile</button></div></section>
-  <section class="card profile-card"><div class="section-title">Share a note</div><div class="hero-sub" style="margin:5px 0 14px">A small 24-hour update with your name and username.</div>
-    <div class="note-composer">
-      <div class="note-compose-head"><div class="note-compose-user"><div class="note-compose-avatar">${noteAvatarHTML()}</div><div><b>${esc(state.user.name||'Your name')}</b><span>@${esc(state.user.username||'username')} · 24 hours</span></div></div><span class="hero-sub" style="font-size:9px">${noteActive?'Live now':'Ready to share'}</span></div>
-      <div id="notePreview" class="note-live-preview" style="background:${noteBgStyle(noteBg)};color:${noteTextColor(noteBg)}"><div class="note-preview-avatar">${noteAvatarHTML()}</div><div class="note-preview-copy"><b>${esc(state.user.name||'Your name')}</b><span>@${esc(state.user.username||'username')}</span><p id="notePreviewText">${esc(state.note.text||'Write a little update…')}</p></div></div>
-      <div class="profile-field"><label>YOUR NOTE</label><div class="note-input-wrap"><input id="noteInput" maxlength="80" value="${esc(state.note.text)}" oninput="updateNotePreview()" placeholder="e.g. 8 hours today. I can do this."><span id="noteCharCount" class="note-char">${String(state.note.text||'').length}/80</span></div></div>
-      <div><div class="note-style-title">NOTE BACKGROUND</div><div class="note-style-row" style="margin-top:8px">${swatches.map(([bg])=>`<button type="button" class="note-swatch ${noteBg===bg?'active':''}" title="${bg}" aria-label="${bg} note background" onclick="selectNoteBg('${bg}')" style="background:${noteBgStyle(bg)}"></button>`).join('')}</div></div>
-      <div class="note-actions"><button class="upload-btn" onclick="saveNote()">${noteActive?'Update note':'Post for 24 hours'}</button><button class="note-clear-btn" type="button" onclick="clearNoteDraft()">Clear</button></div>
-    </div>
+  <section class="card profile-card note-compact-card">
+    <div class="note-compact-copy"><div class="note-compact-dot"></div><div><b>Share a note</b><span>Post a short 24-hour update</span></div></div>
+    <button class="note-open-btn" type="button" onclick="openNoteComposer()">Share a note</button>
   </section>
   <section class="card profile-card logout-card"><div class="logout-row"><div class="logout-copy"><b>Account</b><span>Sign out of your Study Circle account on this device.</span></div><button class="logout-btn" onclick="logout()">Log out</button></div></section>`;
 }
