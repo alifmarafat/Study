@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>StudyYY App</title>
+<title>Study</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -1486,9 +1486,9 @@ function renderChatSearchResults(users=[],message=""){
 function chatUserRow(u,searchMode=false){
   const isMe=u.uid===currentUid();
   return `<div class="chat-user-row">
-    <button type="button" onclick="openUserProfile('${esc(u.uid)}')" style="background:transparent;padding:0">${chatAvatarHTML(u)}</button>
-    <div class="chat-user-info" onclick="openUserProfile('${esc(u.uid)}')"><div class="chat-user-name">${esc(u.name||"Study User")}</div><div class="chat-user-handle">@${esc(u.username||"username")}</div></div>
-    ${isMe?"":`<div class="chat-user-actions"><button class="chat-message-small" onclick="openChat('${esc(u.uid)}')">Message</button><button class="chat-follow-btn" id="follow-${esc(u.uid)}" onclick="toggleFollow('${esc(u.uid)}',this)">Add</button></div>`}
+    <button type="button" onclick="event.stopPropagation();openUserProfile('${esc(u.uid)}')" style="background:transparent;padding:0">${chatAvatarHTML(u)}</button>
+    <div class="chat-user-info" onclick="event.stopPropagation();openUserProfile('${esc(u.uid)}')"><div class="chat-user-name">${esc(u.name||"Study User")}</div><div class="chat-user-handle">@${esc(u.username||"username")}</div></div>
+    ${isMe?"":`<div class="chat-user-actions"><button type="button" class="chat-message-small" onclick="event.stopPropagation();openChat('${esc(u.uid)}')">Message</button><button type="button" class="chat-follow-btn" id="follow-${esc(u.uid)}" onclick="event.stopPropagation();toggleFollow('${esc(u.uid)}',this)">Add</button></div>`}
   </div>`;
 }
 
@@ -1524,14 +1524,19 @@ function loadChatList(){
 
 async function openChat(otherUid){
   if(!currentUid()||!otherUid||otherUid===currentUid())return;
-  const user=chatListProfilesCache[otherUid] || await fetchPublicProfile(otherUid);
-  if(!user)return;
-  selectedChatUser=user;
-  selectedChatId=chatIdFor(currentUid(),otherUid);
-  await refreshBlockState(otherUid);
-  renderChatWindow();
-  subscribeToMessages();
-  loadChatList();
+  try{
+    const user=chatListProfilesCache[otherUid] || await fetchPublicProfile(otherUid);
+    if(!user){alert("This user profile could not be loaded, so the chat cannot open.");return;}
+    selectedChatUser=user;
+    selectedChatId=chatIdFor(currentUid(),otherUid);
+    await refreshBlockState(otherUid);
+    renderChatWindow();
+    subscribeToMessages();
+    loadChatList();
+  }catch(err){
+    console.error("Open chat failed",err);
+    alert(`Chat could not open: ${err?.message||"Unknown error"}`);
+  }
 }
 async function fetchPublicProfile(uid){
   if(!firebaseReady)return null;
@@ -1618,23 +1623,35 @@ async function toggleFollow(targetUid,btn){
     const existing=await getDoc(ref);
     if(existing.exists()){
       await deleteDoc(ref);
-      try{await deleteDoc(doc(firestore,"publicProfiles",currentUid(),"following",targetUid))}catch(e){}
-      await publishMyPublicProfile();
       if(btn){btn.textContent="Add";btn.classList.remove("following")}
+      // Keep the owner's following mirror/count in sync, but never let a
+      // secondary sync failure undo a successful follow/unfollow.
+      try{await deleteDoc(doc(firestore,"publicProfiles",currentUid(),"following",targetUid))}catch(e){console.warn("Following mirror delete failed",e)}
+      try{await syncFollowingCount()}catch(e){console.warn("Following count sync failed",e)}
       return false;
-    }else{
-      await setDoc(ref,{followerId:currentUid(),followingId:targetUid,createdAt:serverTimestamp()},{merge:true});
-      try{await setDoc(doc(firestore,"publicProfiles",currentUid(),"following",targetUid),{followingId:targetUid,createdAt:serverTimestamp()},{merge:true})}catch(e){}
-      await publishMyPublicProfile();
-      if(btn){btn.textContent="Added";btn.classList.add("following")}
-      return true;
     }
+
+    // This is the authoritative follow write. Firestore rules allow the
+    // signed-in follower to create exactly their own follower document.
+    await setDoc(ref,{followerId:currentUid(),followingId:targetUid,createdAt:serverTimestamp()},{merge:true});
+    if(btn){btn.textContent="Added";btn.classList.add("following")}
+
+    // Mirror + profile count are secondary and cannot break the Add action.
+    try{await setDoc(doc(firestore,"publicProfiles",currentUid(),"following",targetUid),{followingId:targetUid,createdAt:serverTimestamp()},{merge:true})}catch(e){console.warn("Following mirror write failed",e)}
+    try{await syncFollowingCount()}catch(e){console.warn("Following count sync failed",e)}
+    return true;
   }catch(err){
     console.error("Follow update failed",err);
     if(btn){btn.textContent="Add";btn.classList.remove("following")}
-    alert("Could not update follow status. Please make sure the Firestore rules below are applied.");
+    alert(`Could not update follow status: ${err?.message||"Firebase permission error"}`);
     return false;
   }
+}
+
+async function syncFollowingCount(){
+  if(!firebaseReady||!firebaseUser||!firestore)return;
+  const count=(await getDocs(collection(firestore,"publicProfiles",firebaseUser.uid,"following"))).size;
+  await setDoc(doc(firestore,"publicProfiles",firebaseUser.uid),{followingCount:count,updatedAt:serverTimestamp()},{merge:true});
 }
 async function isFollowing(targetUid){
   if(!firebaseReady||!currentUid()||targetUid===currentUid())return false;
@@ -1644,31 +1661,42 @@ async function isFollowing(targetUid){
 let userProfileChart=null;
 async function openUserProfile(uid){
   if(!firebaseReady||!uid)return;
-  const u=await fetchPublicProfile(uid);if(!u)return;
-  const [followersSnap,following,]=await Promise.all([
-    getDocs(collection(firestore,"publicProfiles",uid,"followers")),
-    uid!==currentUid()?isFollowing(uid):false
-  ]);
-  /* Following count is read from the user's own public profile summary when
-     available; this keeps profile opening fast and avoids cross-user writes. */
-  const followingCount=Math.max(0,Number(u.followingCount)||0);
-  const blockedMine=uid!==currentUid()?(await getDoc(doc(firestore,"blocks",`${currentUid()}_${uid}`))).exists():false;
-  const totalStudySeconds=Math.max(0,Number(u.totalSeconds)||0);
-  const breakdown=Array.isArray(u.subjectBreakdown)?u.subjectBreakdown:[];
-  const topSubject=u.topSubject||breakdown[0]?.name||"No subject yet";
-  document.getElementById("modalHost").innerHTML=`<div class="chat-profile-modal" onclick="if(event.target===this)closeUserProfile()"><section class="chat-profile-box">
-    <div class="chat-profile-top"><button type="button" onclick="closeUserProfile()" class="close-round" style="position:absolute;right:26px;top:22px">×</button>${chatAvatarHTML(u,"chat-profile-big-avatar")}<div class="chat-profile-name">${esc(u.name||"Study User")}</div><div class="chat-profile-handle">@${esc(u.username||"username")}</div><div class="chat-status ${u.studyStatus!=="Studying"?"offline":""}"><i data-lucide="${u.studyStatus==="Studying"?"book-open":"circle"}" style="width:12px;height:12px"></i>${u.studyStatus||"Available"}</div></div>
-    <div class="chat-profile-stats"><div class="chat-profile-stat"><b>${followersSnap.size}</b><span>Followers</span></div><div class="chat-profile-stat"><b>${followingCount}</b><span>Following</span></div></div>
-    <div class="chat-profile-bio">${esc(u.bio||"No bio yet.")}</div>
-    <div class="chat-profile-study"><div class="chat-profile-study-head"><span class="chat-profile-study-title">STUDY TIME</span><span class="chat-profile-study-total">${fmt(totalStudySeconds)}</span></div><div class="chat-profile-chart"><canvas id="userProfileStudyChart"></canvas></div><div class="chat-profile-top-subject"><span>Most studied subject</span><b>${esc(topSubject)}</b></div></div>
-    ${uid!==currentUid()?`<div class="chat-profile-actions"><button class="chat-profile-message" onclick="closeUserProfile();openChat('${esc(uid)}')">Message</button><button class="chat-profile-close" onclick="toggleFollowFromProfile('${esc(uid)}',this)">${following?"Added":"Add"}</button></div><button class="chat-profile-block" onclick="toggleBlockUser('${esc(uid)}',${blockedMine})">${blockedMine?"Unblock user":"Block user"}</button>`:`<div class="chat-profile-actions"><button class="chat-profile-close" style="grid-column:1/-1" onclick="closeUserProfile()">Close</button></div>`}
-  </section></div>`;
-  const chartEl=document.getElementById("userProfileStudyChart");
-  if(userProfileChart){try{userProfileChart.destroy()}catch(e){}}
-  if(chartEl&&breakdown.length){
-    userProfileChart=new Chart(chartEl,{type:"doughnut",data:{labels:breakdown.map(x=>x.name),datasets:[{data:breakdown.map(x=>x.seconds),backgroundColor:breakdown.map((_,i)=>["#8f36c9","#ef2670","#e2c51a","#42c8ef","#54b95b","#ff9f43","#6c7cff","#9aa3ad"][i%8]),borderColor:"#fff",borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:"68%",plugins:{legend:{position:"bottom",labels:{boxWidth:9,font:{size:9,weight:"700"},padding:8}},tooltip:{callbacks:{label:c=>` ${c.label}: ${fmt(c.raw)}`}}}}});
+  try{
+    const u=await fetchPublicProfile(uid);
+    if(!u){alert("This user profile could not be loaded.");return;}
+
+    let followerCount=0;
+    try{followerCount=(await getDocs(collection(firestore,"publicProfiles",uid,"followers"))).size}catch(e){console.warn("Follower count read failed",e)}
+    let following=false;
+    if(uid!==currentUid())following=await isFollowing(uid);
+    let blockedMine=false;
+    if(uid!==currentUid()){
+      try{blockedMine=(await getDoc(doc(firestore,"blocks",`${currentUid()}_${uid}`))).exists()}catch(e){console.warn("Block state read failed",e)}
+    }
+
+    const followingCount=Math.max(0,Number(u.followingCount)||0);
+    const totalStudySeconds=Math.max(0,Number(u.totalSeconds)||0);
+    const breakdown=Array.isArray(u.subjectBreakdown)?u.subjectBreakdown:[];
+    const topSubject=u.topSubject||breakdown[0]?.name||"No subject yet";
+    const host=document.getElementById("modalHost");
+    if(!host)return;
+    host.innerHTML=`<div class="chat-profile-modal" onclick="if(event.target===this)closeUserProfile()"><section class="chat-profile-box">
+      <div class="chat-profile-top"><button type="button" onclick="closeUserProfile()" class="close-round" style="position:absolute;right:26px;top:22px">×</button>${chatAvatarHTML(u,"chat-profile-big-avatar")}<div class="chat-profile-name">${esc(u.name||"Study User")}</div><div class="chat-profile-handle">@${esc(u.username||"username")}</div><div class="chat-status ${u.studyStatus!=="Studying"?"offline":""}"><i data-lucide="${u.studyStatus==="Studying"?"book-open":"circle"}" style="width:12px;height:12px"></i>${u.studyStatus||"Available"}</div></div>
+      <div class="chat-profile-stats"><div class="chat-profile-stat"><b>${followerCount}</b><span>Followers</span></div><div class="chat-profile-stat"><b>${followingCount}</b><span>Following</span></div></div>
+      <div class="chat-profile-bio">${esc(u.bio||"No bio yet.")}</div>
+      <div class="chat-profile-study"><div class="chat-profile-study-head"><span class="chat-profile-study-title">STUDY TIME</span><span class="chat-profile-study-total">${fmt(totalStudySeconds)}</span></div><div class="chat-profile-chart"><canvas id="userProfileStudyChart"></canvas></div><div class="chat-profile-top-subject"><span>Most studied subject</span><b>${esc(topSubject)}</b></div></div>
+      ${uid!==currentUid()?`<div class="chat-profile-actions"><button type="button" class="chat-profile-message" onclick="event.stopPropagation();closeUserProfile();openChat('${esc(uid)}')">Message</button><button type="button" class="chat-profile-close" onclick="event.stopPropagation();toggleFollowFromProfile('${esc(uid)}',this)">${following?"Added":"Add"}</button></div><button type="button" class="chat-profile-block" onclick="event.stopPropagation();toggleBlockUser('${esc(uid)}',${blockedMine})">${blockedMine?"Unblock user":"Block user"}</button>`:`<div class="chat-profile-actions"><button type="button" class="chat-profile-close" style="grid-column:1/-1" onclick="closeUserProfile()">Close</button></div>`}
+    </section></div>`;
+    const chartEl=document.getElementById("userProfileStudyChart");
+    if(userProfileChart){try{userProfileChart.destroy()}catch(e){}userProfileChart=null}
+    if(chartEl&&breakdown.length&&window.Chart){
+      userProfileChart=new Chart(chartEl,{type:"doughnut",data:{labels:breakdown.map(x=>x.name),datasets:[{data:breakdown.map(x=>x.seconds),backgroundColor:breakdown.map((_,i)=>["#8f36c9","#ef2670","#e2c51a","#42c8ef","#54b95b","#ff9f43","#6c7cff","#9aa3ad"][i%8]),borderColor:"#fff",borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:"68%",plugins:{legend:{position:"bottom",labels:{boxWidth:9,font:{size:9,weight:"700"},padding:8}},tooltip:{callbacks:{label:c=>` ${c.label}: ${fmt(c.raw)}`}}}}});
+    }
+    if(window.lucide)lucide.createIcons();
+  }catch(err){
+    console.error("Open profile failed",err);
+    alert(`Profile could not open: ${err?.message||"Unknown error"}`);
   }
-  if(window.lucide)lucide.createIcons();
 }
 function closeUserProfile(){if(userProfileChart){try{userProfileChart.destroy()}catch(e){}userProfileChart=null}const h=document.getElementById("modalHost");if(h)h.innerHTML=""}
 async function toggleFollowFromProfile(uid,btn){await toggleFollow(uid,btn);openUserProfile(uid)}
