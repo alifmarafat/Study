@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>AG</title>
+<title>Chek</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -836,6 +836,137 @@ body:has(.chat-inbox-page){
 .chat-list-item .chat-list-unread-dot{display:none}
 .chat-list-item.unread .chat-list-unread-dot{display:block}
 
+
+/* ============================================================
+   FINAL CHAT + TIMER POLISH
+   - Ignore empty/legacy message documents in the renderer
+   - Desktop hover actions; mobile long-press actions
+   - Instagram-like animated reaction picker
+   - No notification sound on initial chat load
+   - Minimizable study timer that keeps running across sections
+   ============================================================ */
+
+.chat-bubble-wrap{position:relative}
+
+.chat-hover-actions{
+  position:absolute;
+  top:-38px;
+  right:0;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  padding:5px 7px;
+  border-radius:18px;
+  background:rgba(255,255,255,.98);
+  border:1px solid rgba(20,25,35,.08);
+  box-shadow:0 10px 28px rgba(20,28,38,.18);
+  backdrop-filter:blur(18px);
+  opacity:0;
+  transform:translateY(5px) scale(.94);
+  pointer-events:none;
+  transition:opacity .16s ease,transform .16s cubic-bezier(.2,.8,.2,1);
+  z-index:20;
+}
+.chat-bubble-row.mine .chat-hover-actions{right:0}
+.chat-bubble-row:not(.mine) .chat-hover-actions{left:0;right:auto}
+.chat-bubble-wrap:hover .chat-hover-actions,
+.chat-bubble:focus-visible + .chat-hover-actions{
+  opacity:1;
+  transform:translateY(0) scale(1);
+  pointer-events:auto;
+}
+.chat-hover-actions button{
+  width:30px;height:30px;border:0;border-radius:50%;
+  background:#f4f5f7;display:grid;place-items:center;
+  font-size:14px;cursor:pointer;
+  transition:transform .16s ease,background .16s ease;
+}
+.chat-hover-actions button:hover{transform:scale(1.18);background:#e9edf2}
+.chat-hover-actions .hover-reply{font-size:13px}
+.chat-hover-actions .hover-delete{color:#ef476f}
+
+.chat-reaction-picker{
+  position:fixed;
+  z-index:280;
+  display:flex;
+  align-items:center;
+  gap:3px;
+  padding:6px 8px;
+  border-radius:25px;
+  background:rgba(255,255,255,.98);
+  border:1px solid rgba(20,25,35,.08);
+  box-shadow:0 18px 50px rgba(20,28,38,.22);
+  backdrop-filter:blur(20px);
+  transform-origin:center bottom;
+  animation:igReactionPickerIn .20s cubic-bezier(.2,.9,.2,1) both;
+}
+.chat-reaction-picker button{
+  width:38px;height:38px;
+  border:0;background:transparent;border-radius:50%;
+  font-size:23px;cursor:pointer;
+  transform:translateY(8px) scale(.55);
+  animation:igReactionItemIn .28s cubic-bezier(.2,1.45,.3,1) forwards;
+}
+.chat-reaction-picker button:nth-child(2){animation-delay:.018s}
+.chat-reaction-picker button:nth-child(3){animation-delay:.036s}
+.chat-reaction-picker button:nth-child(4){animation-delay:.054s}
+.chat-reaction-picker button:nth-child(5){animation-delay:.072s}
+.chat-reaction-picker button:nth-child(6){animation-delay:.09s}
+.chat-reaction-picker button:hover{transform:scale(1.22)!important}
+@keyframes igReactionPickerIn{
+  from{opacity:0;transform:translateY(7px) scale(.72)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes igReactionItemIn{
+  to{transform:translateY(0) scale(1)}
+}
+.chat-reaction-pop{
+  position:absolute;
+  z-index:25;
+  pointer-events:none;
+  font-size:23px;
+  animation:igReactionPop .72s cubic-bezier(.18,.8,.22,1) both;
+}
+@keyframes igReactionPop{
+  0%{opacity:0;transform:translateY(10px) scale(.3)}
+  18%{opacity:1;transform:translateY(-2px) scale(1.25)}
+  65%{opacity:1;transform:translateY(-27px) scale(1)}
+  100%{opacity:0;transform:translateY(-48px) scale(.78)}
+}
+
+.timer-minimize-btn{
+  min-width:38px;height:38px;border:0;border-radius:12px;
+  background:#f2f3f5;font-weight:900;font-size:18px;cursor:pointer;
+}
+.timer-minimized{
+  position:fixed;
+  right:22px;
+  bottom:22px;
+  z-index:220;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 12px 9px 14px;
+  border-radius:18px;
+  background:rgba(255,255,255,.97);
+  border:1px solid rgba(20,25,35,.10);
+  box-shadow:0 16px 45px rgba(20,28,38,.22);
+  backdrop-filter:blur(18px);
+}
+.timer-minimized strong{font:900 14px Nunito;min-width:78px}
+.timer-minimized small{display:block;color:#8a919b;font-size:8px;font-weight:800}
+.timer-minimized .timer-mini-open,
+.timer-minimized .timer-mini-close{
+  border:0;border-radius:10px;height:34px;padding:0 10px;
+  font-weight:900;cursor:pointer;
+}
+.timer-minimized .timer-mini-open{background:#111;color:#fff}
+.timer-minimized .timer-mini-close{background:#f2f3f5}
+@media(max-width:700px){
+  .timer-minimized{right:12px;bottom:78px}
+  .chat-hover-actions{display:none!important}
+}
+
 </style>
 </head>
 <body>
@@ -969,6 +1100,7 @@ state.target = {...{minutes:480,done:0,date:"",running:false,startedAt:0},...(st
 
 let chart=null;
 let timer=null;
+let timerMinimized=false;
 let timerState={subject:null,remaining:0,total:0,running:false,startedAt:0};
 
 function save(){localStorage.setItem(KEY,JSON.stringify(state)); syncCloud(); if(firebaseReady&&firebaseUser) syncPublicProfile()}
@@ -1344,45 +1476,93 @@ function drawChart(){
 /* ---------- timer ---------- */
 function openTimer(id){
   const s=state.subjects.find(x=>x.id===id);if(!s)return;
+  clearInterval(timer);timer=null;
   timerState={subject:s,remaining:3600,total:3600,running:false,startedAt:0};
-  document.getElementById("modalHost").innerHTML=`
+  timerMinimized=false;
+  renderTimerModal();
+}
+function renderTimerModal(){
+  const s=timerState.subject;if(!s)return;
+  const host=document.getElementById("modalHost");if(!host)return;
+  host.innerHTML=`
     <div class="timer-modal">
       <section class="timer-box">
-        <div class="timer-top"><div class="timer-subject"><i data-lucide="${esc(s.icon||"book-open")}" class="icon-svg"></i> ${esc(s.name)}</div><button class="close-round" onclick="closeTimer()">×</button></div>
-        <div class="duration-row">
-          ${[15,30,60,120].map(m=>`<button class="duration ${m===60?"active":""}" onclick="chooseDuration(${m},this)">${m<60?m+" min":m/60+" h"}</button>`).join("")}
+        <div class="timer-top">
+          <div class="timer-subject"><i data-lucide="${esc(s.icon||"book-open")}" class="icon-svg"></i> ${esc(s.name)}</div>
+          <div style="display:flex;gap:7px;align-items:center">
+            <button class="timer-minimize-btn" title="Minimize timer" onclick="minimizeTimer()">−</button>
+            <button class="close-round" onclick="closeTimer()">×</button>
+          </div>
         </div>
-        <div class="clock"><div><strong id="timerDisplay">01:00:00</strong><small>focus time</small></div></div>
+        <div class="duration-row">
+          ${[15,30,60,120].map(m=>`<button class="duration ${m===Math.round(timerState.total/60)?"active":""}" onclick="chooseDuration(${m},this)">${m<60?m+" min":m/60+" h"}</button>`).join("")}
+        </div>
+        <div class="clock"><div><strong id="timerDisplay">${fmtClock(timerState.remaining)}</strong><small>focus time</small></div></div>
         <div class="timer-actions">
           <button class="timer-action" onclick="resetTimer()">Reset</button>
-          <button class="timer-action primary" id="timerPlay" onclick="toggleTimer()">Start</button>
+          <button class="timer-action primary" id="timerPlay" onclick="toggleTimer()">${timerState.running?"Pause":(timerState.startedAt?"Resume":"Start")}</button>
           <button class="timer-action" onclick="finishTimer()">Done</button>
         </div>
       </section>
     </div>`;
-  if(window.lucide) lucide.createIcons();
+  if(window.lucide)lucide.createIcons();
+}
+function minimizeTimer(){
+  const host=document.getElementById("modalHost");if(!host)return;
+  timerMinimized=true;
+  host.innerHTML=`
+    <div class="timer-minimized" id="timerMinimized">
+      <div><small>${esc(timerState.subject?.name||"Focus")}</small><strong id="timerMiniDisplay">${fmtClock(timerState.remaining)}</strong></div>
+      <button class="timer-mini-open" onclick="restoreTimer()">Open</button>
+      <button class="timer-mini-close" onclick="closeTimer()">×</button>
+    </div>`;
+}
+function restoreTimer(){
+  timerMinimized=false;
+  renderTimerModal();
+}
+function updateTimerMiniUI(){
+  const el=document.getElementById("timerMiniDisplay");
+  if(el)el.textContent=fmtClock(timerState.remaining);
 }
 function chooseDuration(min,btn){
   clearInterval(timer);timer=null;
   document.querySelectorAll(".duration").forEach(x=>x.classList.remove("active"));btn.classList.add("active");
-  timerState.total=timerState.remaining=min*60;timerState.running=false;
-  document.getElementById("timerPlay").textContent="Start";updateTimerUI();
+  timerState.total=timerState.remaining=min*60;timerState.running=false;timerState.startedAt=0;
+  document.getElementById("timerPlay").textContent="Start";
+  updateTimerUI();updateTimerMiniUI();
 }
 function toggleTimer(){
   if(timerState.running){pauseTimer();return}
   timerState.running=true;
-  timerState.startedAt=Date.now();
-  document.getElementById("timerPlay").textContent="Pause";
+  timerState.startedAt=timerState.startedAt||Date.now();
+  const btn=document.getElementById("timerPlay");if(btn)btn.textContent="Pause";
   if(firebaseReady&&firebaseUser)syncPublicProfile();
+  clearInterval(timer);
   timer=setInterval(()=>{
-    timerState.remaining--;
-    updateTimerUI();
-    if(timerState.remaining<=0){clearInterval(timer);timer=null;timerState.running=false;completeTimer()}
+    timerState.remaining=Math.max(0,timerState.remaining-1);
+    updateTimerUI();updateTimerMiniUI();
+    if(timerState.remaining<=0){
+      clearInterval(timer);timer=null;timerState.running=false;completeTimer();
+    }
   },1000);
 }
-function pauseTimer(){clearInterval(timer);timer=null;timerState.running=false;document.getElementById("timerPlay").textContent="Resume";if(firebaseReady&&firebaseUser)syncPublicProfile()}
-function resetTimer(){clearInterval(timer);timer=null;timerState.remaining=timerState.total;timerState.running=false;document.getElementById("timerPlay").textContent="Start";updateTimerUI();if(firebaseReady&&firebaseUser)syncPublicProfile()}
-function updateTimerUI(){const el=document.getElementById("timerDisplay");if(el)el.textContent=fmtClock(timerState.remaining)}
+function pauseTimer(){
+  clearInterval(timer);timer=null;timerState.running=false;
+  const btn=document.getElementById("timerPlay");if(btn)btn.textContent="Resume";
+  updateTimerMiniUI();
+  if(firebaseReady&&firebaseUser)syncPublicProfile();
+}
+function resetTimer(){
+  clearInterval(timer);timer=null;timerState.remaining=timerState.total;timerState.running=false;timerState.startedAt=0;
+  const btn=document.getElementById("timerPlay");if(btn)btn.textContent="Start";
+  updateTimerUI();updateTimerMiniUI();
+  if(firebaseReady&&firebaseUser)syncPublicProfile();
+}
+function updateTimerUI(){
+  const el=document.getElementById("timerDisplay");if(el)el.textContent=fmtClock(timerState.remaining);
+  updateTimerMiniUI();
+}
 function finishTimer(){
   const elapsed=timerState.total-timerState.remaining;
   if(elapsed<1){closeTimer();return}
@@ -1401,7 +1581,12 @@ function completeTimer(){
   closeTimer();
   showComplete(elapsed,timerState.subject.name);
 }
-function closeTimer(){clearInterval(timer);timer=null;const host=document.getElementById("modalHost");if(host)host.innerHTML=""}
+function closeTimer(){
+  clearInterval(timer);timer=null;
+  timerState.running=false;
+  timerMinimized=false;
+  const host=document.getElementById("modalHost");if(host)host.innerHTML="";
+}
 function showComplete(seconds,subject){
   const host=document.getElementById("modalHost");
   host.innerHTML=`<div class="complete-modal"><section class="complete-box"><div class="complete-art">🦔🎉</div><div class="complete-time">${fmt(seconds)} of focus</div><h2 class="complete-title">You did great!</h2><p class="hero-sub">${esc(subject)} session completed. Keep your little streak going.</p><div class="complete-actions"><button onclick="closeComplete()">Continue</button><button onclick="closeComplete();navigate('target')">View target</button></div></section></div>`;
@@ -2244,6 +2429,42 @@ function closeChatActionMenu(){
   if(old)old.remove();
   activeChatActionId="";
 }
+
+function closeReactionPicker(){
+  const old=document.getElementById("chatReactionPicker");
+  if(old)old.remove();
+}
+function showReactionPicker(message,anchor){
+  closeReactionPicker();
+  if(!message||!anchor)return;
+  const picker=document.createElement("div");
+  picker.id="chatReactionPicker";
+  picker.className="chat-reaction-picker";
+  const emojis=["❤️","😂","😮","😢","👍","👏"];
+  picker.innerHTML=emojis.map(e=>`<button type="button" aria-label="React ${e}" onclick="reactToChatMessage('${esc(message.id)}','${esc(e)}');event.stopPropagation()">${e}</button>`).join("");
+  document.body.appendChild(picker);
+  const r=anchor.getBoundingClientRect();
+  const w=picker.offsetWidth||260, h=picker.offsetHeight||52;
+  const left=Math.max(8,Math.min(window.innerWidth-w-8,r.left+(r.width/2)-(w/2)));
+  const top=Math.max(8,r.top-h-10);
+  picker.style.left=left+"px";
+  picker.style.top=top+"px";
+  setTimeout(()=>document.addEventListener("click",closeReactionPicker,{once:true}),0);
+}
+function openReactionPickerById(id,anchor){
+  const el=document.querySelector(`[data-message-id="${CSS.escape(id)}"]`);
+  if(el&&el.__message)showReactionPicker(el.__message,anchor||el);
+}
+function showReactionPop(el,emoji){
+  const wrap=el?.closest?.(".chat-bubble-wrap");if(!wrap)return;
+  const pop=document.createElement("span");
+  pop.className="chat-reaction-pop";
+  pop.textContent=emoji;
+  pop.style.left=(el.offsetWidth/2-12)+"px";
+  pop.style.bottom="8px";
+  wrap.appendChild(pop);
+  setTimeout(()=>pop.remove(),750);
+}
 function showChatActionMenu(message,anchor){
   closeChatActionMenu();
   activeChatActionId=message.id;
@@ -2281,6 +2502,8 @@ async function reactToChatMessage(id,emoji){
     if(i>=0)list.splice(i,1);else list.push(currentUid());
     if(list.length)reactions[emoji]=list;else delete reactions[emoji];
     await updateDoc(ref,{reactions});
+    const bubble=document.querySelector(`[data-message-id="${CSS.escape(id)}"]`);
+    if(bubble)showReactionPop(bubble,emoji);
   }catch(err){console.warn("Reaction update failed",err);alert("Reaction could not be saved. Check your Firestore message update permission.")}
 }
 async function deleteChatMessage(id){
@@ -2302,7 +2525,7 @@ function bindChatMessagePress(el,message){
     moved=false;
     const t=e.touches?.[0];if(!t)return;
     const x=t.clientX,y=t.clientY;
-    timer=setTimeout(()=>{if(!moved)showChatActionMenu(message,el)},520);
+    timer=setTimeout(()=>{if(!moved)showReactionPicker(message,el)},520);
     el.__pressStart={x,y};
   },{passive:true});
   el.addEventListener("touchmove",e=>{
@@ -2334,7 +2557,11 @@ function subscribeToMessages(forChatId){
     const h=getHost();
     if(!h)return;
 
-    const docs=snap.docs.filter(d=>messageBelongsToChat(d.data(), expectedId, me, other));
+    // Only real messages are rendered. Legacy/accidental documents with
+    // missing or blank text must never appear as a timestamp-only bubble.
+    const docs=snap.docs
+      .filter(d=>messageBelongsToChat(d.data(), expectedId, me, other))
+      .filter(d=>String(d.data()?.text??"").trim().length>0);
 
     if(!docs.length){
       h.innerHTML=`<div class="chat-empty"><strong>Messages exchanged with your friends will be displayed here.</strong></div>`;
@@ -2344,9 +2571,10 @@ function subscribeToMessages(forChatId){
     }
 
     let shouldSound=false;
+    const initialMessageSnapshot = (lastMsgCount===0 && knownMsgIds.size===0);
     docs.forEach(d=>{
       const m=d.data();
-      if(!knownMsgIds.has(d.id) && m.senderId!==me && lastMsgCount>0){
+      if(!initialMessageSnapshot && !knownMsgIds.has(d.id) && m.senderId!==me && lastMsgCount>0){
         shouldSound=true;
       }
       knownMsgIds.add(d.id);
@@ -2364,7 +2592,12 @@ function subscribeToMessages(forChatId){
       const reactions=m.reactions||{};
       const reactionHTML=Object.entries(reactions).filter(([_,ids])=>Array.isArray(ids)&&ids.length).map(([emoji,ids])=>`<button class="chat-reaction-chip" onclick="reactToChatMessage('${esc(d.id)}','${esc(emoji)}');event.stopPropagation()">${emoji} ${ids.length}</button>`).join("");
       const replyHTML=reply?`<div class="chat-bubble-reply"><b>${esc(reply.senderName||"User")}</b><br>${escapeChatText(reply.text||"")}</div>`:"";
-      return `<div class="chat-bubble-row ${mine?"mine":""}" data-message-row="${esc(d.id)}"><div class="chat-bubble-wrap"><div class="chat-bubble" data-message-id="${esc(d.id)}">${replyHTML}${escapeChatText(m.text)}<div class="chat-bubble-time">${formatChatTime(m.createdAt)}</div></div>${reactionHTML?`<div class="chat-reaction-line">${reactionHTML}</div>`:""}</div></div>`;
+      const hoverActions=`<div class="chat-hover-actions" onmouseenter="event.stopPropagation()">
+        <button title="React" onclick="openReactionPickerById('${esc(d.id)}',this);event.stopPropagation()">😊</button>
+        <button class="hover-reply" title="Reply" onclick="setChatReplyById('${esc(d.id)}');event.stopPropagation()">↩</button>
+        ${mine?`<button class="hover-delete" title="Delete" onclick="deleteChatMessage('${esc(d.id)}');event.stopPropagation()">🗑</button>`:""}
+      </div>`;
+      return `<div class="chat-bubble-row ${mine?"mine":""}" data-message-row="${esc(d.id)}"><div class="chat-bubble-wrap"><div class="chat-bubble" data-message-id="${esc(d.id)}">${replyHTML}${escapeChatText(m.text)}<div class="chat-bubble-time">${formatChatTime(m.createdAt)}</div></div>${hoverActions}${reactionHTML?`<div class="chat-reaction-line">${reactionHTML}</div>`:""}</div></div>`;
     }).join("");
     docs.forEach(d=>{
       const el=h.querySelector(`[data-message-id="${CSS.escape(d.id)}"]`);
