@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Study Circle — Focus App</title>
+<title>Study — Focus App</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -494,8 +495,25 @@ function getFirestore(){return firebase.firestore()}
 function GoogleAuthProvider(){return new firebase.auth.GoogleAuthProvider()}
 function signInWithPopup(a,p){return a.signInWithPopup(p)}
 function onAuthStateChanged(a,cb){return a.onAuthStateChanged(cb)}
-function collection(parent,name){return parent.collection(name)}
-function doc(parent,name,id){return id===undefined?parent.doc(name):parent.collection(name).doc(id)}
+function pathRef(parent,segments,finalType){
+  const parts=segments.filter(x=>x!==undefined&&x!==null&&String(x)!=="").map(String);
+  if(!parts.length)throw new Error("Firestore path is empty");
+  let ref=parent;
+  for(let i=0;i<parts.length;i++){
+    if(i===0){
+      ref=ref.collection(parts[i]);
+    }else if(i===parts.length-1&&finalType==="doc"){
+      ref=ref.doc(parts[i]);
+    }else if(i%2===1){
+      ref=ref.doc(parts[i]);
+    }else{
+      ref=ref.collection(parts[i]);
+    }
+  }
+  return ref;
+}
+function collection(parent,...segments){return pathRef(parent,segments,"collection")}
+function doc(parent,...segments){return pathRef(parent,segments,"doc")}
 function getDoc(ref){return ref.get()}
 function setDoc(ref,data,options){return ref.set(data,options)}
 function updateDoc(ref,data){return ref.update(data)}
@@ -1304,6 +1322,35 @@ function setTarget(){
 
 
 /* ============================================================
+   PUBLIC USER DIRECTORY / PROFILE SYNC
+   ============================================================ */
+async function publishMyPublicProfile(){
+  if(!firebaseReady||!firebaseUser||!firestore)return false;
+  try{
+    const u=state.user||{};
+    const username=String(u.username||"").trim().replace(/^@/,'').toLowerCase();
+    if(!username)return false;
+    const totalSeconds=(state.sessions||[]).reduce((sum,x)=>sum+Math.max(0,Number(x.seconds)||0),0);
+    const subjectBreakdown=(state.subjects||[]).map(s=>({name:s.name,seconds:Math.max(0,Number(s.seconds)||0)})).filter(x=>x.seconds>0).sort((a,b)=>b.seconds-a.seconds).slice(0,8);
+    const topSubject=subjectBreakdown[0]?.name||"No subject yet";
+    let followingCount=Number(u.followingCount)||0;
+    try{followingCount=(await getDocs(collection(firestore,"publicProfiles",firebaseUser.uid,"following"))).size}catch(e){}
+    await setDoc(doc(firestore,"publicProfiles",firebaseUser.uid),{
+      uid:firebaseUser.uid,
+      name:u.name||firebaseUser.displayName||"Study User",
+      username,
+      usernameLower:username,
+      dp:u.dp||firebaseUser.photoURL||"",
+      bio:u.bio||"",
+      studyStatus:(timerState?.running||state.target?.running)?"Studying":"Available",
+      totalSeconds,subjectBreakdown,topSubject,followingCount,
+      updatedAt:serverTimestamp()
+    },{merge:true});
+    return true;
+  }catch(err){console.warn("Public profile publish failed:",err);return false;}
+}
+
+/* ============================================================
    CHATS — P2P WEBRTC + FIRESTORE PERSISTENCE
    ------------------------------------------------------------
    Firebase is used for:
@@ -1598,11 +1645,21 @@ function closeSelectedChat(){
 
 async function loadPersistedMessages(){
   const host=document.getElementById("chatMessages");if(!host||!selectedChatId)return;
+  if(chatMessagesUnsub){chatMessagesUnsub();chatMessagesUnsub=null}
   try{
-    const snap=await getDocs(query(collection(firestore,"chats",selectedChatId,"messages"),orderBy("clientCreatedAt","asc"),limit(300)));
+    const messagesRef=collection(firestore,"chats",selectedChatId,"messages");
+    const snap=await getDocs(query(messagesRef,orderBy("clientCreatedAt","asc"),limit(300)));
     persistedMessages=new Map();
     snap.docs.forEach(d=>persistedMessages.set(d.id,{id:d.id,...d.data()}));
     renderPersistedMessages();
+    chatMessagesUnsub=onSnapshot(query(messagesRef,orderBy("clientCreatedAt","asc"),limit(300)),liveSnap=>{
+      liveSnap.docChanges().forEach(change=>{
+        const d=change.doc;
+        if(change.type==="removed")persistedMessages.delete(d.id);
+        else persistedMessages.set(d.id,{id:d.id,...d.data()});
+      });
+      renderPersistedMessages();
+    },err=>console.warn("Message realtime listener failed:",err));
   }catch(err){
     console.warn("Message history failed",err);
     host.innerHTML=`<div class="chat-empty">Messages could not load. Check your Firestore rules.</div>`;
@@ -1696,7 +1753,7 @@ function rtcConfig(){
   // No application message is routed through them.
   return {iceServers:[
     {urls:["stun:stun.l.google.com:19302","stun:stun1.l.google.com:19302"]},
-    {urls:"stun:stun.cloudflare.com:3478"}
+    {urls:["stun:stun.cloudflare.com:3478","stun:stun.nextcloud.com:443"]}
   ]};
 }
 
@@ -1929,7 +1986,7 @@ async function toggleBlockUser(uid,isBlocked){
   const ref=doc(firestore,"blocks",`${currentUid()}_${uid}`);
   try{
     if(isBlocked)await deleteDoc(ref);else await setDoc(ref,{blockerId:currentUid(),blockedId:uid,createdAt:serverTimestamp()});
-    if(selectedChatUser?.uid===uid){await refreshBlockState(uid);renderChatWindow();subscribeToMessages()}
+    if(selectedChatUser?.uid===uid){await refreshBlockState(uid);renderChatWindow();await loadPersistedMessages();}
     openUserProfile(uid);
   }catch(err){console.error(err);alert("Could not update block status.")}
 }
