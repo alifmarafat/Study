@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Arafat — Focus App</title>
+<title>Study Circle — Focus App</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -420,6 +420,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .chat-profile-modal{position:fixed;inset:0;z-index:110;display:grid;place-items:center;padding:18px;background:rgba(18,20,25,.30);backdrop-filter:blur(13px)}
 .chat-profile-box{width:min(390px,100%);background:rgba(255,255,255,.97);border:1px solid var(--line);border-radius:28px;box-shadow:0 30px 80px rgba(25,30,40,.25);padding:22px;animation:dangerIn .3s cubic-bezier(.2,1.25,.35,1)}
 .chat-profile-top{text-align:center}.chat-profile-big-avatar{width:92px;height:92px;border-radius:27px;object-fit:cover;background:#ffe4a7;display:grid;place-items:center;margin:0 auto 12px;font-size:42px;overflow:hidden}.chat-profile-big-avatar img{width:100%;height:100%;object-fit:cover}.chat-profile-name{font:900 22px Nunito}.chat-profile-handle{font-size:11px;color:#808792;margin-top:3px}.chat-status{display:inline-flex;align-items:center;gap:5px;margin-top:9px;padding:6px 9px;border-radius:999px;background:#f1fbf4;color:#3b8f4a;font-size:10px;font-weight:900}.chat-status.offline{background:#f3f4f6;color:#7d848e}.chat-profile-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:17px 0}.chat-profile-stat{padding:11px;border-radius:15px;background:#f6f7f9;text-align:center}.chat-profile-stat b{display:block;font:900 18px Nunito}.chat-profile-stat span{font-size:9px;color:#858c96;text-transform:uppercase;letter-spacing:.8px;font-weight:900}.chat-profile-bio{font-size:12px;color:#606873;line-height:1.5;text-align:center;min-height:18px}.chat-profile-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:17px}.chat-profile-actions button{height:45px;border-radius:14px;font-weight:900}.chat-profile-message{background:#111;color:#fff}.chat-profile-close{background:#f0f1f3}.chat-profile-block{width:100%;height:43px;border-radius:13px;background:#fff0f2;color:#ef476f;font-weight:900;margin-top:8px}
+.chat-profile-study{margin-top:15px;padding:14px;border-radius:18px;background:#f7f9fb;border:1px solid #edf0f3}.chat-profile-study-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}.chat-profile-study-title{font:900 12px Nunito}.chat-profile-study-total{font:900 15px Nunito}.chat-profile-chart{height:170px;position:relative}.chat-profile-top-subject{margin-top:8px;padding:10px 12px;border-radius:13px;background:#fff;display:flex;justify-content:space-between;gap:10px;font-size:11px}.chat-profile-top-subject b{font-weight:900}.chat-profile-actions .chat-profile-message{background:#111;color:#fff}.chat-profile-actions .chat-profile-close{background:#f0f1f3}.chat-user-actions{display:flex;gap:6px;align-items:center}.chat-user-actions .chat-follow-btn,.chat-message-small{height:34px;padding:0 10px;border-radius:10px;font-size:9px;font-weight:900}.chat-message-small{border:0;background:#111;color:#fff}
 .chat-blocked-banner{padding:10px 13px;background:#fff0f2;color:#c73554;font-size:11px;font-weight:800;border-bottom:1px solid #ffd1d9;text-align:center}
 .chat-back-mobile{display:none}
 @media(max-width:1050px){.chats-layout{grid-template-columns:250px minmax(0,1fr)}}
@@ -1305,6 +1306,9 @@ async function publishMyPublicProfile(){
     const u=state.user||{};
     const username=String(u.username||"").trim().replace(/^@/,'').toLowerCase();
     if(!username)return false;
+    const totalSeconds=(state.sessions||[]).reduce((sum,x)=>sum+Math.max(0,Number(x.seconds)||0),0);
+    const subjectBreakdown=(state.subjects||[]).map(s=>({name:s.name,seconds:Math.max(0,Number(s.seconds)||0)})).filter(x=>x.seconds>0).sort((a,b)=>b.seconds-a.seconds).slice(0,8);
+    const topSubject=subjectBreakdown[0]?.name||"No subject yet";
     await setDoc(doc(firestore,"publicProfiles",firebaseUser.uid),{
       uid:firebaseUser.uid,
       name:u.name||firebaseUser.displayName||"Study User",
@@ -1313,6 +1317,9 @@ async function publishMyPublicProfile(){
       dp:u.dp||firebaseUser.photoURL||"",
       bio:u.bio||"",
       studyStatus:(timerState?.running||state.target?.running)?"Studying":"Available",
+      totalSeconds,
+      subjectBreakdown,
+      topSubject,
       updatedAt:serverTimestamp()
     },{merge:true});
     return true;
@@ -1478,7 +1485,7 @@ function chatUserRow(u,searchMode=false){
   return `<div class="chat-user-row">
     <button type="button" onclick="openUserProfile('${esc(u.uid)}')" style="background:transparent;padding:0">${chatAvatarHTML(u)}</button>
     <div class="chat-user-info" onclick="openUserProfile('${esc(u.uid)}')"><div class="chat-user-name">${esc(u.name||"Study User")}</div><div class="chat-user-handle">@${esc(u.username||"username")}</div></div>
-    ${isMe?"":`<button class="chat-follow-btn" id="follow-${esc(u.uid)}" onclick="toggleFollow('${esc(u.uid)}',this)">Add</button>`}
+    ${isMe?"":`<div class="chat-user-actions"><button class="chat-message-small" onclick="openChat('${esc(u.uid)}')">Message</button><button class="chat-follow-btn" id="follow-${esc(u.uid)}" onclick="toggleFollow('${esc(u.uid)}',this)">Add</button></div>`}
   </div>`;
 }
 
@@ -1612,6 +1619,7 @@ async function isFollowing(targetUid){
   try{return (await getDoc(doc(firestore,"follows",`${currentUid()}_${targetUid}`))).exists()}catch{return false}
 }
 
+let userProfileChart=null;
 async function openUserProfile(uid){
   if(!firebaseReady||!uid)return;
   const u=await fetchPublicProfile(uid);if(!u)return;
@@ -1621,15 +1629,24 @@ async function openUserProfile(uid){
     uid!==currentUid()?isFollowing(uid):false
   ]);
   const blockedMine=uid!==currentUid()?(await getDoc(doc(firestore,"blocks",`${currentUid()}_${uid}`))).exists():false;
+  const totalStudySeconds=Math.max(0,Number(u.totalSeconds)||0);
+  const breakdown=Array.isArray(u.subjectBreakdown)?u.subjectBreakdown:[];
+  const topSubject=u.topSubject||breakdown[0]?.name||"No subject yet";
   document.getElementById("modalHost").innerHTML=`<div class="chat-profile-modal" onclick="if(event.target===this)closeUserProfile()"><section class="chat-profile-box">
     <div class="chat-profile-top"><button type="button" onclick="closeUserProfile()" class="close-round" style="position:absolute;right:26px;top:22px">×</button>${chatAvatarHTML(u,"chat-profile-big-avatar")}<div class="chat-profile-name">${esc(u.name||"Study User")}</div><div class="chat-profile-handle">@${esc(u.username||"username")}</div><div class="chat-status ${u.studyStatus!=="Studying"?"offline":""}"><i data-lucide="${u.studyStatus==="Studying"?"book-open":"circle"}" style="width:12px;height:12px"></i>${u.studyStatus||"Available"}</div></div>
     <div class="chat-profile-stats"><div class="chat-profile-stat"><b>${followersSnap.size}</b><span>Followers</span></div><div class="chat-profile-stat"><b>${followingSnap.size}</b><span>Following</span></div></div>
     <div class="chat-profile-bio">${esc(u.bio||"No bio yet.")}</div>
+    <div class="chat-profile-study"><div class="chat-profile-study-head"><span class="chat-profile-study-title">STUDY TIME</span><span class="chat-profile-study-total">${fmt(totalStudySeconds)}</span></div><div class="chat-profile-chart"><canvas id="userProfileStudyChart"></canvas></div><div class="chat-profile-top-subject"><span>Most studied subject</span><b>${esc(topSubject)}</b></div></div>
     ${uid!==currentUid()?`<div class="chat-profile-actions"><button class="chat-profile-message" onclick="closeUserProfile();openChat('${esc(uid)}')">Message</button><button class="chat-profile-close" onclick="toggleFollowFromProfile('${esc(uid)}',this)">${following?"Following":"Add"}</button></div><button class="chat-profile-block" onclick="toggleBlockUser('${esc(uid)}',${blockedMine})">${blockedMine?"Unblock user":"Block user"}</button>`:`<div class="chat-profile-actions"><button class="chat-profile-close" style="grid-column:1/-1" onclick="closeUserProfile()">Close</button></div>`}
   </section></div>`;
+  const chartEl=document.getElementById("userProfileStudyChart");
+  if(userProfileChart){try{userProfileChart.destroy()}catch(e){}}
+  if(chartEl&&breakdown.length){
+    userProfileChart=new Chart(chartEl,{type:"doughnut",data:{labels:breakdown.map(x=>x.name),datasets:[{data:breakdown.map(x=>x.seconds),backgroundColor:breakdown.map((_,i)=>["#8f36c9","#ef2670","#e2c51a","#42c8ef","#54b95b","#ff9f43","#6c7cff","#9aa3ad"][i%8]),borderColor:"#fff",borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:"68%",plugins:{legend:{position:"bottom",labels:{boxWidth:9,font:{size:9,weight:"700"},padding:8}},tooltip:{callbacks:{label:c=>` ${c.label}: ${fmt(c.raw)}`}}}}});
+  }
   if(window.lucide)lucide.createIcons();
 }
-function closeUserProfile(){const h=document.getElementById("modalHost");if(h)h.innerHTML=""}
+function closeUserProfile(){if(userProfileChart){try{userProfileChart.destroy()}catch(e){}userProfileChart=null}const h=document.getElementById("modalHost");if(h)h.innerHTML=""}
 async function toggleFollowFromProfile(uid,btn){await toggleFollow(uid,btn);openUserProfile(uid)}
 async function toggleBlockSelected(){if(selectedChatUser)await toggleBlockUser(selectedChatUser.uid,chatBlockedByMe)}
 async function toggleBlockUser(uid,isBlocked){
