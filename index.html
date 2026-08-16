@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Study</title>
+<title>AG</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -817,6 +817,25 @@ body:has(.chat-inbox-page){
   }
 }
 
+
+/* ============================================================
+   CHAT INBOX FINAL FIXES
+   - Followed users appear directly in Chats
+   - Recent conversations first
+   - No Explore load until Explore is opened
+   - Explicit Follow only
+   - Red unread badge on Chats navigation
+   ============================================================ */
+.chat-nav-wrap{position:relative;display:inline-flex;align-items:center;gap:7px}
+.chat-unread-badge{display:none;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#ef233c;color:#fff;font:900 9px/18px Nunito;text-align:center;box-shadow:0 2px 7px rgba(239,35,60,.28)}
+.chat-unread-badge.show{display:inline-block}
+.chat-list-item{position:relative}
+.chat-list-item.unread{background:rgba(239,35,60,.055)}
+.chat-list-item.unread .chat-list-copy b{font-weight:1000}
+.chat-list-unread-dot{width:8px;height:8px;border-radius:50%;background:#ef233c;flex:0 0 auto;box-shadow:0 0 0 3px rgba(239,35,60,.10)}
+.chat-list-item .chat-list-unread-dot{display:none}
+.chat-list-item.unread .chat-list-unread-dot{display:block}
+
 </style>
 </head>
 <body>
@@ -1088,7 +1107,7 @@ function renderApp(){
           <button class="rail-link ${activePage==="home"?"active":""}" onclick="navigate('home')"><span class="ico"><i data-lucide="house" class="icon-svg"></i></span>Home</button>
           <button class="rail-link ${activePage==="add"?"active":""}" onclick="navigate('add')"><span class="ico"><i data-lucide="plus" class="icon-svg"></i></span>Add</button>
           <button class="rail-link ${activePage==="target"?"active":""}" onclick="navigate('target')"><span class="ico"><i data-lucide="target" class="icon-svg"></i></span>Target</button>
-          <button class="rail-link ${activePage==="chats"?"active":""}" onclick="navigate('chats')"><span class="ico"><i data-lucide="messages-square" class="icon-svg"></i></span>Chats</button>
+          <button class="rail-link ${activePage==="chats"?"active":""}" onclick="navigate('chats')"><span class="ico"><i data-lucide="messages-square" class="icon-svg"></i></span><span class="chat-nav-wrap">Chats<span class="chat-unread-badge" data-chat-unread-badge></span></span></button>
           <button class="rail-link ${activePage==="profile"?"active":""}" onclick="navigate('profile')"><span class="ico"><i data-lucide="user-round" class="icon-svg"></i></span>Profile</button>
         </nav>
         <div class="rail-user">${avatarHTML("avatar")}<div><div class="user-name">${esc(state.user.name||"Study User")}</div><div class="user-sub">@${esc(state.user.username||"student")}</div></div></div>
@@ -1107,13 +1126,14 @@ function renderApp(){
         <button class="bottom-item ${activePage==="home"?"active":""}" onclick="navigate('home')"><i data-lucide="house"></i><small>Home</small></button>
         <button class="bottom-item add ${activePage==="add"?"active":""}" onclick="navigate('add')"><i data-lucide="plus"></i><small>Add</small></button>
         <button class="bottom-item ${activePage==="target"?"active":""}" onclick="navigate('target')"><i data-lucide="target"></i><small>Target</small></button>
-        <button class="bottom-item ${activePage==="chats"?"active":""}" onclick="navigate('chats')"><i data-lucide="messages-square"></i><small>Chats</small></button>
+        <button class="bottom-item ${activePage==="chats"?"active":""}" onclick="navigate('chats')"><i data-lucide="messages-square"></i><small class="chat-nav-wrap">Chats<span class="chat-unread-badge" data-chat-unread-badge></span></small></button>
         <button class="bottom-item ${activePage==="profile"?"active":""}" onclick="navigate('profile')"><i data-lucide="user-round"></i><small>Profile</small></button>
       </nav>
     </main>
     <div id="modalHost"></div>`;
   drawChart();
   if(window.lucide) lucide.createIcons();
+  setTimeout(()=>{ensureChatUnreadListener();updateChatUnreadBadges()},0);
 }
 function navigate(page){
   if(activePage==="chats" && page!=="chats")stopChatListeners();
@@ -1742,7 +1762,7 @@ function renderExploreUsers(users=[],message=""){
   users.forEach(async u=>{
     const btn=document.getElementById(`follow-${u.uid}`);if(!btn)return;
     const following=await isFollowing(u.uid);
-    if(btn){btn.textContent=following?"Added":"Add";btn.classList.toggle("following",following)}
+    if(btn){btn.textContent=following?"Following":"Follow";btn.classList.toggle("following",following)}
   });
   if(window.lucide)lucide.createIcons();
 }
@@ -1790,6 +1810,48 @@ let chatTypingUnsub=null;
 let typingTimeout=null;
 let lastMsgCount=0;
 let knownMsgIds=new Set();
+let chatUnreadUnsub=null;
+let chatUnreadRows=[];
+let chatReadTimes={};
+try{chatReadTimes=JSON.parse(localStorage.getItem("study_circle_chat_reads_v1")||"{}")}catch(e){chatReadTimes={}}
+function saveChatReadTimes(){try{localStorage.setItem("study_circle_chat_reads_v1",JSON.stringify(chatReadTimes))}catch(e){}}
+function chatUpdatedMillis(ts){return ts?.toMillis?.()||ts?.seconds*1000||Number(ts)||0}
+function markChatRead(chatId){
+  if(!chatId)return;
+  chatReadTimes[chatId]=Date.now();
+  saveChatReadTimes();
+  updateChatUnreadBadges();
+}
+function isChatUnread(row){
+  if(!row||!currentUid())return false;
+  const sender=row.lastMessageSenderId||row.lastSenderId||"";
+  if(!sender||sender===currentUid())return false;
+  const updated=chatUpdatedMillis(row.updatedAt);
+  const read=Number(chatReadTimes[row.id]||0);
+  return updated>read;
+}
+function updateChatUnreadBadges(){
+  const count=chatUnreadRows.filter(isChatUnread).length;
+  document.querySelectorAll("[data-chat-unread-badge]").forEach(el=>{
+    el.textContent=count>99?"99+":String(count);
+    el.classList.toggle("show",count>0);
+  });
+}
+function ensureChatUnreadListener(){
+  if(!firebaseReady||!firestore||!currentUid())return;
+  if(chatUnreadUnsub){try{chatUnreadUnsub()}catch(e){}chatUnreadUnsub=null}
+  const me=currentUid();
+  const q=query(collection(firestore,"chats"),where("participants","array-contains",me),limit(100));
+  chatUnreadUnsub=onSnapshot(q,snap=>{
+    chatUnreadRows=snap.docs.map(d=>({id:d.id,...d.data()}));
+    updateChatUnreadBadges();
+    if(activePage==="chats"){
+      const host=document.getElementById("chatList");
+      if(host && !selectedChatId) loadChatList();
+    }
+  },err=>console.warn("Unread chat listener failed",err));
+}
+
 
 function playMessageSound(){
   try{
@@ -1936,14 +1998,17 @@ function initChatsPage(){
   if(!currentUid()){
     const list=document.getElementById("chatList");
     if(list)list.innerHTML=`<div class="chat-list-empty">Sign in with Google first to use Chats.</div>`;
-    const explore=document.getElementById("exploreResults");
+    const explore=document.getElementById("chatExploreResults");
     if(explore)explore.innerHTML=`<div class="chat-list-empty">Sign in with Google first to explore users.</div>`;
     return;
   }
-  loadExploreUsers();
+  // IMPORTANT: do not load the entire Explore directory here.
+  // Chats opens immediately with conversations + followed users.
   loadChatList();
+  ensureChatUnreadListener();
   if(window.lucide)lucide.createIcons();
 }
+
 function stopChatListeners(){
   if(chatListUnsub){try{chatListUnsub()}catch(e){} chatListUnsub=null}
   if(chatMessagesUnsub){try{chatMessagesUnsub()}catch(e){} chatMessagesUnsub=null}
@@ -1982,7 +2047,7 @@ function renderChatSearchResults(users=[],message=""){
   users.forEach(async u=>{
     const btn=document.getElementById(`follow-${u.uid}`);if(!btn)return;
     const following=await isFollowing(u.uid);
-    if(btn){btn.textContent=following?"Added":"Add";btn.classList.toggle("following",following)}
+    if(btn){btn.textContent=following?"Following":"Follow";btn.classList.toggle("following",following)}
   });
   if(window.lucide)lucide.createIcons();
 }
@@ -1991,34 +2056,71 @@ function chatUserRow(u,searchMode=false){
   return `<div class="chat-user-row">
     <button type="button" onclick="openUserProfile('${esc(u.uid)}')" style="background:transparent;padding:0">${chatAvatarHTML(u)}</button>
     <div class="chat-user-info" onclick="openUserProfile('${esc(u.uid)}')"><div class="chat-user-name">${esc(u.name||"Study User")}</div><div class="chat-user-handle">@${esc(u.username||"username")}</div></div>
-    ${isMe?"":`<div class="chat-user-actions"><button class="chat-message-small" onclick="openChat('${esc(u.uid)}')">Message</button><button class="chat-follow-btn" id="follow-${esc(u.uid)}" onclick="toggleFollow('${esc(u.uid)}',this)">Add</button></div>`}
+    ${isMe?"":`<div class="chat-user-actions"><button class="chat-message-small" onclick="openChat('${esc(u.uid)}')">Message</button><button class="chat-follow-btn" id="follow-${esc(u.uid)}" onclick="toggleFollow('${esc(u.uid)}',this)">Follow</button></div>`}
   </div>`;
 }
 
 function loadChatList(){
-  if(chatListUnsub)chatListUnsub();
-  const host=document.getElementById("chatList");if(!host)return;
-  const q=query(collection(firestore,"chats"),where("participants","array-contains",currentUid()),limit(50));
-  chatListUnsub=onSnapshot(q,async snap=>{
-    const rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>((b.updatedAt?.toMillis?.()||0)-(a.updatedAt?.toMillis?.()||0)));
-    chatListItems=rows;
-    const users=[];
-    for(const row of rows){
-      const other=(row.participants||[]).find(x=>x!==currentUid());
-      if(!other)continue;
-      let u=chatListProfilesCache[other];
-      if(!u){
-        const us=await getDoc(doc(firestore,"publicProfiles",other));
-        u=us.exists?{uid:us.id,...us.data()}:{uid:other,name:"Study User",username:"unknown",dp:""};
-        chatListProfilesCache[other]=u;
+  if(chatListUnsub)try{chatListUnsub()}catch(e){}
+  const host=document.getElementById("chatList");if(!host||!firebaseReady||!firestore||!currentUid())return;
+  host.innerHTML=`<div class="chat-list-empty">Loading conversations…</div>`;
+  const me=currentUid();
+  const chatsQ=query(collection(firestore,"chats"),where("participants","array-contains",me),limit(80));
+  chatListUnsub=onSnapshot(chatsQ,async snap=>{
+    try{
+      const rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>chatUpdatedMillis(b.updatedAt)-chatUpdatedMillis(a.updatedAt));
+      chatListItems=rows;
+
+      // Fetch followed users and chat profiles in parallel so the inbox does
+      // not require Explore before showing people the user has already added.
+      const chatOtherIds=rows.map(r=>(r.participants||[]).find(x=>x!==me)).filter(Boolean);
+      const followingSnap=await getDocs(collection(firestore,"publicProfiles",me,"following"));
+      const followingIds=followingSnap.docs.map(d=>d.id).filter(uid=>uid!==me);
+      const allIds=[...new Set([...chatOtherIds,...followingIds])];
+
+      const uncached=allIds.filter(uid=>!chatListProfilesCache[uid]);
+      if(uncached.length){
+        const profiles=await Promise.all(uncached.map(async uid=>{
+          try{
+            const s=await getDoc(doc(firestore,"publicProfiles",uid));
+            return s.exists?{uid:s.id,...s.data()}:null;
+          }catch(e){return null}
+        }));
+        profiles.filter(Boolean).forEach(u=>chatListProfilesCache[u.uid]=u);
       }
-      users.push({row,user:u});
+
+      const chatByUid=new Map();
+      rows.forEach(row=>{
+        const other=(row.participants||[]).find(x=>x!==me);
+        if(other)chatByUid.set(other,row);
+      });
+
+      const chatUsers=chatOtherIds.map(uid=>({uid,row:chatByUid.get(uid),user:chatListProfilesCache[uid]||{uid,name:"Study User",username:"unknown",dp:""}}));
+      const chatUidSet=new Set(chatUsers.map(x=>x.uid));
+      const followedOnly=followingIds.filter(uid=>!chatUidSet.has(uid)).map(uid=>({uid,row:null,user:chatListProfilesCache[uid]||{uid,name:"Study User",username:"unknown",dp:""}}));
+
+      // Recent conversations first; followed users without a conversation are
+      // shown after them, so the inbox feels like Messenger.
+      const merged=[...chatUsers,...followedOnly];
+      if(!merged.length){
+        host.innerHTML=`<div class="chat-list-empty">No chats yet.<br>Follow someone or search a username to start a conversation.</div>`;
+        updateChatUnreadBadges();
+        return;
+      }
+      host.innerHTML=merged.map(({row,user})=>{
+        const unread=isChatUnread(row);
+        return `<div class="chat-list-item ${selectedChatId===row?.id?"active":""} ${unread?"unread":""}" onclick="openChat('${esc(user.uid)}')">
+          ${chatAvatarHTML(user)}
+          <div class="chat-list-copy"><b>${esc(user.name||"Study User")}</b><small>${esc(row?.lastMessage||"Start a conversation")}</small></div>
+          ${row?.updatedAt?`<small style="font-size:9px;color:#9aa1aa;align-self:flex-start">${formatChatTime(row.updatedAt)}</small>`:""}
+          <span class="chat-list-unread-dot" aria-label="Unread message"></span>
+        </div>`;
+      }).join("");
+      updateChatUnreadBadges();
+    }catch(err){
+      console.warn("Chat list listener failed",err);
+      host.innerHTML=`<div class="chat-list-empty">Chats could not load. Check your Firestore rules.</div>`;
     }
-    if(!users.length){host.innerHTML=`<div class="chat-list-empty">No chats yet.<br>Search a username above to start one.</div>`;return}
-    host.innerHTML=users.map(({row,user})=>`<div class="chat-list-item ${selectedChatId===row.id?"active":""}" onclick="openChat('${esc(user.uid)}')">
-      ${chatAvatarHTML(user)}<div class="chat-list-copy"><b>${esc(user.name||"Study User")}</b><small>${esc(row.lastMessage||"Start a conversation")}</small></div>
-    </div>`).join("");
-    if(window.lucide)lucide.createIcons();
   },err=>{
     console.warn("Chat list listener failed",err);
     host.innerHTML=`<div class="chat-list-empty">Chats could not load. Check your Firestore rules.</div>`;
@@ -2029,42 +2131,35 @@ async function openChat(otherUid){
   if(!currentUid()||!otherUid||otherUid===currentUid())return;
   otherUid=String(otherUid);
 
-  // Stop any previous message listener immediately
-  if(chatMessagesUnsub){try{chatMessagesUnsub()}catch(e){} chatMessagesUnsub=null}
+  if(chatMessagesUnsub){try{chatMessagesUnsub()}catch(e){}chatMessagesUnsub=null}
 
-  // Ensure we are on the Chats page
   if(activePage!=="chats"){
     activePage="chats";
     try{sessionStorage.setItem("study_circle_active_page","chats")}catch(e){}
     renderApp();
-    await new Promise(r=>setTimeout(r,80));
+    await new Promise(r=>setTimeout(r,60));
   }
 
-  // Always show the Search/inbox tab when opening a chat
   try{switchChatTab("search")}catch(e){}
 
   const user=chatListProfilesCache[otherUid] || await fetchPublicProfile(otherUid);
-  if(!user){
-    alert("This user profile could not be loaded.");
-    return;
-  }
+  if(!user){alert("This user profile could not be loaded.");return;}
 
   selectedChatUser=user;
   selectedChatId=chatIdFor(currentUid(),otherUid);
+  markChatRead(selectedChatId);
 
   await refreshBlockState(otherUid);
   renderChatWindow();
 
-  // Clear messages area before loading new chat
   const msgHost=document.getElementById("chatMessages");
   if(msgHost)msgHost.innerHTML=`<div class="chat-empty">Loading messages…</div>`;
 
   subscribeToMessages(selectedChatId);
   loadChatList();
-
-  const win=document.getElementById("chatWindow");
-  if(win)win.scrollIntoView({behavior:"smooth",block:"nearest"});
+  setMobileChatOpen(true);
 }
+
 async function fetchPublicProfile(uid){
   if(!firebaseReady)return null;
   try{
@@ -2258,6 +2353,9 @@ function subscribeToMessages(forChatId){
     });
     if(shouldSound)playMessageSound();
     lastMsgCount=docs.length;
+    // The currently open conversation is considered read immediately.
+    const hasIncoming=docs.some(d=>d.data()?.senderId===other);
+    if(hasIncoming)markChatRead(expectedId);
 
     h.innerHTML=docs.map(d=>{
       const m=d.data();
@@ -2305,6 +2403,7 @@ async function sendChatMessage(){
     await setDoc(chatRef,{
       participants:[currentUid(),otherUid].sort(),
       lastMessage:text.slice(0,200),
+      lastMessageSenderId:currentUid(),
       updatedAt:serverTimestamp(),
       createdAt:serverTimestamp()
     },{merge:true});
@@ -2340,18 +2439,18 @@ async function toggleFollow(targetUid,btn){
       await deleteDoc(ref);
       try{await deleteDoc(doc(firestore,"publicProfiles",currentUid(),"following",targetUid))}catch(e){}
       await publishMyPublicProfile();
-      if(btn){btn.textContent="Add";btn.classList.remove("following")}
+      if(btn){btn.textContent="Follow";btn.classList.remove("following")}
       return false;
     }else{
       await setDoc(ref,{followerId:currentUid(),followingId:targetUid,createdAt:serverTimestamp()},{merge:true});
       try{await setDoc(doc(firestore,"publicProfiles",currentUid(),"following",targetUid),{followingId:targetUid,createdAt:serverTimestamp()},{merge:true})}catch(e){}
       await publishMyPublicProfile();
-      if(btn){btn.textContent="Added";btn.classList.add("following")}
+      if(btn){btn.textContent="Following";btn.classList.add("following")}
       return true;
     }
   }catch(err){
     console.error("Follow update failed",err);
-    if(btn){btn.textContent="Add";btn.classList.remove("following")}
+    if(btn){btn.textContent="Follow";btn.classList.remove("following")}
     alert("Could not update follow status. Please make sure the Firestore rules below are applied.");
     return false;
   }
@@ -2381,7 +2480,7 @@ async function openUserProfile(uid){
     <div class="chat-profile-stats"><div class="chat-profile-stat"><b id="profileFollowersCount">${followersSnap.size}</b><span>Followers</span></div><div class="chat-profile-stat"><b>${followingCount}</b><span>Following</span></div></div>
     <div class="chat-profile-bio">${esc(u.bio||"No bio yet.")}</div>
     <div class="chat-profile-study"><div class="chat-profile-study-head"><span class="chat-profile-study-title">STUDY TIME</span><span class="chat-profile-study-total">${fmt(totalStudySeconds)}</span></div><div class="chat-profile-chart"><canvas id="userProfileStudyChart"></canvas></div><div class="chat-profile-top-subject"><span>Most studied subject</span><b>${esc(topSubject)}</b></div></div>
-    ${uid!==currentUid()?`<div class="chat-profile-actions"><button class="chat-profile-message" onclick="closeUserProfile();openChat('${esc(uid)}')">Message</button><button class="chat-profile-close" id="profileFollowBtn" onclick="toggleFollowFromProfile('${esc(uid)}',this)">${following?"Added":"Add"}</button></div><button class="chat-profile-block" onclick="toggleBlockUser('${esc(uid)}',${blockedMine})">${blockedMine?"Unblock user":"Block user"}</button>`:`<div class="chat-profile-actions"><button class="chat-profile-close" style="grid-column:1/-1" onclick="closeUserProfile()">Close</button></div>`}
+    ${uid!==currentUid()?`<div class="chat-profile-actions"><button class="chat-profile-message" onclick="closeUserProfile();openChat('${esc(uid)}')">Message</button><button class="chat-profile-close" id="profileFollowBtn" onclick="toggleFollowFromProfile('${esc(uid)}',this)">${following?"Following":"Follow"}</button></div><button class="chat-profile-block" onclick="toggleBlockUser('${esc(uid)}',${blockedMine})">${blockedMine?"Unblock user":"Block user"}</button>`:`<div class="chat-profile-actions"><button class="chat-profile-close" style="grid-column:1/-1" onclick="closeUserProfile()">Close</button></div>`}
   </section></div>`;
   const chartEl=document.getElementById("userProfileStudyChart");
   if(userProfileChart){try{userProfileChart.destroy()}catch(e){}}
@@ -2427,6 +2526,17 @@ document.addEventListener("touchend",e=>{
     window.location.reload();
   }
 },{passive:true});
+
+
+// Keep the red Chats badge in sync whenever renderApp replaces the navigation.
+try{
+  const chatBadgeObserver=new MutationObserver(()=>{
+    if(window.__chatBadgeObserverBusy)return;
+    window.__chatBadgeObserverBusy=true;
+    requestAnimationFrame(()=>{window.__chatBadgeObserverBusy=false;updateChatUnreadBadges()});
+  });
+  chatBadgeObserver.observe(document.getElementById("app"),{childList:true,subtree:true});
+}catch(e){}
 
 render();
 </script>
