@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Stdj</title>
+<title>StHudy</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -572,18 +571,101 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 }
 
 
-.auth-divider{display:flex;align-items:center;gap:12px;margin:4px 0;color:#8a919b;font-size:12px;font-weight:800}
-.auth-divider:before,.auth-divider:after{content:"";flex:1;height:1px;background:rgba(0,0,0,.10)}
-.email-auth-box{width:min(420px,100%);background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:0 28px 75px rgba(0,0,0,.22)}
-.email-auth-box h2{font:900 22px Nunito;margin:0 0 6px}
-.email-auth-box p{font-size:12px;color:#777f89;margin:0 0 14px}
-.email-auth-field{display:grid;gap:6px;margin-bottom:12px}
-.email-auth-field label{font-size:10px;font-weight:900;letter-spacing:1px;color:#7c838d}
-.email-auth-field input{height:48px;border:1px solid var(--line);border-radius:14px;padding:0 14px;background:#fff;font-size:14px}
-.email-auth-actions{display:grid;gap:8px;margin-top:8px}
-.email-auth-actions .primary-btn,.email-auth-actions .secondary-btn{height:48px;border-radius:14px;font-size:15px}
-.email-auth-switch{text-align:center;margin-top:12px;font-size:12px;color:#6f7580}
-.email-auth-switch button{background:none;color:#1a73e8;font-weight:800;padding:0}
+/* ===== INBOX UI V4 — visual overrides only ===== */
+.chat-inbox-page{display:grid;gap:14px}
+.chat-inbox-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:2px 0 4px}
+.chat-inbox-title{font:900 30px Nunito;margin:0}
+.chat-inbox-sub{font-size:11px;color:#7c8490;margin-top:3px}
+.chat-inbox-actions{display:flex;gap:8px}
+.chat-inbox-action{height:42px;padding:0 15px;border-radius:14px;background:#fff;border:1px solid var(--line);font-weight:900;font-size:11px;display:flex;align-items:center;gap:7px;box-shadow:0 5px 14px rgba(40,50,70,.06)}
+.chat-inbox-action.active{background:#111;color:#fff;border-color:#111}
+.chat-inbox-shell{display:grid;grid-template-columns:320px minmax(0,1fr);height:calc(100vh - 125px);min-height:620px;max-height:820px;border:1px solid rgba(35,40,50,.10);border-radius:26px;overflow:hidden;background:rgba(255,255,255,.88);box-shadow:var(--shadow);backdrop-filter:blur(18px)}
+.chat-inbox-sidebar{display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--line);background:rgba(255,255,255,.86)}
+.chat-inbox-search{padding:14px;border-bottom:1px solid var(--line)}
+.chat-inbox-search .chats-search-wrap{height:44px;border-radius:14px;background:#f5f7f9;border:0}
+.chat-inbox-search .chats-search-wrap input{font-size:12px}
+.chat-inbox-section-head{display:flex;align-items:center;justify-content:space-between;padding:15px 16px 8px;font:900 13px Nunito}
+.chat-inbox-section-head small{font:800 9px "DM Sans";color:#9299a2}
+.chat-inbox-list{flex:1;overflow:auto;padding:4px 8px 12px}
+.chat-inbox-item{display:flex;align-items:center;gap:11px;padding:11px 9px;border-radius:15px;cursor:pointer;position:relative}
+.chat-inbox-item:hover{background:#f6f7f9}
+.chat-inbox-item.active{background:rgba(66,200,239,.12)}
+.chat-inbox-item .chat-avatar{width:46px;height:46px;border-radius:15px}
+.chat-inbox-copy{min-width:0;flex:1}
+.chat-inbox-copy b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-inbox-copy p{margin:4px 0 0;font-size:10px;color:#89919b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-inbox-time{font-size:9px;color:#9aa1aa;align-self:flex-start;margin-top:2px}
+.chat-inbox-unread{position:absolute;right:9px;bottom:10px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#2687ff;color:#fff;font-size:9px;font-weight:900;display:grid;place-items:center}
+.chat-inbox-explore{padding:12px;border-top:1px solid var(--line);background:rgba(248,250,252,.8)}
+.chat-inbox-explore .chat-user-row{box-shadow:none}
+.chat-inbox-window{min-width:0;display:flex;flex-direction:column;background:#fff}
+.chat-inbox-window .chat-window{height:100%}
+.chat-inbox-window .chat-window-head{padding:13px 18px;height:72px}
+.chat-inbox-window .chat-window-head .chat-avatar{width:44px;height:44px;border-radius:14px}
+.chat-inbox-window .chat-messages{background:
+  radial-gradient(circle at 15% 10%,rgba(185,235,255,.22),transparent 28%),
+  radial-gradient(circle at 90% 30%,rgba(225,210,255,.20),transparent 30%),
+  #f8fbfd;padding:22px 24px}
+.chat-inbox-window .chat-compose{padding:12px 16px;background:#fff}
+.chat-inbox-window .chat-compose textarea{height:46px;border-radius:23px;background:#f2f4f6;border:0;padding:12px 16px;font-size:12px}
+.chat-inbox-window .chat-send{width:46px;height:46px;border-radius:50%;background:#2687ff}
+.chat-bubble-wrap{display:flex;flex-direction:column;max-width:min(72%,500px);position:relative}
+.chat-bubble-row.mine .chat-bubble-wrap{align-items:flex-end}
+.chat-bubble{position:relative;cursor:pointer;user-select:none}
+.chat-bubble-reply{font-size:9px;line-height:1.35;padding:7px 9px;margin-bottom:5px;border-radius:10px;background:rgba(0,0,0,.045);border-left:3px solid #42c8ef;color:#737b86;max-width:100%}
+.chat-bubble-row.mine .chat-bubble-reply{background:rgba(255,255,255,.14);color:rgba(255,255,255,.8);border-left-color:#fff}
+.chat-reaction-line{display:flex;gap:4px;flex-wrap:wrap;margin-top:-5px;margin-bottom:2px;z-index:3}
+.chat-bubble-row.mine .chat-reaction-line{justify-content:flex-end}
+.chat-reaction-chip{height:21px;padding:0 7px;border-radius:999px;background:#fff;border:1px solid rgba(0,0,0,.08);box-shadow:0 2px 7px rgba(0,0,0,.10);font-size:10px;font-weight:900}
+.chat-longpress-menu{position:fixed;z-index:250;display:flex;align-items:center;gap:5px;padding:7px;border-radius:17px;background:rgba(255,255,255,.97);border:1px solid var(--line);box-shadow:0 18px 50px rgba(20,28,38,.22);backdrop-filter:blur(18px)}
+.chat-longpress-menu button{height:34px;min-width:34px;padding:0 8px;border-radius:10px;background:#f4f5f7;font-size:14px;font-weight:900}
+.chat-longpress-menu button:hover{background:#e9edf1}
+.chat-longpress-menu .danger{color:#ef476f;background:#fff0f2}
+.chat-longpress-menu .reply{color:#2687ff;background:#edf6ff}
+.chat-reply-preview{display:none;align-items:center;gap:9px;padding:7px 12px;background:#f7f9fb;border-top:1px solid var(--line)}
+.chat-reply-preview.show{display:flex}
+.chat-reply-preview-copy{min-width:0;flex:1}
+.chat-reply-preview-copy b{display:block;font-size:10px}
+.chat-reply-preview-copy span{display:block;font-size:9px;color:#858c96;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-reply-cancel{width:30px;height:30px;border-radius:50%;background:#eceff2;font-weight:900}
+.chat-explore-panel{padding:14px;border-bottom:1px solid var(--line);max-height:290px;overflow:auto;background:#fbfcfd}
+.chat-explore-panel.hidden{display:none}
+.chat-explore-title{font:900 11px Nunito;margin-bottom:8px}
+.chat-explore-panel .chat-user-row{padding:8px}
+.chat-explore-panel .chat-avatar{width:40px;height:40px}
+.chat-empty-inbox{height:100%;display:grid;place-items:center;padding:30px;text-align:center;color:#89919b}
+.chat-empty-inbox-inner{max-width:330px}
+.chat-empty-inbox-inner strong{display:block;font:900 20px Nunito;color:#4e5660;margin-bottom:7px}
+.chat-empty-inbox-inner span{font-size:11px;line-height:1.55}
+.dashboard:has(.chat-inbox-page){grid-template-columns:230px minmax(0,1fr);max-width:1440px}
+.dashboard:has(.chat-inbox-page) .main{grid-column:2;min-width:0}
+.dashboard:has(.chat-inbox-page) .right{display:none}
+@media(max-width:1050px){
+  .dashboard:has(.chat-inbox-page){grid-template-columns:190px minmax(0,1fr)}
+  .chat-inbox-shell{grid-template-columns:285px minmax(0,1fr)}
+}
+@media(max-width:700px){
+  .chat-inbox-page{gap:0}
+  .chat-inbox-top{padding:7px 3px 12px}
+  .chat-inbox-title{font-size:27px}
+  .chat-inbox-sub{font-size:10px}
+  .chat-inbox-actions{gap:6px}
+  .chat-inbox-action{height:40px;padding:0 11px}
+  .chat-inbox-shell{display:block;height:auto;min-height:0;max-height:none;border:0;border-radius:0;box-shadow:none;background:transparent;overflow:visible}
+  .chat-inbox-sidebar{border:0;background:transparent}
+  .chat-inbox-search{padding:0 0 10px;border:0}
+  .chat-inbox-list{padding:0;max-height:calc(100vh - 205px);overflow:auto}
+  .chat-inbox-item{padding:11px 9px;background:#fff;border:1px solid var(--line);margin-bottom:7px;box-shadow:0 4px 12px rgba(40,50,70,.05)}
+  .chat-inbox-explore{display:none}
+  .chat-inbox-window{position:fixed;inset:0;z-index:60}
+  .chat-inbox-window .chat-window-head{height:auto;padding:8px 11px;padding-top:calc(8px + env(safe-area-inset-top,0px))}
+  .chat-inbox-window .chat-messages{padding:12px 13px;background:#f0f2f5}
+  .chat-inbox-window .chat-compose{padding:8px 10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+  .chat-inbox-window .chat-compose textarea{height:42px;min-height:42px;max-height:100px;border-radius:22px;padding:10px 14px}
+  .chat-inbox-window .chat-send{width:42px;height:42px}
+  .chat-bubble-wrap{max-width:82%}
+  .chat-longpress-menu{max-width:calc(100vw - 20px);left:10px!important;right:10px;justify-content:center}
+}
 
 </style>
 </head>
@@ -636,8 +718,6 @@ function getAuth(){return firebase.auth()}
 function getFirestore(){return firebase.firestore()}
 function GoogleAuthProvider(){return new firebase.auth.GoogleAuthProvider()}
 function signInWithPopup(a,p){return a.signInWithPopup(p)}
-function createUserWithEmailAndPassword(a,email,password){return a.createUserWithEmailAndPassword(email,password)}
-function signInWithEmailAndPassword(a,email,password){return a.signInWithEmailAndPassword(email,password)}
 function onAuthStateChanged(a,cb){return a.onAuthStateChanged(cb)}
 function collection(parent,name){return parent.collection(name)}
 function doc(parent,name,id){return id===undefined?parent.doc(name):parent.collection(name).doc(id)}
@@ -762,12 +842,9 @@ function renderOnboarding(){
           <p class="onboard-copy">If you are having a hard time finding the motivation to study, or if you feel anxious about studying alone, this is the app for you.</p>
           <div class="onboard-actions">
             <button class="primary-btn google-btn" onclick="startGoogle()">
-              <span class="google-mark">G</span><span>Continue with Google</span>
-            </button>
-            <div class="auth-divider"><span>or</span></div>
-            <button class="secondary-btn" type="button" onclick="showEmailAuth('signup')">Create account with Email</button>
-            <button class="secondary-btn" type="button" style="background:#fff;border:1px solid rgba(0,0,0,.12);box-shadow:none" onclick="showEmailAuth('login')">Sign in with Email</button>
-            <div class="auth-badge"><span class="google-mark">G</span> Your study data stays saved to your account</div>
+      <span class="google-mark">G</span><span>Continue with Google</span>
+    </button>
+    <div class="auth-badge"><span class="google-mark">G</span> Your study data stays saved to your account</div>
           </div>
         </section>
       </main>`;
@@ -1277,118 +1354,6 @@ async function claimUsername(username){
   return true;
 }
 
-
-/* ---------- Email / Password Auth ---------- */
-function showEmailAuth(mode="signup"){
-  const isLogin = mode === "login";
-  let host = document.getElementById("modalHost");
-  if(!host){host=document.createElement("div");host.id="modalHost";document.body.appendChild(host)}
-  host.innerHTML = `<div class="google-account-modal" onclick="if(event.target===this)closeEmailAuth()">
-    <section class="email-auth-box" onclick="event.stopPropagation()">
-      <h2>${isLogin?"Sign in with Email":"Create account"}</h2>
-      <p>${isLogin?"Enter your email and password to continue.":"Create an account with email and password. Then complete your profile."}</p>
-      <div class="email-auth-field"><label>EMAIL</label><input id="emailAuthEmail" type="email" autocomplete="email" placeholder="you@email.com"></div>
-      <div class="email-auth-field"><label>PASSWORD</label><input id="emailAuthPassword" type="password" autocomplete="${isLogin?"current-password":"new-password"}" placeholder="At least 6 characters"></div>
-      ${isLogin?"":`<div class="email-auth-field"><label>CONFIRM PASSWORD</label><input id="emailAuthPassword2" type="password" autocomplete="new-password" placeholder="Repeat password"></div>`}
-      <div class="email-auth-actions">
-        <button class="primary-btn" onclick="${isLogin?"loginWithEmail()":"signupWithEmail()"}">${isLogin?"Sign in":"Create account"}</button>
-        <button class="secondary-btn" style="background:#f1f2f4;box-shadow:none" onclick="closeEmailAuth()">Cancel</button>
-      </div>
-      <div class="email-auth-switch">
-        ${isLogin
-          ? `No account? <button type="button" onclick="showEmailAuth('signup')">Create one</button>`
-          : `Already have an account? <button type="button" onclick="showEmailAuth('login')">Sign in</button>`}
-      </div>
-    </section>
-  </div>`;
-}
-function closeEmailAuth(){
-  const h=document.getElementById("modalHost");
-  if(h)h.innerHTML="";
-}
-async function signupWithEmail(){
-  if(!firebaseReady||!auth){
-    return alert("Firebase is not connected. Enable Email/Password in Authentication.");
-  }
-  const email=(document.getElementById("emailAuthEmail")?.value||"").trim().toLowerCase();
-  const pass=document.getElementById("emailAuthPassword")?.value||"";
-  const pass2=document.getElementById("emailAuthPassword2")?.value||"";
-  if(!/^\S+@\S+\.\S+$/.test(email))return alert("Enter a valid email address.");
-  if(pass.length<6)return alert("Password must be at least 6 characters.");
-  if(pass!==pass2)return alert("Passwords do not match.");
-  try{
-    const cred=await createUserWithEmailAndPassword(auth,email,pass);
-    const u=cred.user;
-    firebaseUser=u;
-    state.authUid=u.uid;
-    state.user.email=email;
-    state.user.name=state.user.name||"";
-    state.user.username=state.user.username||"";
-    state.user.dp=state.user.dp||"";
-    state.onboarding="name";
-    closeEmailAuth();
-    save();
-    render();
-  }catch(err){
-    console.error("Email signup",err);
-    const code=err?.code||"";
-    if(code==="auth/email-already-in-use"){
-      alert("This email is already registered. Please sign in instead.");
-      showEmailAuth("login");
-      const el=document.getElementById("emailAuthEmail");
-      if(el)el.value=email;
-    }else if(code==="auth/weak-password"){
-      alert("Password is too weak. Use at least 6 characters.");
-    }else if(code==="auth/invalid-email"){
-      alert("Invalid email address.");
-    }else if(code==="auth/operation-not-allowed"){
-      alert("Email/Password sign-in is disabled. Enable it in Firebase Authentication > Sign-in method.");
-    }else{
-      alert("Could not create account: "+(err.message||err));
-    }
-  }
-}
-async function loginWithEmail(){
-  if(!firebaseReady||!auth){
-    return alert("Firebase is not connected. Enable Email/Password in Authentication.");
-  }
-  const email=(document.getElementById("emailAuthEmail")?.value||"").trim().toLowerCase();
-  const pass=document.getElementById("emailAuthPassword")?.value||"";
-  if(!/^\S+@\S+\.\S+$/.test(email))return alert("Enter a valid email address.");
-  if(!pass)return alert("Enter your password.");
-  try{
-    const cred=await signInWithEmailAndPassword(auth,email,pass);
-    const u=cred.user;
-    firebaseUser=u;
-    state.authUid=u.uid;
-    state.user.email=email;
-    if(!state.user.name){
-      state.onboarding="name";
-    }else if(!state.user.username){
-      state.onboarding="username";
-    }else if(!state.user.birthday){
-      state.onboarding="birthday";
-    }else{
-      state.onboarding="done";
-    }
-    closeEmailAuth();
-    save();
-    render();
-  }catch(err){
-    console.error("Email login",err);
-    const code=err?.code||"";
-    if(code==="auth/user-not-found"||code==="auth/invalid-credential"||code==="auth/wrong-password"||code==="auth/invalid-login-credentials"){
-      alert("Wrong email or password.");
-    }else if(code==="auth/invalid-email"){
-      alert("Invalid email address.");
-    }else if(code==="auth/operation-not-allowed"){
-      alert("Email/Password sign-in is disabled. Enable it in Firebase Authentication > Sign-in method.");
-    }else{
-      alert("Could not sign in: "+(err.message||err));
-    }
-  }
-}
-
 async function startGoogle(){
   if(!firebaseReady||!auth){
     return alert("Firebase is not connected. Enable Google Sign-in and check your Firebase configuration.");
@@ -1602,7 +1567,7 @@ async function publishMyPublicProfile(){
 }
 
 async function loadExploreUsers(){
-  const host=document.getElementById("exploreResults");
+  const host=document.getElementById("chatExploreResults")||document.getElementById("exploreResults");
   if(!host||!firebaseReady||!firestore||!currentUid()){
     if(host)host.innerHTML=`<div class="chat-list-empty">Sign in with Google first to explore users.</div>`;
     return;
@@ -1620,7 +1585,7 @@ async function loadExploreUsers(){
 }
 
 function renderExploreUsers(users=[],message=""){
-  const host=document.getElementById("exploreResults");if(!host)return;
+  const host=document.getElementById("chatExploreResults")||document.getElementById("exploreResults");if(!host)return;
   if(message){host.innerHTML=`<div class="chat-list-empty">${esc(message)}</div>`;return}
   if(!users.length){host.innerHTML=`<div class="chat-list-empty">No other Study Circle users yet.</div>`;return}
   host.innerHTML=users.map(u=>chatUserRow(u,true)).join("");
@@ -1765,49 +1730,53 @@ function formatChatTime(ts){
 function escapeChatText(v=""){return esc(v)}
 
 function chatsPage(){
-  return `<div class="chats-page">
-    <div class="topbar"><div><h1 class="page-title">Message 🥺</h1><div class="page-sub">Chat with friends in real time</div></div></div>
-    <div class="chat-top-tabs">
-      <button class="chat-tab active" id="tabSearch" onclick="switchChatTab('search')"><i data-lucide="search" style="width:15px;height:15px"></i> Search</button>
-      <button class="chat-tab" id="tabExplore" onclick="switchChatTab('explore')"><i data-lucide="compass" style="width:15px;height:15px"></i> Explore</button>
-    </div>
-    <div id="chatTabSearch" class="chat-tab-panel">
-      <section class="card chats-search-card">
-        <div class="chats-search-wrap"><i data-lucide="search"></i><input id="chatUserSearch" autocomplete="off" placeholder="Search username…" oninput="queueUserSearch(this.value)"></div>
-        <div id="chatSearchResults" class="chats-search-results"></div>
-      </section>
-      <div class="chats-layout">
-        <section class="card chat-list-card"><div class="chat-list-head">Your chats</div><div id="chatList" class="chat-list"><div class="chat-list-empty">Loading your conversations…</div></div></section>
-        <section class="card chat-window-card"><div id="chatWindow" class="chat-window"><div class="chat-empty"><strong>Messages exchanged with your friends will be displayed here.</strong></div></div></section>
+  return `<div class="chats-page chat-inbox-page">
+    <div class="chat-inbox-top">
+      <div><h1 class="chat-inbox-title">Chats</h1><div class="chat-inbox-sub">Stay connected with your Study Circle</div></div>
+      <div class="chat-inbox-actions">
+        <button class="chat-inbox-action active" id="tabSearch" onclick="switchChatTab('search')"><i data-lucide="message-circle" style="width:16px;height:16px"></i> Chats</button>
+        <button class="chat-inbox-action" id="tabExplore" onclick="switchChatTab('explore')"><i data-lucide="compass" style="width:16px;height:16px"></i> Explore</button>
       </div>
     </div>
-    <div id="chatTabExplore" class="chat-tab-panel hidden">
-      <section class="card chat-list-card"><div class="chat-list-head">Study Circle students</div><div id="exploreResults" class="chat-list"><div class="chat-list-empty">Loading users…</div></div></section>
+    <div class="chat-inbox-shell">
+      <aside class="chat-inbox-sidebar">
+        <div class="chat-inbox-search">
+          <div class="chats-search-wrap"><i data-lucide="search"></i><input id="chatUserSearch" autocomplete="off" placeholder="Search by username…" oninput="queueUserSearch(this.value)"></div>
+          <div id="chatSearchResults" class="chats-search-results"></div>
+        </div>
+        <div id="chatExplorePanel" class="chat-explore-panel hidden">
+          <div class="chat-explore-title">Explore students</div>
+          <div id="chatExploreResults"></div>
+        </div>
+        <div class="chat-inbox-section-head"><span>Your chats</span><small id="chatCountLabel">REAL-TIME</small></div>
+        <div id="chatList" class="chat-inbox-list"><div class="chat-list-empty">Loading your conversations…</div></div>
+      </aside>
+      <section class="chat-inbox-window">
+        <div id="chatWindow" class="chat-window">
+          <div class="chat-empty-inbox"><div class="chat-empty-inbox-inner"><strong>Your messages</strong><span>Select a conversation from the inbox, or search a username above to start a new chat.</span></div></div>
+        </div>
+      </section>
     </div>
   </div>`;
 }
 function switchChatTab(tab){
-  const searchPanel=document.getElementById("chatTabSearch");
-  const explorePanel=document.getElementById("chatTabExplore");
-  const tabSearch=document.getElementById("tabSearch");
-  const tabExplore=document.getElementById("tabExplore");
-  if(!searchPanel||!explorePanel)return;
+  const searchBtn=document.getElementById("tabSearch");
+  const exploreBtn=document.getElementById("tabExplore");
+  const panel=document.getElementById("chatExplorePanel");
+  if(!panel)return;
   if(tab==="explore"){
-    searchPanel.classList.add("hidden");
-    explorePanel.classList.remove("hidden");
-    tabSearch?.classList.remove("active");
-    tabExplore?.classList.add("active");
+    panel.classList.remove("hidden");
+    searchBtn?.classList.remove("active");
+    exploreBtn?.classList.add("active");
     loadExploreUsers();
   }else{
-    explorePanel.classList.add("hidden");
-    searchPanel.classList.remove("hidden");
-    tabExplore?.classList.remove("active");
-    tabSearch?.classList.add("active");
+    panel.classList.add("hidden");
+    exploreBtn?.classList.remove("active");
+    searchBtn?.classList.add("active");
     loadChatList();
   }
   if(window.lucide)lucide.createIcons();
 }
-
 function showChatExplore(){
   const input=document.getElementById("chatUserSearch");
   if(input){input.focus();window.scrollTo({top:0,behavior:"smooth"})}
@@ -1976,12 +1945,19 @@ function renderChatWindow(){
       <button class="chat-head-btn chat-back-mobile" onclick="closeSelectedChat()"><i data-lucide="arrow-left"></i></button>
       <button type="button" onclick="openUserProfile('${esc(selectedChatUser.uid)}')" style="background:transparent;padding:0">${chatAvatarHTML(selectedChatUser)}</button>
       <div class="chat-head-copy" onclick="openUserProfile('${esc(selectedChatUser.uid)}')"><b>${esc(selectedChatUser.name||"Study User")}</b><small>@${esc(selectedChatUser.username||"username")} • ${selectedChatUser.studyStatus||"Available"}</small></div>
-      <div class="chat-head-actions"><button class="chat-head-btn danger" title="Block" onclick="toggleBlockSelected()"><i data-lucide="ban"></i></button></div>
+      <div class="chat-head-actions">
+        <button class="chat-head-btn" title="Profile" onclick="openUserProfile('${esc(selectedChatUser.uid)}')"><i data-lucide="info"></i></button>
+        <button class="chat-head-btn danger" title="Block" onclick="toggleBlockSelected()"><i data-lucide="ban"></i></button>
+      </div>
     </div>
     ${chatBlockedMe?`<div class="chat-blocked-banner">This user has blocked you. You cannot send messages.</div>`:""}
     ${chatBlockedByMe?`<div class="chat-blocked-banner">You blocked this user. Unblock them from their profile to chat again.</div>`:""}
     <div id="chatMessages" class="chat-messages"><div class="chat-empty">Loading messages…</div></div>
     <div id="chatTypingStatus" class="chat-typing"></div>
+    <div id="chatReplyPreview" class="chat-reply-preview">
+      <div class="chat-reply-preview-copy"><b id="chatReplyPreviewName">Replying</b><span id="chatReplyPreviewText"></span></div>
+      <button class="chat-reply-cancel" onclick="clearChatReply()">×</button>
+    </div>
     <div class="chat-compose"><textarea id="chatMessageInput" maxlength="2000" placeholder="Write a message…" ${blocked?"disabled":""} onkeydown="handleChatKeydown(event)" oninput="onChatInputTyping()"></textarea><button class="chat-send" id="chatSendBtn" onclick="sendChatMessage()" ${blocked?"disabled":""}><i data-lucide="send"></i></button></div>`;
   if(window.lucide)lucide.createIcons();
   subscribeTyping(selectedChatId);
@@ -1997,6 +1973,99 @@ function closeSelectedChat(){
   const host=document.getElementById("chatWindow");
   if(host)host.innerHTML=`<div class="chat-empty"><strong>Messages exchanged with your friends will be displayed here.</strong></div>`;
   loadChatList();
+}
+let pendingChatReply=null;
+let activeChatActionId="";
+let chatLongPressTimer=null;
+
+function clearChatReply(){
+  pendingChatReply=null;
+  const box=document.getElementById("chatReplyPreview");
+  if(box)box.classList.remove("show");
+}
+function setChatReply(message){
+  if(!message)return;
+  pendingChatReply={id:message.id,text:String(message.text||""),senderId:message.senderId||"",senderName:message.senderName||selectedChatUser?.name||"User"};
+  const box=document.getElementById("chatReplyPreview");
+  const name=document.getElementById("chatReplyPreviewName");
+  const text=document.getElementById("chatReplyPreviewText");
+  if(name)name.textContent=`Replying to ${pendingChatReply.senderName}`;
+  if(text)text.textContent=pendingChatReply.text||"Message";
+  if(box)box.classList.add("show");
+  document.getElementById("chatMessageInput")?.focus();
+}
+function closeChatActionMenu(){
+  const old=document.getElementById("chatLongpressMenu");
+  if(old)old.remove();
+  activeChatActionId="";
+}
+function showChatActionMenu(message,anchor){
+  closeChatActionMenu();
+  activeChatActionId=message.id;
+  const menu=document.createElement("div");
+  menu.id="chatLongpressMenu";
+  menu.className="chat-longpress-menu";
+  menu.innerHTML=`
+    <button onclick="reactToChatMessage('${esc(message.id)}','❤️')">❤️</button>
+    <button onclick="reactToChatMessage('${esc(message.id)}','👍')">👍</button>
+    <button onclick="reactToChatMessage('${esc(message.id)}','😂')">😂</button>
+    <button class="reply" onclick="setChatReplyById('${esc(message.id)}')">↩ Reply</button>
+    ${message.senderId===currentUid()?`<button class="danger" onclick="deleteChatMessage('${esc(message.id)}')">🗑 Delete</button>`:""}
+  `;
+  document.body.appendChild(menu);
+  const r=anchor?.getBoundingClientRect?.();
+  const top=Math.max(8,Math.min(window.innerHeight-60,(r?.top||window.innerHeight/2)-52));
+  const left=Math.max(8,Math.min(window.innerWidth-330,(r?.left||window.innerWidth/2)));
+  menu.style.top=top+"px";menu.style.left=left+"px";
+  setTimeout(()=>document.addEventListener("click",closeChatActionMenu,{once:true}),0);
+}
+function setChatReplyById(id){
+  closeChatActionMenu();
+  const el=document.querySelector(`[data-message-id="${CSS.escape(id)}"]`);
+  if(el&&el.__message)setChatReply(el.__message);
+}
+async function reactToChatMessage(id,emoji){
+  closeChatActionMenu();
+  if(!firestore||!selectedChatId||!currentUid()||!id)return;
+  try{
+    const ref=doc(firestore,"chats",selectedChatId,"messages",id);
+    const snap=await getDoc(ref);if(!snap.exists)return;
+    const m=snap.data()||{}, reactions={...(m.reactions||{})};
+    const list=Array.isArray(reactions[emoji])?[...reactions[emoji]]:[];
+    const i=list.indexOf(currentUid());
+    if(i>=0)list.splice(i,1);else list.push(currentUid());
+    if(list.length)reactions[emoji]=list;else delete reactions[emoji];
+    await updateDoc(ref,{reactions});
+  }catch(err){console.warn("Reaction update failed",err);alert("Reaction could not be saved. Check your Firestore message update permission.")}
+}
+async function deleteChatMessage(id){
+  closeChatActionMenu();
+  if(!firestore||!selectedChatId||!currentUid()||!id)return;
+  if(!confirm("Delete this message?"))return;
+  try{
+    const ref=doc(firestore,"chats",selectedChatId,"messages",id);
+    const snap=await getDoc(ref);if(!snap.exists)return;
+    if(snap.data()?.senderId!==currentUid())return alert("You can only delete your own messages.");
+    await deleteDoc(ref);
+  }catch(err){console.warn("Delete message failed",err);alert("Message could not be deleted. Check your Firestore delete permission.")}
+}
+function bindChatMessagePress(el,message){
+  el.__message=message;
+  let timer=null;
+  let moved=false;
+  el.addEventListener("touchstart",e=>{
+    moved=false;
+    const t=e.touches?.[0];if(!t)return;
+    const x=t.clientX,y=t.clientY;
+    timer=setTimeout(()=>{if(!moved)showChatActionMenu(message,el)},520);
+    el.__pressStart={x,y};
+  },{passive:true});
+  el.addEventListener("touchmove",e=>{
+    const t=e.touches?.[0];if(!t||!el.__pressStart)return;
+    if(Math.abs(t.clientX-el.__pressStart.x)>10||Math.abs(t.clientY-el.__pressStart.y)>10){moved=true;clearTimeout(timer)}
+  },{passive:true});
+  ["touchend","touchcancel"].forEach(ev=>el.addEventListener(ev,()=>clearTimeout(timer),{passive:true}));
+  el.addEventListener("contextmenu",e=>{e.preventDefault();showChatActionMenu(message,el)});
 }
 function subscribeToMessages(forChatId){
   if(chatMessagesUnsub){try{chatMessagesUnsub()}catch(e){} chatMessagesUnsub=null}
@@ -2043,8 +2112,16 @@ function subscribeToMessages(forChatId){
     h.innerHTML=docs.map(d=>{
       const m=d.data();
       const mine=m.senderId===me;
-      return `<div class="chat-bubble-row ${mine?"mine":""}"><div class="chat-bubble">${escapeChatText(m.text)}<div class="chat-bubble-time">${formatChatTime(m.createdAt)}</div></div></div>`;
+      const reply=m.replyTo;
+      const reactions=m.reactions||{};
+      const reactionHTML=Object.entries(reactions).filter(([_,ids])=>Array.isArray(ids)&&ids.length).map(([emoji,ids])=>`<button class="chat-reaction-chip" onclick="reactToChatMessage('${esc(d.id)}','${esc(emoji)}');event.stopPropagation()">${emoji} ${ids.length}</button>`).join("");
+      const replyHTML=reply?`<div class="chat-bubble-reply"><b>${esc(reply.senderName||"User")}</b><br>${escapeChatText(reply.text||"")}</div>`:"";
+      return `<div class="chat-bubble-row ${mine?"mine":""}" data-message-row="${esc(d.id)}"><div class="chat-bubble-wrap"><div class="chat-bubble" data-message-id="${esc(d.id)}">${replyHTML}${escapeChatText(m.text)}<div class="chat-bubble-time">${formatChatTime(m.createdAt)}</div></div>${reactionHTML?`<div class="chat-reaction-line">${reactionHTML}</div>`:""}</div></div>`;
     }).join("");
+    docs.forEach(d=>{
+      const el=h.querySelector(`[data-message-id="${CSS.escape(d.id)}"]`);
+      if(el){const m={id:d.id,...d.data()};bindChatMessagePress(el,m);}
+    });
     h.scrollTop=h.scrollHeight;
   },err=>{
     if(gen!==chatSubGen)return;
