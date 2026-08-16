@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Study</title>
+<title>Study Circle — Focus App</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -45,7 +45,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-<!-- Firebase compat SDKs: required by the existing single-file auth/Firestore bridge below. -->
+<!-- Firebase compat SDKs: auth, profiles, P2P WebRTC signaling, and durable chat persistence. -->
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -429,7 +429,19 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   .chat-back-mobile{display:grid}.chat-window-head{padding:10px}.chat-window-head .chat-head-copy b{font-size:13px}.chat-messages{padding:12px}.chat-bubble{max-width:82%}.chat-compose{padding:8px}.chat-user-row{padding:8px}.chat-profile-box{padding:19px}.chats-search-card{padding:11px}
 }
 
-@media(max-width:700px){.mobile-nav{grid-template-columns:repeat(6,1fr)}.bottom-item{font-size:9px}.bottom-item i{font-size:19px}}
+
+/* ===== P2P CHAT OVERRIDES ===== */
+.p2p-status{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:#f2f7fa;color:#6f7884;font-size:9px;font-weight:900}
+.p2p-status.connected{background:#eaf9ef;color:#318a48}
+.p2p-status.connecting{background:#fff8dc;color:#9b7a00}
+.p2p-status.offline{background:#fff0f2;color:#c73554}
+.p2p-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.chat-directory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.chat-directory .chat-user-row{min-width:0}
+.chat-directory-empty{padding:14px;color:#858c96;font-size:11px;text-align:center}
+@media(max-width:700px){.chat-directory{grid-template-columns:1fr}}
+
+@media(max-width:700px){.mobile-nav{grid-template-columns:repeat(5,1fr)}.bottom-item{font-size:9px}.bottom-item i{font-size:19px}}
 </style>
 </head>
 <body>
@@ -689,6 +701,7 @@ function getInitialActivePage(){
   return "home";
 }
 let activePage=getInitialActivePage();
+if(activePage==="explore")activePage="chats";
 function renderApp(){
   document.getElementById("app").innerHTML=`
     <main class="dashboard page">
@@ -702,14 +715,13 @@ function renderApp(){
           <button class="rail-link ${activePage==="add"?"active":""}" onclick="navigate('add')"><span class="ico"><i data-lucide="plus" class="icon-svg"></i></span>Add</button>
           <button class="rail-link ${activePage==="target"?"active":""}" onclick="navigate('target')"><span class="ico"><i data-lucide="target" class="icon-svg"></i></span>Target</button>
           <button class="rail-link ${activePage==="chats"?"active":""}" onclick="navigate('chats')"><span class="ico"><i data-lucide="messages-square" class="icon-svg"></i></span>Chats</button>
-          <button class="rail-link ${activePage==="explore"?"active":""}" onclick="navigate('explore')"><span class="ico"><i data-lucide="compass" class="icon-svg"></i></span>Explore</button>
           <button class="rail-link ${activePage==="profile"?"active":""}" onclick="navigate('profile')"><span class="ico"><i data-lucide="user-round" class="icon-svg"></i></span>Profile</button>
         </nav>
         <div class="rail-user">${avatarHTML("avatar")}<div><div class="user-name">${esc(state.user.name||"Study User")}</div><div class="user-sub">@${esc(state.user.username||"student")}</div></div></div>
       </aside>
 
       <section class="main">
-        ${activePage==="home"?homePage():activePage==="add"?addPage():activePage==="target"?targetPage():activePage==="chats"?chatsPage():activePage==="explore"?explorePage():profilePage()}
+        ${activePage==="home"?homePage():activePage==="add"?addPage():activePage==="target"?targetPage():activePage==="chats"?chatsPage():profilePage()}
       </section>
 
       <aside class="right">
@@ -722,7 +734,6 @@ function renderApp(){
         <button class="bottom-item add ${activePage==="add"?"active":""}" onclick="navigate('add')"><i data-lucide="plus"></i><small>Add</small></button>
         <button class="bottom-item ${activePage==="target"?"active":""}" onclick="navigate('target')"><i data-lucide="target"></i><small>Target</small></button>
         <button class="bottom-item ${activePage==="chats"?"active":""}" onclick="navigate('chats')"><i data-lucide="messages-square"></i><small>Chats</small></button>
-        <button class="bottom-item ${activePage==="explore"?"active":""}" onclick="navigate('explore')"><i data-lucide="compass"></i><small>Explore</small></button>
         <button class="bottom-item ${activePage==="profile"?"active":""}" onclick="navigate('profile')"><i data-lucide="user-round"></i><small>Profile</small></button>
       </nav>
     </main>
@@ -738,7 +749,6 @@ function navigate(page){
   if(window.lucide)lucide.createIcons();
   window.scrollTo({top:0,behavior:"smooth"});
   if(page==="chats")setTimeout(initChatsPage,0);
-  if(page==="explore")setTimeout(initExplorePage,0);
 }
 
 function homePage(){
@@ -1294,103 +1304,13 @@ function setTarget(){
 
 
 /* ============================================================
-   PUBLIC USER DIRECTORY / EXPLORE
-   ============================================================ */
-let exploreUsers=[];
-let exploreTimer=null;
-let exploreLoaded=false;
-
-async function publishMyPublicProfile(){
-  if(!firebaseReady||!firebaseUser||!firestore)return false;
-  try{
-    const u=state.user||{};
-    const username=String(u.username||"").trim().replace(/^@/,'').toLowerCase();
-    if(!username)return false;
-    const totalSeconds=(state.sessions||[]).reduce((sum,x)=>sum+Math.max(0,Number(x.seconds)||0),0);
-    const subjectBreakdown=(state.subjects||[]).map(s=>({name:s.name,seconds:Math.max(0,Number(s.seconds)||0)})).filter(x=>x.seconds>0).sort((a,b)=>b.seconds-a.seconds).slice(0,8);
-    const topSubject=subjectBreakdown[0]?.name||"No subject yet";
-    let followingCount=Number(u.followingCount)||0;
-    try{followingCount=(await getDocs(collection(firestore,"publicProfiles",firebaseUser.uid,"following"))).size}catch(e){}
-    await setDoc(doc(firestore,"publicProfiles",firebaseUser.uid),{
-      uid:firebaseUser.uid,
-      name:u.name||firebaseUser.displayName||"Study User",
-      username,
-      usernameLower:username,
-      dp:u.dp||firebaseUser.photoURL||"",
-      bio:u.bio||"",
-      studyStatus:(timerState?.running||state.target?.running)?"Studying":"Available",
-      totalSeconds,
-      subjectBreakdown,
-      topSubject,
-      followingCount,
-      updatedAt:serverTimestamp()
-    },{merge:true});
-    return true;
-  }catch(err){
-    console.warn("Public profile publish failed:",err);
-    return false;
-  }
-}
-
-async function loadExploreUsers(){
-  const host=document.getElementById("exploreResults");
-  if(!host||!firebaseReady||!firestore||!currentUid()){
-    if(host)host.innerHTML=`<div class="chat-list-empty">Sign in with Google first to explore users.</div>`;
-    return;
-  }
-  host.innerHTML=`<div class="chat-list-empty">Loading users…</div>`;
-  try{
-    const snap=await getDocs(query(collection(firestore,"publicProfiles"),orderBy("usernameLower"),limit(100)));
-    exploreUsers=snap.docs.map(d=>({uid:d.id,...d.data()})).filter(u=>u.uid!==currentUid());
-    exploreLoaded=true;
-    renderExploreUsers(exploreUsers);
-  }catch(err){
-    console.warn("Explore users failed",err);
-    host.innerHTML=`<div class="chat-list-empty">Users could not load. Check Firestore rules for publicProfiles.</div>`;
-  }
-}
-
-function renderExploreUsers(users=[],message=""){
-  const host=document.getElementById("exploreResults");if(!host)return;
-  if(message){host.innerHTML=`<div class="chat-list-empty">${esc(message)}</div>`;return}
-  if(!users.length){host.innerHTML=`<div class="chat-list-empty">No other Study Circle users yet.</div>`;return}
-  host.innerHTML=users.map(u=>chatUserRow(u,true)).join("");
-  users.forEach(async u=>{
-    const btn=document.getElementById(`follow-${u.uid}`);if(!btn)return;
-    const following=await isFollowing(u.uid);
-    if(btn){btn.textContent=following?"Added":"Add";btn.classList.toggle("following",following)}
-  });
-  if(window.lucide)lucide.createIcons();
-}
-
-function queueExploreSearch(value){
-  clearTimeout(exploreTimer);
-  const q=String(value||"").trim().replace(/^@/,'').toLowerCase();
-  if(q.length<2){renderExploreUsers(exploreUsers);return}
-  exploreTimer=setTimeout(()=>{
-    const matches=exploreUsers.filter(u=>String(u.usernameLower||u.username||"").startsWith(q) || String(u.name||"").toLowerCase().includes(q));
-    renderExploreUsers(matches);
-  },120);
-}
-
-function explorePage(){
-  return `<div class="chats-page">
-    <div class="topbar"><div><h1 class="page-title">Explore</h1><div class="page-sub">Discover students who joined Study Circle.</div></div><button class="menu-btn" onclick="loadExploreUsers()"><i data-lucide="refresh-cw" class="icon-svg"></i></button></div>
-    <section class="card chats-search-card">
-      <div class="chats-search-wrap"><i data-lucide="search"></i><input id="exploreUserSearch" autocomplete="off" placeholder="Search username…" oninput="queueExploreSearch(this.value)"></div>
-    </section>
-    <section class="card chat-list-card" style="margin-top:14px"><div class="chat-list-head">Study Circle users</div><div id="exploreResults" class="chat-list"><div class="chat-list-empty">Loading users…</div></div></section>
-  </div>`;
-}
-
-function initExplorePage(){
-  if(activePage!=="explore")return;
-  loadExploreUsers();
-  if(window.lucide)lucide.createIcons();
-}
-
-/* ============================================================
-   CHATS — FIRESTORE REAL-TIME MESSAGING
+   CHATS — P2P WEBRTC + FIRESTORE PERSISTENCE
+   ------------------------------------------------------------
+   Firebase is used for:
+     1) user directory/profile data
+     2) WebRTC signaling (offer/answer/ICE)
+     3) durable message history
+   Actual live message delivery happens over a WebRTC data channel.
    ============================================================ */
 let chatSearchTimer=null;
 let chatSearchResults=[];
@@ -1402,6 +1322,21 @@ let chatMessagesUnsub=null;
 let chatListProfilesCache={};
 let chatBlockedByMe=false;
 let chatBlockedMe=false;
+
+const p2p={
+  pc:null,
+  dc:null,
+  otherUid:"",
+  chatId:"",
+  sessionId:"",
+  initiator:false,
+  signalUnsub:null,
+  candidateUnsub:null,
+  makingOffer:false,
+  remoteCandidates:new Set(),
+  connected:false
+};
+let persistedMessages=new Map();
 
 function currentUid(){return firebaseUser?.uid||state.authUid||""}
 function chatIdFor(a,b){return [a,b].sort().join("_")}
@@ -1415,17 +1350,29 @@ function formatChatTime(ts){
   }catch{return ""}
 }
 function escapeChatText(v=""){return esc(v)}
+function p2pStatusHTML(){
+  const stateName=p2p.connected?"connected":(p2p.pc?"connecting":"offline");
+  const label=p2p.connected?"P2P connected":(p2p.pc?"Connecting P2P…":"P2P offline");
+  return `<span class="p2p-status ${stateName}"><i class="p2p-dot"></i>${label}</span>`;
+}
 
 function chatsPage(){
   return `<div class="chats-page">
-    <div class="topbar"><div><h1 class="page-title">Chats</h1><div class="page-sub">Find people, follow them, and study together.</div></div><button class="menu-btn" onclick="showChatExplore()"><i data-lucide="search" class="icon-svg"></i></button></div>
+    <div class="topbar">
+      <div><h1 class="page-title">Chats</h1><div class="page-sub">Find students, follow them, and chat directly P2P.</div></div>
+      <button class="menu-btn" onclick="loadChatDirectory()"><i data-lucide="refresh-cw" class="icon-svg"></i></button>
+    </div>
+
     <section class="card chats-search-card">
       <div class="chats-search-wrap"><i data-lucide="search"></i><input id="chatUserSearch" autocomplete="off" placeholder="Search username…" oninput="queueUserSearch(this.value)"></div>
       <div id="chatSearchResults" class="chats-search-results"></div>
+      <div class="chat-list-head" style="margin:12px -2px 0;padding:10px 2px 0;border-bottom:0">Study Circle users</div>
+      <div id="chatDirectory" class="chat-directory"><div class="chat-directory-empty">Loading users…</div></div>
     </section>
+
     <div class="chats-layout">
       <section class="card chat-list-card"><div class="chat-list-head">Your chats</div><div id="chatList" class="chat-list"><div class="chat-list-empty">Loading your conversations…</div></div></section>
-      <section class="card chat-window-card"><div id="chatWindow" class="chat-window"><div class="chat-empty"><strong>Select a chat</strong>Search for a username above or choose a conversation from your chat list.</div></div></section>
+      <section class="card chat-window-card"><div id="chatWindow" class="chat-window"><div class="chat-empty"><strong>Select a chat</strong>Search for a username or choose a conversation from your chat list.</div></div></section>
     </div>
   </div>`;
 }
@@ -1434,28 +1381,41 @@ function showChatExplore(){
   const input=document.getElementById("chatUserSearch");
   if(input){input.focus();window.scrollTo({top:0,behavior:"smooth"})}
 }
+
 function initChatsPage(){
   if(activePage!=="chats")return;
   if(!currentUid()){
     const list=document.getElementById("chatList");
+    const dir=document.getElementById("chatDirectory");
     if(list)list.innerHTML=`<div class="chat-list-empty">Sign in with Google first to use Chats.</div>`;
+    if(dir)dir.innerHTML=`<div class="chat-directory-empty">Sign in with Google first to discover users.</div>`;
     return;
   }
   loadChatList();
+  loadChatDirectory();
   if(window.lucide)lucide.createIcons();
 }
+
 function stopChatListeners(){
   if(chatListUnsub){chatListUnsub();chatListUnsub=null}
   if(chatMessagesUnsub){chatMessagesUnsub();chatMessagesUnsub=null}
+  if(p2p.signalUnsub){p2p.signalUnsub();p2p.signalUnsub=null}
+  if(p2p.candidateUnsub){p2p.candidateUnsub();p2p.candidateUnsub=null}
+  closeP2PConnection();
   selectedChatId="";selectedChatUser=null;
 }
 
 function queueUserSearch(value){
   clearTimeout(chatSearchTimer);
   const q=String(value||"").trim().replace(/^@/g,"").toLowerCase();
-  if(q.length<2){renderChatSearchResults([]);return}
-  chatSearchTimer=setTimeout(()=>searchUsers(q),250);
+  if(q.length<2){
+    renderChatSearchResults([]);
+    loadChatDirectory();
+    return;
+  }
+  chatSearchTimer=setTimeout(()=>searchUsers(q),220);
 }
+
 async function searchUsers(q){
   if(!firebaseReady||!firestore||!currentUid()){
     renderChatSearchResults([],"Sign in with Google first to search users.");
@@ -1465,16 +1425,44 @@ async function searchUsers(q){
     const ref=collection(firestore,"publicProfiles");
     const snap=await getDocs(query(ref,where("usernameLower",">=",q),where("usernameLower","<=",q+"\uf8ff"),orderBy("usernameLower"),limit(20)));
     const users=snap.docs.map(d=>({uid:d.id,...d.data()})).filter(u=>u.uid!==currentUid());
-    chatSearchResults=users;renderChatSearchResults(users,users.length?"":"No user found with that username.");
+    chatSearchResults=users;
+    renderChatSearchResults(users,users.length?"":"No user found with that username.");
   }catch(err){
     console.warn("User search failed",err);
     renderChatSearchResults([],"Search could not load. Check Firestore rules for publicProfiles.");
   }
 }
+
+async function loadChatDirectory(){
+  const host=document.getElementById("chatDirectory");
+  if(!host||!firebaseReady||!currentUid())return;
+  host.innerHTML=`<div class="chat-directory-empty">Loading users…</div>`;
+  try{
+    const snap=await getDocs(query(collection(firestore,"publicProfiles"),orderBy("usernameLower"),limit(60)));
+    const users=snap.docs.map(d=>({uid:d.id,...d.data()})).filter(u=>u.uid!==currentUid());
+    renderChatDirectory(users);
+  }catch(err){
+    console.warn("Chat directory failed",err);
+    host.innerHTML=`<div class="chat-directory-empty">Users could not load. Check Firestore rules for publicProfiles.</div>`;
+  }
+}
+
+function renderChatDirectory(users=[]){
+  const host=document.getElementById("chatDirectory");if(!host)return;
+  if(!users.length){host.innerHTML=`<div class="chat-directory-empty">No other Study Circle users yet.</div>`;return}
+  host.innerHTML=users.slice(0,12).map(u=>chatUserRow(u,true)).join("");
+  users.slice(0,12).forEach(async u=>{
+    const btn=document.getElementById(`follow-${u.uid}`);if(!btn)return;
+    const following=await isFollowing(u.uid);
+    if(btn){btn.textContent=following?"Added":"Add";btn.classList.toggle("following",following)}
+  });
+  if(window.lucide)lucide.createIcons();
+}
+
 function renderChatSearchResults(users=[],message=""){
   const host=document.getElementById("chatSearchResults");if(!host)return;
   if(message){host.innerHTML=`<div class="chat-list-empty">${esc(message)}</div>`;return}
-  if(!users.length){host.innerHTML=`<div class="chat-list-empty">No users found.</div>`;return}
+  if(!users.length){host.innerHTML="";return}
   host.innerHTML=users.map(u=>chatUserRow(u,true)).join("");
   users.forEach(async u=>{
     const btn=document.getElementById(`follow-${u.uid}`);if(!btn)return;
@@ -1483,6 +1471,7 @@ function renderChatSearchResults(users=[],message=""){
   });
   if(window.lucide)lucide.createIcons();
 }
+
 function chatUserRow(u,searchMode=false){
   const isMe=u.uid===currentUid();
   return `<div class="chat-user-row">
@@ -1522,22 +1511,40 @@ function loadChatList(){
   });
 }
 
+async function ensureChatDoc(otherUid){
+  const cid=chatIdFor(currentUid(),otherUid);
+  const chatRef=doc(firestore,"chats",cid);
+  const snap=await getDoc(chatRef);
+  if(!snap.exists()){
+    await setDoc(chatRef,{
+      participants:[currentUid(),otherUid].sort(),
+      lastMessage:"",
+      updatedAt:serverTimestamp(),
+      createdAt:serverTimestamp()
+    });
+  }
+  return cid;
+}
+
 async function openChat(otherUid){
   if(!currentUid()||!otherUid||otherUid===currentUid())return;
   try{
     const user=chatListProfilesCache[otherUid] || await fetchPublicProfile(otherUid);
-    if(!user){alert("This user profile could not be loaded, so the chat cannot open.");return;}
+    if(!user){alert("This user profile could not be loaded.");return}
+    await ensureChatDoc(otherUid);
     selectedChatUser=user;
     selectedChatId=chatIdFor(currentUid(),otherUid);
     await refreshBlockState(otherUid);
     renderChatWindow();
-    subscribeToMessages();
+    await loadPersistedMessages();
+    await startP2PConnection(otherUid);
     loadChatList();
   }catch(err){
     console.error("Open chat failed",err);
     alert(`Chat could not open: ${err?.message||"Unknown error"}`);
   }
 }
+
 async function fetchPublicProfile(uid){
   if(!firebaseReady)return null;
   try{
@@ -1546,6 +1553,7 @@ async function fetchPublicProfile(uid){
     const u={uid:s.id,...s.data()};chatListProfilesCache[uid]=u;return u;
   }catch(err){console.warn(err);return null}
 }
+
 async function refreshBlockState(otherUid){
   chatBlockedByMe=false;chatBlockedMe=false;
   if(!firebaseReady||!otherUid)return;
@@ -1557,6 +1565,7 @@ async function refreshBlockState(otherUid){
     chatBlockedByMe=mine.exists();chatBlockedMe=theirs.exists();
   }catch(err){console.warn("Block state",err)}
 }
+
 function renderChatWindow(){
   const host=document.getElementById("chatWindow");if(!host||!selectedChatUser)return;
   const blocked=chatBlockedByMe||chatBlockedMe;
@@ -1564,50 +1573,264 @@ function renderChatWindow(){
     <div class="chat-window-head">
       <button class="chat-head-btn chat-back-mobile" onclick="closeSelectedChat()"><i data-lucide="arrow-left"></i></button>
       <button type="button" onclick="openUserProfile('${esc(selectedChatUser.uid)}')" style="background:transparent;padding:0">${chatAvatarHTML(selectedChatUser)}</button>
-      <div class="chat-head-copy" onclick="openUserProfile('${esc(selectedChatUser.uid)}')"><b>${esc(selectedChatUser.name||"Study User")}</b><small>@${esc(selectedChatUser.username||"username")} • ${selectedChatUser.studyStatus||"Available"}</small></div>
+      <div class="chat-head-copy" onclick="openUserProfile('${esc(selectedChatUser.uid)}')"><b>${esc(selectedChatUser.name||"Study User")}</b><small>@${esc(selectedChatUser.username||"username")} • <span id="p2pStatus">${p2pStatusHTML()}</span></small></div>
       <div class="chat-head-actions"><button class="chat-head-btn danger" title="Block" onclick="toggleBlockSelected()"><i data-lucide="ban"></i></button></div>
     </div>
     ${chatBlockedMe?`<div class="chat-blocked-banner">This user has blocked you. You cannot send messages.</div>`:""}
     ${chatBlockedByMe?`<div class="chat-blocked-banner">You blocked this user. Unblock them from their profile to chat again.</div>`:""}
-    <div id="chatMessages" class="chat-messages"><div class="chat-empty">Loading messages…</div></div>
+    <div id="chatMessages" class="chat-messages"><div class="chat-empty"><strong>Loading messages…</strong></div></div>
     <div class="chat-compose"><textarea id="chatMessageInput" maxlength="2000" placeholder="Write a message…" ${blocked?"disabled":""} onkeydown="handleChatKeydown(event)"></textarea><button class="chat-send" id="chatSendBtn" onclick="sendChatMessage()" ${blocked?"disabled":""}><i data-lucide="send"></i></button></div>`;
   if(window.lucide)lucide.createIcons();
 }
+
+function updateP2PStatus(){
+  const el=document.getElementById("p2pStatus");
+  if(el)el.innerHTML=p2pStatusHTML();
+}
+
 function closeSelectedChat(){
   if(chatMessagesUnsub){chatMessagesUnsub();chatMessagesUnsub=null}
-  selectedChatId="";selectedChatUser=null;chatBlockedByMe=false;chatBlockedMe=false;
-  const host=document.getElementById("chatWindow");if(host)host.innerHTML=`<div class="chat-empty"><strong>Select a chat</strong>Search for a username above or choose a conversation from your chat list.</div>`;
+  closeP2PConnection();
+  selectedChatId="";selectedChatUser=null;
+  const host=document.getElementById("chatWindow");if(host)host.innerHTML=`<div class="chat-empty"><strong>Select a chat</strong>Search for a username or choose a conversation from your chat list.</div>`;
   loadChatList();
 }
-function subscribeToMessages(){
-  if(chatMessagesUnsub)chatMessagesUnsub();
+
+async function loadPersistedMessages(){
   const host=document.getElementById("chatMessages");if(!host||!selectedChatId)return;
-  const q=query(collection(firestore,"chats",selectedChatId,"messages"),orderBy("createdAt","asc"),limit(200));
-  chatMessagesUnsub=onSnapshot(q,snap=>{
-    if(!snap.docs.length){host.innerHTML=`<div class="chat-empty"><strong>Say hello 👋</strong>Your messages will appear here in real time.</div>`;return}
-    host.innerHTML=snap.docs.map(d=>{const m=d.data();const mine=m.senderId===currentUid();return `<div class="chat-bubble-row ${mine?"mine":""}"><div class="chat-bubble">${escapeChatText(m.text)}<div class="chat-bubble-time">${formatChatTime(m.createdAt)}</div></div></div>`}).join("");
-    host.scrollTop=host.scrollHeight;
-  },err=>{console.warn("Message listener failed",err);host.innerHTML=`<div class="chat-empty">Messages could not load. Check your Firestore rules.</div>`});
+  try{
+    const snap=await getDocs(query(collection(firestore,"chats",selectedChatId,"messages"),orderBy("clientCreatedAt","asc"),limit(300)));
+    persistedMessages=new Map();
+    snap.docs.forEach(d=>persistedMessages.set(d.id,{id:d.id,...d.data()}));
+    renderPersistedMessages();
+  }catch(err){
+    console.warn("Message history failed",err);
+    host.innerHTML=`<div class="chat-empty">Messages could not load. Check your Firestore rules.</div>`;
+  }
 }
+
+function renderPersistedMessages(){
+  const host=document.getElementById("chatMessages");if(!host)return;
+  const rows=[...persistedMessages.values()].sort((a,b)=>(Number(a.clientCreatedAt)||0)-(Number(b.clientCreatedAt)||0));
+  if(!rows.length){
+    host.innerHTML=`<div class="chat-empty"><strong>Say hello 👋</strong>Live messages are sent P2P and saved in Firebase.</div>`;
+    return;
+  }
+  host.innerHTML=rows.map(m=>{
+    const mine=m.senderId===currentUid();
+    return `<div class="chat-bubble-row ${mine?"mine":""}" data-message-id="${esc(m.id||"")}"><div class="chat-bubble">${escapeChatText(m.text)}<div class="chat-bubble-time">${formatChatTime(m.createdAt||m.clientCreatedAt)}</div></div></div>`;
+  }).join("");
+  host.scrollTop=host.scrollHeight;
+}
+
+function appendP2PMessage(m){
+  if(!m?.id||persistedMessages.has(m.id))return;
+  persistedMessages.set(m.id,m);
+  renderPersistedMessages();
+}
+
 function handleChatKeydown(e){
   if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChatMessage()}
 }
+
+async function persistMessage(msg){
+  const ref=doc(firestore,"chats",selectedChatId,"messages",msg.id);
+  await setDoc(ref,{
+    senderId:msg.senderId,
+    receiverId:msg.receiverId,
+    text:msg.text,
+    clientCreatedAt:msg.clientCreatedAt,
+    createdAt:serverTimestamp(),
+    transport:"webrtc"
+  },{merge:true});
+  await setDoc(doc(firestore,"chats",selectedChatId),{
+    participants:[currentUid(),selectedChatUser.uid].sort(),
+    lastMessage:msg.text.slice(0,200),
+    updatedAt:serverTimestamp()
+  },{merge:true});
+}
+
 async function sendChatMessage(){
-  const input=document.getElementById("chatMessageInput");if(!input||!selectedChatUser||!currentUid()||!firestore)return;
+  const input=document.getElementById("chatMessageInput");
+  if(!input||!selectedChatUser||!currentUid()||!firestore)return;
   const text=input.value.trim();if(!text)return;
   if(chatBlockedByMe||chatBlockedMe)return alert("Messaging is unavailable for this user.");
-  const otherUid=selectedChatUser.uid;const cid=selectedChatId||chatIdFor(currentUid(),otherUid);
+  if(!p2p.dc||p2p.dc.readyState!=="open"){
+    updateP2PStatus();
+    return alert("P2P connection is not ready yet. Please wait a moment and try again.");
+  }
+  const otherUid=selectedChatUser.uid;
+  const msg={
+    id:crypto.randomUUID(),
+    senderId:currentUid(),
+    receiverId:otherUid,
+    text,
+    clientCreatedAt:Date.now()
+  };
   input.value="";
   try{
-    const [mine,theirs]=await Promise.all([
-      getDoc(doc(firestore,"blocks",`${currentUid()}_${otherUid}`)),
-      getDoc(doc(firestore,"blocks",`${otherUid}_${currentUid()}`))
-    ]);
-    if(mine.exists()||theirs.exists()){await refreshBlockState(otherUid);renderChatWindow();subscribeToMessages();return alert("Messaging is unavailable because one of you has blocked the other.")}
-    const chatRef=doc(firestore,"chats",cid);
-    await setDoc(chatRef,{participants:[currentUid(),otherUid].sort(),lastMessage:text.slice(0,200),updatedAt:serverTimestamp(),createdAt:serverTimestamp()},{merge:true});
-    await addDoc(collection(firestore,"chats",cid,"messages"),{senderId:currentUid(),receiverId:otherUid,text,createdAt:serverTimestamp()});
-  }catch(err){console.error("Send message failed",err);alert("Message could not be sent. Check your Firestore rules and try again.");input.value=text}
+    // Persist first; actual live delivery is the WebRTC data channel.
+    await persistMessage(msg);
+    appendP2PMessage(msg);
+    p2p.dc.send(JSON.stringify({type:"chat-message",message:msg}));
+  }catch(err){
+    console.error("P2P send/persist failed",err);
+    input.value=text;
+    alert(`Message could not be sent: ${err?.message||"Firebase save failed"}`);
+  }
+}
+
+/* ---------- WebRTC signaling ---------- */
+function closeP2PConnection(){
+  try{p2p.dc?.close()}catch(e){}
+  try{p2p.pc?.close()}catch(e){}
+  p2p.dc=null;p2p.pc=null;p2p.otherUid="";p2p.chatId="";p2p.sessionId="";p2p.initiator=false;p2p.connected=false;p2p.makingOffer=false;
+  p2p.remoteCandidates.clear();
+  if(p2p.signalUnsub){p2p.signalUnsub();p2p.signalUnsub=null}
+  if(p2p.candidateUnsub){p2p.candidateUnsub();p2p.candidateUnsub=null}
+  updateP2PStatus();
+}
+
+function rtcConfig(){
+  // Public STUN servers are only used to discover a direct path.
+  // No application message is routed through them.
+  return {iceServers:[
+    {urls:["stun:stun.l.google.com:19302","stun:stun1.l.google.com:19302"]},
+    {urls:"stun:stun.cloudflare.com:3478"}
+  ]};
+}
+
+async function startP2PConnection(otherUid){
+  if(!firebaseReady||!firestore||!currentUid()||!otherUid)return;
+  closeP2PConnection();
+  p2p.otherUid=otherUid;
+  p2p.chatId=chatIdFor(currentUid(),otherUid);
+  p2p.initiator=currentUid() < otherUid;
+  p2p.pc=new RTCPeerConnection(rtcConfig());
+  updateP2PStatus();
+
+  const cid=p2p.chatId;
+  const signalRef=doc(firestore,"p2pSignals",cid);
+  const candidatesRef=collection(firestore,"p2pSignals",cid,"candidates");
+
+  p2p.pc.onicecandidate=async e=>{
+    if(!e.candidate||!p2p.sessionId)return;
+    try{
+      await addDoc(candidatesRef,{
+        sessionId:p2p.sessionId,
+        senderId:currentUid(),
+        candidate:e.candidate.toJSON?e.candidate.toJSON():e.candidate,
+        createdAt:serverTimestamp()
+      });
+    }catch(err){console.warn("ICE candidate save failed",err)}
+  };
+
+  p2p.pc.onconnectionstatechange=()=>{
+    const s=p2p.pc?.connectionState;
+    p2p.connected=s==="connected";
+    updateP2PStatus();
+    if(s==="failed"||s==="disconnected"||s==="closed"){
+      setTimeout(()=>{
+        if(selectedChatId===cid && !p2p.connected) startP2PConnection(otherUid).catch(console.warn);
+      },1200);
+    }
+  };
+
+  p2p.pc.ondatachannel=e=>setupP2PDataChannel(e.channel);
+
+  p2p.candidateUnsub=onSnapshot(candidatesRef,async snap=>{
+    for(const d of snap.docs){
+      const c=d.data();
+      if(c.senderId===currentUid())continue;
+      if(c.sessionId!==p2p.sessionId)continue;
+      if(p2p.remoteCandidates.has(d.id))continue;
+      if(!p2p.pc?.remoteDescription)continue;
+      try{
+        await p2p.pc.addIceCandidate(new RTCIceCandidate(c.candidate));
+        p2p.remoteCandidates.add(d.id);
+      }catch(err){console.warn("Remote ICE failed",err)}
+    }
+  });
+
+  p2p.signalUnsub=onSnapshot(signalRef,async snap=>{
+    if(!snap.exists())return;
+    const s=snap.data();
+    if(s.initiatorId===currentUid())return;
+    if(s.sessionId!==p2p.sessionId){
+      // Responder adopts the initiator's session.
+      p2p.sessionId=s.sessionId||"";
+    }
+    try{
+      if(s.offer && !p2p.pc.remoteDescription){
+        await p2p.pc.setRemoteDescription(new RTCSessionDescription(s.offer));
+        const answer=await p2p.pc.createAnswer();
+        await p2p.pc.setLocalDescription(answer);
+        await setDoc(signalRef,{sessionId:p2p.sessionId,responderId:currentUid(),answer:{type:answer.type,sdp:answer.sdp},updatedAt:serverTimestamp()},{merge:true});
+        await addPendingRemoteCandidates();
+      }else if(s.answer && p2p.initiator && !p2p.pc.remoteDescription){
+        await p2p.pc.setRemoteDescription(new RTCSessionDescription(s.answer));
+        await addPendingRemoteCandidates();
+      }
+    }catch(err){console.warn("WebRTC signaling step failed",err);updateP2PStatus()}
+  });
+
+  if(p2p.initiator){
+    p2p.sessionId=crypto.randomUUID();
+    const channel=p2p.pc.createDataChannel("study-circle-chat",{ordered:true});
+    setupP2PDataChannel(channel);
+    const offer=await p2p.pc.createOffer();
+    await p2p.pc.setLocalDescription(offer);
+    await setDoc(signalRef,{
+      sessionId:p2p.sessionId,
+      initiatorId:currentUid(),
+      responderId:otherUid,
+      offer:{type:offer.type,sdp:offer.sdp},
+      answer:null,
+      updatedAt:serverTimestamp()
+    },{merge:true});
+  }
+}
+
+function setupP2PDataChannel(channel){
+  p2p.dc=channel;
+  channel.onopen=()=>{
+    p2p.connected=true;
+    updateP2PStatus();
+  };
+  channel.onclose=()=>{
+    p2p.connected=false;
+    updateP2PStatus();
+  };
+  channel.onerror=e=>{
+    console.warn("P2P data channel error",e);
+    p2p.connected=false;
+    updateP2PStatus();
+  };
+  channel.onmessage=e=>{
+    try{
+      const packet=JSON.parse(e.data);
+      if(packet.type!=="chat-message"||!packet.message)return;
+      const m=packet.message;
+      appendP2PMessage(m);
+      // Receiver does not use Firestore as the live transport; the sender
+      // already persisted this exact message before sending it P2P.
+    }catch(err){console.warn("Bad P2P packet",err)}
+  };
+}
+
+async function addPendingRemoteCandidates(){
+  if(!p2p.pc?.remoteDescription)return;
+  try{
+    const snap=await getDocs(collection(firestore,"p2pSignals",p2p.chatId,"candidates"));
+    for(const d of snap.docs){
+      const c=d.data();
+      if(c.senderId===currentUid()||c.sessionId!==p2p.sessionId||p2p.remoteCandidates.has(d.id))continue;
+      try{
+        await p2p.pc.addIceCandidate(new RTCIceCandidate(c.candidate));
+        p2p.remoteCandidates.add(d.id);
+      }catch(err){console.warn("Pending ICE failed",err)}
+    }
+  }catch(err){console.warn("Pending ICE read failed",err)}
 }
 
 /* Follow system: store each follower under the target public profile.
