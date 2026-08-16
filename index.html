@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Study Circle — Focus App</title>
+<title>Study Circle — </title>
 
 <!--
   ICON / IMAGE NOTES
@@ -446,11 +446,47 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   .chats-page.chat-mobile-open .chat-top-tabs,
   .chats-page.chat-mobile-open #chatTabExplore,
   .chats-page.chat-mobile-open .chats-search-card,
-  .chats-page.chat-mobile-open .chat-list-card{display:none!important}
-  .chats-page.chat-mobile-open .chats-layout{display:block;height:calc(100vh - 120px);max-height:none}
-  .chats-page.chat-mobile-open .chat-window-card{height:100%;border-radius:22px}
-  .chats-page.chat-mobile-open .chat-window{height:100%;min-height:0}
-  .chats-page.chat-mobile-open .topbar{display:none}
+  .chats-page.chat-mobile-open .chat-list-card,
+  .chats-page.chat-mobile-open .topbar{display:none!important}
+
+  .chats-page.chat-mobile-open{
+    position:fixed;inset:0;z-index:40;background:#f7fcff;
+    padding:0!important;margin:0;gap:0;
+    display:flex;flex-direction:column;
+  }
+  .chats-page.chat-mobile-open .chats-layout{
+    display:block;flex:1;height:auto;min-height:0;max-height:none;
+    margin:0;padding:0;
+  }
+  .chats-page.chat-mobile-open .chat-window-card{
+    height:100%;border-radius:0;border:0;box-shadow:none;
+    background:#fff;
+  }
+  .chats-page.chat-mobile-open .chat-window{
+    height:100%;min-height:0;max-height:none;
+  }
+  .chats-page.chat-mobile-open .chat-window-head{
+    padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top));
+    background:#fff;border-bottom:1px solid rgba(0,0,0,.06);
+  }
+  .chats-page.chat-mobile-open .chat-messages{
+    padding:12px 14px;background:#f0f2f5;
+  }
+  .chats-page.chat-mobile-open .chat-compose{
+    padding:8px 10px;padding-bottom:calc(8px + env(safe-area-inset-bottom));
+    background:#fff;border-top:1px solid rgba(0,0,0,.06);
+  }
+  .chats-page.chat-mobile-open .chat-back-mobile{display:grid!important}
+  .chats-page.chat-mobile-open .chat-bubble{max-width:78%}
+  .chats-page.chat-mobile-open .chat-bubble-row.mine .chat-bubble{
+    background:#111;color:#fff;border-radius:18px 18px 4px 18px;
+  }
+  .chats-page.chat-mobile-open .chat-bubble-row:not(.mine) .chat-bubble{
+    background:#fff;border-radius:18px 18px 18px 4px;
+  }
+  /* hide bottom nav while in full chat */
+  body:has(.chat-mobile-open) .mobile-nav{display:none!important}
+  body:has(.chat-mobile-open) .dashboard{padding-bottom:0!important}
 }
 
 </style>
@@ -1488,7 +1524,22 @@ function subscribeTyping(chatId){
 
 
 function currentUid(){return firebaseUser?.uid||state.authUid||""}
-function chatIdFor(a,b){return [a,b].sort().join("_")}
+function chatIdFor(a,b){
+  const x=String(a||"").trim();
+  const y=String(b||"").trim();
+  if(!x||!y)return "";
+  return [x,y].sort().join("__");
+}
+function messageBelongsToChat(m, chatId, me, other){
+  if(!m)return false;
+  // Prefer explicit pair check
+  const s=m.senderId, r=m.receiverId;
+  if(s&&r){
+    return (s===me&&r===other)||(s===other&&r===me);
+  }
+  return true; // legacy messages without receiverId
+}
+let chatSubGen=0;
 function chatAvatarHTML(user,cls="chat-avatar"){
   return `<div class="${cls}">${user?.dp?`<img src="${esc(user.dp)}" alt="">`:`🙂`}</div>`
 }
@@ -1737,49 +1788,53 @@ function closeSelectedChat(){
 function subscribeToMessages(forChatId){
   if(chatMessagesUnsub){try{chatMessagesUnsub()}catch(e){} chatMessagesUnsub=null}
   const expectedId=forChatId||selectedChatId;
-  if(!expectedId)return;
+  const me=currentUid();
+  const other=selectedChatUser?.uid||"";
+  if(!expectedId||!me||!other)return;
+
+  const gen=++chatSubGen;
+  knownMsgIds=new Set();
+  lastMsgCount=0;
 
   const getHost=()=>document.getElementById("chatMessages");
   const host=getHost();
   if(!host)return;
 
-  // Reset known messages when switching chats
-  knownMsgIds=new Set();
-  lastMsgCount=0;
-
   const q=query(collection(firestore,"chats",expectedId,"messages"),orderBy("createdAt","asc"),limit(200));
   chatMessagesUnsub=onSnapshot(q,snap=>{
+    if(gen!==chatSubGen)return; // stale subscription
     if(selectedChatId!==expectedId)return;
     const h=getHost();
     if(!h)return;
 
-    if(!snap.docs.length){
+    const docs=snap.docs.filter(d=>messageBelongsToChat(d.data(), expectedId, me, other));
+
+    if(!docs.length){
       h.innerHTML=`<div class="chat-empty"><strong>Messages exchanged with your friends will be displayed here.</strong></div>`;
       knownMsgIds=new Set();
       lastMsgCount=0;
       return;
     }
 
-    // Play sound for NEW messages from the other person
     let shouldSound=false;
-    snap.docs.forEach(d=>{
+    docs.forEach(d=>{
       const m=d.data();
-      if(!knownMsgIds.has(d.id) && m.senderId!==currentUid() && lastMsgCount>0){
+      if(!knownMsgIds.has(d.id) && m.senderId!==me && lastMsgCount>0){
         shouldSound=true;
       }
       knownMsgIds.add(d.id);
     });
     if(shouldSound)playMessageSound();
-    lastMsgCount=snap.docs.length;
+    lastMsgCount=docs.length;
 
-    h.innerHTML=snap.docs.map(d=>{
+    h.innerHTML=docs.map(d=>{
       const m=d.data();
-      const mine=m.senderId===currentUid();
+      const mine=m.senderId===me;
       return `<div class="chat-bubble-row ${mine?"mine":""}"><div class="chat-bubble">${escapeChatText(m.text)}<div class="chat-bubble-time">${formatChatTime(m.createdAt)}</div></div></div>`;
     }).join("");
     h.scrollTop=h.scrollHeight;
   },err=>{
-    if(selectedChatId!==expectedId)return;
+    if(gen!==chatSubGen)return;
     console.warn("Message listener failed",err);
     const h=getHost();
     if(h)h.innerHTML=`<div class="chat-empty">Messages could not load. Check your Firestore rules.</div>`;
@@ -1792,7 +1847,10 @@ async function sendChatMessage(){
   const input=document.getElementById("chatMessageInput");if(!input||!selectedChatUser||!currentUid()||!firestore)return;
   const text=input.value.trim();if(!text)return;
   if(chatBlockedByMe||chatBlockedMe)return alert("Messaging is unavailable for this user.");
-  const otherUid=selectedChatUser.uid;const cid=selectedChatId||chatIdFor(currentUid(),otherUid);if(!cid||!otherUid)return;
+  const otherUid=selectedChatUser.uid;
+  const cid=chatIdFor(currentUid(),otherUid);
+  selectedChatId=cid;
+  if(!cid||!otherUid)return;
   const btn=document.getElementById("chatSendBtn");
   if(btn)btn.disabled=true;
   input.value="";
