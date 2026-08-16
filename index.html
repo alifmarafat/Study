@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Study  App</title>
+<title>Arafat — Focus App</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -428,7 +428,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   .chat-back-mobile{display:grid}.chat-window-head{padding:10px}.chat-window-head .chat-head-copy b{font-size:13px}.chat-messages{padding:12px}.chat-bubble{max-width:82%}.chat-compose{padding:8px}.chat-user-row{padding:8px}.chat-profile-box{padding:19px}.chats-search-card{padding:11px}
 }
 
-@media(max-width:700px){.mobile-nav{grid-template-columns:repeat(5,1fr)}.bottom-item{font-size:9px}.bottom-item i{font-size:19px}}
+@media(max-width:700px){.mobile-nav{grid-template-columns:repeat(6,1fr)}.bottom-item{font-size:9px}.bottom-item i{font-size:19px}}
 </style>
 </head>
 <body>
@@ -531,20 +531,7 @@ async function syncCloud(){
   catch(err){console.warn("Cloud sync failed:",err)}
 }
 async function syncPublicProfile(){
-  if(!firebaseReady||!firebaseUser||!firestore)return;
-  try{
-    const u=state.user||{};
-    await setDoc(doc(firestore,"publicProfiles",firebaseUser.uid),{
-      uid:firebaseUser.uid,
-      name:u.name||firebaseUser.displayName||"Study User",
-      username:(u.username||"").toLowerCase(),
-      usernameLower:(u.username||"").toLowerCase(),
-      dp:u.dp||firebaseUser.photoURL||"",
-      bio:u.bio||"",
-      studyStatus:(timerState?.running||state.target?.running)?"Studying":"Available",
-      updatedAt:serverTimestamp()
-    },{merge:true});
-  }catch(err){console.warn("Public profile sync failed:",err)}
+  return publishMyPublicProfile();
 }
 initFirebase();
 
@@ -714,13 +701,14 @@ function renderApp(){
           <button class="rail-link ${activePage==="add"?"active":""}" onclick="navigate('add')"><span class="ico"><i data-lucide="plus" class="icon-svg"></i></span>Add</button>
           <button class="rail-link ${activePage==="target"?"active":""}" onclick="navigate('target')"><span class="ico"><i data-lucide="target" class="icon-svg"></i></span>Target</button>
           <button class="rail-link ${activePage==="chats"?"active":""}" onclick="navigate('chats')"><span class="ico"><i data-lucide="messages-square" class="icon-svg"></i></span>Chats</button>
+          <button class="rail-link ${activePage==="explore"?"active":""}" onclick="navigate('explore')"><span class="ico"><i data-lucide="compass" class="icon-svg"></i></span>Explore</button>
           <button class="rail-link ${activePage==="profile"?"active":""}" onclick="navigate('profile')"><span class="ico"><i data-lucide="user-round" class="icon-svg"></i></span>Profile</button>
         </nav>
         <div class="rail-user">${avatarHTML("avatar")}<div><div class="user-name">${esc(state.user.name||"Study User")}</div><div class="user-sub">@${esc(state.user.username||"student")}</div></div></div>
       </aside>
 
       <section class="main">
-        ${activePage==="home"?homePage():activePage==="add"?addPage():activePage==="target"?targetPage():activePage==="chats"?chatsPage():profilePage()}
+        ${activePage==="home"?homePage():activePage==="add"?addPage():activePage==="target"?targetPage():activePage==="chats"?chatsPage():activePage==="explore"?explorePage():profilePage()}
       </section>
 
       <aside class="right">
@@ -733,6 +721,7 @@ function renderApp(){
         <button class="bottom-item add ${activePage==="add"?"active":""}" onclick="navigate('add')"><i data-lucide="plus"></i><small>Add</small></button>
         <button class="bottom-item ${activePage==="target"?"active":""}" onclick="navigate('target')"><i data-lucide="target"></i><small>Target</small></button>
         <button class="bottom-item ${activePage==="chats"?"active":""}" onclick="navigate('chats')"><i data-lucide="messages-square"></i><small>Chats</small></button>
+        <button class="bottom-item ${activePage==="explore"?"active":""}" onclick="navigate('explore')"><i data-lucide="compass"></i><small>Explore</small></button>
         <button class="bottom-item ${activePage==="profile"?"active":""}" onclick="navigate('profile')"><i data-lucide="user-round"></i><small>Profile</small></button>
       </nav>
     </main>
@@ -748,6 +737,7 @@ function navigate(page){
   if(window.lucide)lucide.createIcons();
   window.scrollTo({top:0,behavior:"smooth"});
   if(page==="chats")setTimeout(initChatsPage,0);
+  if(page==="explore")setTimeout(initExplorePage,0);
 }
 
 function homePage(){
@@ -1169,7 +1159,9 @@ async function nextOnboard(){
     if(username!==String(state.user.username||"").toLowerCase() && !(await claimUsername(username)))return alert("That username is already taken. Choose another one.");
     state.user.username=username;state.onboarding="birthday";
   }else{if(!v)return alert("Please choose your birthday.");state.user.birthday=v;state.onboarding="done"}
-  save();render();
+  save();
+  if(state.onboarding==="done"&&firebaseReady&&firebaseUser)await publishMyPublicProfile();
+  render();
 }
 
 function homePage(){
@@ -1268,7 +1260,7 @@ function profilePage(){
 async function saveProfile(){
   const name=document.getElementById("editName").value.trim()||state.user.name;const username=(document.getElementById("editUsername").value.trim().replace(/^@/,"")||state.user.username).toLowerCase();
   if(username!==String(state.user.username||"").toLowerCase())if(!(await claimUsername(username)))return alert("That username is already taken. Choose another one.");
-  state.user.name=name;state.user.username=username;state.user.bio=document.getElementById("editBio").value.trim();save();renderApp();
+  state.user.name=name;state.user.username=username;state.user.bio=document.getElementById("editBio").value.trim();save();if(firebaseReady&&firebaseUser)await publishMyPublicProfile();renderApp();
 }
 function previewDP(e){
   const file=e.target.files?.[0];if(!file)return;
@@ -1299,6 +1291,93 @@ function setTarget(){
 }
 
 
+
+/* ============================================================
+   PUBLIC USER DIRECTORY / EXPLORE
+   ============================================================ */
+let exploreUsers=[];
+let exploreTimer=null;
+let exploreLoaded=false;
+
+async function publishMyPublicProfile(){
+  if(!firebaseReady||!firebaseUser||!firestore)return false;
+  try{
+    const u=state.user||{};
+    const username=String(u.username||"").trim().replace(/^@/,'').toLowerCase();
+    if(!username)return false;
+    await setDoc(doc(firestore,"publicProfiles",firebaseUser.uid),{
+      uid:firebaseUser.uid,
+      name:u.name||firebaseUser.displayName||"Study User",
+      username,
+      usernameLower:username,
+      dp:u.dp||firebaseUser.photoURL||"",
+      bio:u.bio||"",
+      studyStatus:(timerState?.running||state.target?.running)?"Studying":"Available",
+      updatedAt:serverTimestamp()
+    },{merge:true});
+    return true;
+  }catch(err){
+    console.warn("Public profile publish failed:",err);
+    return false;
+  }
+}
+
+async function loadExploreUsers(){
+  const host=document.getElementById("exploreResults");
+  if(!host||!firebaseReady||!firestore||!currentUid()){
+    if(host)host.innerHTML=`<div class="chat-list-empty">Sign in with Google first to explore users.</div>`;
+    return;
+  }
+  host.innerHTML=`<div class="chat-list-empty">Loading users…</div>`;
+  try{
+    const snap=await getDocs(query(collection(firestore,"publicProfiles"),orderBy("usernameLower"),limit(100)));
+    exploreUsers=snap.docs.map(d=>({uid:d.id,...d.data()})).filter(u=>u.uid!==currentUid());
+    exploreLoaded=true;
+    renderExploreUsers(exploreUsers);
+  }catch(err){
+    console.warn("Explore users failed",err);
+    host.innerHTML=`<div class="chat-list-empty">Users could not load. Check Firestore rules for publicProfiles.</div>`;
+  }
+}
+
+function renderExploreUsers(users=[],message=""){
+  const host=document.getElementById("exploreResults");if(!host)return;
+  if(message){host.innerHTML=`<div class="chat-list-empty">${esc(message)}</div>`;return}
+  if(!users.length){host.innerHTML=`<div class="chat-list-empty">No other Study Circle users yet.</div>`;return}
+  host.innerHTML=users.map(u=>chatUserRow(u,true)).join("");
+  users.forEach(async u=>{
+    const btn=document.getElementById(`follow-${u.uid}`);if(!btn)return;
+    const following=await isFollowing(u.uid);
+    if(btn){btn.textContent=following?"Following":"Add";btn.classList.toggle("following",following)}
+  });
+  if(window.lucide)lucide.createIcons();
+}
+
+function queueExploreSearch(value){
+  clearTimeout(exploreTimer);
+  const q=String(value||"").trim().replace(/^@/,'').toLowerCase();
+  if(q.length<2){renderExploreUsers(exploreUsers);return}
+  exploreTimer=setTimeout(()=>{
+    const matches=exploreUsers.filter(u=>String(u.usernameLower||u.username||"").startsWith(q) || String(u.name||"").toLowerCase().includes(q));
+    renderExploreUsers(matches);
+  },120);
+}
+
+function explorePage(){
+  return `<div class="chats-page">
+    <div class="topbar"><div><h1 class="page-title">Explore</h1><div class="page-sub">Discover students who joined Study Circle.</div></div><button class="menu-btn" onclick="loadExploreUsers()"><i data-lucide="refresh-cw" class="icon-svg"></i></button></div>
+    <section class="card chats-search-card">
+      <div class="chats-search-wrap"><i data-lucide="search"></i><input id="exploreUserSearch" autocomplete="off" placeholder="Search username…" oninput="queueExploreSearch(this.value)"></div>
+    </section>
+    <section class="card chat-list-card" style="margin-top:14px"><div class="chat-list-head">Study Circle users</div><div id="exploreResults" class="chat-list"><div class="chat-list-empty">Loading users…</div></div></section>
+  </div>`;
+}
+
+function initExplorePage(){
+  if(activePage!=="explore")return;
+  loadExploreUsers();
+  if(window.lucide)lucide.createIcons();
+}
 
 /* ============================================================
    CHATS — FIRESTORE REAL-TIME MESSAGING
@@ -1368,21 +1447,24 @@ function queueUserSearch(value){
   chatSearchTimer=setTimeout(()=>searchUsers(q),250);
 }
 async function searchUsers(q){
-  if(!firebaseReady||!firestore||!currentUid())return;
+  if(!firebaseReady||!firestore||!currentUid()){
+    renderChatSearchResults([],"Sign in with Google first to search users.");
+    return;
+  }
   try{
     const ref=collection(firestore,"publicProfiles");
     const snap=await getDocs(query(ref,where("usernameLower",">=",q),where("usernameLower","<=",q+"\uf8ff"),orderBy("usernameLower"),limit(20)));
-    const users=snap.docs.map(d=>({id:d.id,...d.data()})).filter(u=>u.uid!==currentUid());
-    chatSearchResults=users;renderChatSearchResults(users);
+    const users=snap.docs.map(d=>({uid:d.id,...d.data()})).filter(u=>u.uid!==currentUid());
+    chatSearchResults=users;renderChatSearchResults(users,users.length?"":"No user found with that username.");
   }catch(err){
     console.warn("User search failed",err);
-    renderChatSearchResults([],"Search could not load. Make sure the Firestore index/rules are ready.");
+    renderChatSearchResults([],"Search could not load. Check Firestore rules for publicProfiles.");
   }
 }
 function renderChatSearchResults(users=[],message=""){
   const host=document.getElementById("chatSearchResults");if(!host)return;
   if(message){host.innerHTML=`<div class="chat-list-empty">${esc(message)}</div>`;return}
-  if(!users.length){host.innerHTML="";return}
+  if(!users.length){host.innerHTML=`<div class="chat-list-empty">No users found.</div>`;return}
   host.innerHTML=users.map(u=>chatUserRow(u,true)).join("");
   users.forEach(async u=>{
     const btn=document.getElementById(`follow-${u.uid}`);if(!btn)return;
