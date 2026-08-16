@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>StHudy</title>
+<title>Study</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -665,6 +665,156 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   .chat-inbox-window .chat-send{width:42px;height:42px}
   .chat-bubble-wrap{max-width:82%}
   .chat-longpress-menu{max-width:calc(100vw - 20px);left:10px!important;right:10px;justify-content:center}
+}
+
+
+/* ============================================================
+   CHAT INBOX FIX — Messenger-style viewport + internal scroll
+   Only affects the Chats/Inbox UI.
+   ============================================================ */
+
+/* When Chats is open, the browser/page itself must not scroll.
+   The inbox list and message area handle their own scrolling. */
+body:has(.chat-inbox-page){
+  overflow:hidden !important;
+}
+
+.dashboard:has(.chat-inbox-page){
+  height:100vh !important;
+  min-height:100vh !important;
+  overflow:hidden !important;
+}
+
+.dashboard:has(.chat-inbox-page) .main{
+  min-height:0 !important;
+  height:100vh !important;
+  padding-bottom:24px !important;
+  overflow:hidden !important;
+}
+
+.chats-page.chat-inbox-page{
+  height:calc(100vh - 48px) !important;
+  min-height:0 !important;
+  max-height:none !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+.chat-inbox-top{
+  flex:0 0 auto !important;
+}
+
+.chat-inbox-shell{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  height:auto !important;
+  max-height:none !important;
+  overflow:hidden !important;
+}
+
+.chat-inbox-sidebar{
+  min-height:0 !important;
+  overflow:hidden !important;
+}
+
+.chat-inbox-list{
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  scrollbar-gutter:stable;
+}
+
+.chat-inbox-window{
+  min-height:0 !important;
+  height:100% !important;
+  overflow:hidden !important;
+}
+
+.chat-inbox-window .chat-window{
+  min-height:0 !important;
+  height:100% !important;
+  overflow:hidden !important;
+}
+
+.chat-inbox-window .chat-messages{
+  min-height:0 !important;
+  flex:1 1 auto !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+
+/* Fix message bubbles becoming extremely narrow / one-character wide. */
+.chat-inbox-window .chat-bubble-row{
+  width:100% !important;
+  flex:0 0 auto !important;
+  display:flex !important;
+}
+
+.chat-inbox-window .chat-bubble-wrap{
+  width:fit-content !important;
+  max-width:min(72%,500px) !important;
+  min-width:0 !important;
+  flex:0 0 auto !important;
+}
+
+.chat-inbox-window .chat-bubble{
+  display:block !important;
+  width:max-content !important;
+  max-width:100% !important;
+  min-width:44px !important;
+  box-sizing:border-box !important;
+}
+
+.chat-inbox-window .chat-bubble-row.mine .chat-bubble-wrap{
+  align-items:flex-end !important;
+}
+
+/* Keep the newest messages visible while older messages naturally
+   move upward inside the message scroller, Messenger-style. */
+.chat-inbox-window .chat-messages{
+  scroll-behavior:auto;
+}
+
+/* No page scrollbar caused by the Chats screen itself. */
+.chat-inbox-page *{
+  scrollbar-width:thin;
+}
+
+/* Mobile: the chat remains a full-screen panel and only the
+   conversation area scrolls. */
+@media(max-width:700px){
+  body:has(.chat-inbox-page){
+    overflow:hidden !important;
+  }
+
+  .dashboard:has(.chat-inbox-page),
+  .dashboard:has(.chat-inbox-page) .main{
+    height:100dvh !important;
+    min-height:100dvh !important;
+    overflow:hidden !important;
+  }
+
+  .chats-page.chat-inbox-page{
+    height:calc(100dvh - 20px) !important;
+    overflow:hidden !important;
+  }
+
+  .chat-inbox-shell{
+    min-height:0 !important;
+    height:auto !important;
+  }
+
+  .chat-inbox-window .chat-bubble-wrap{
+    max-width:82% !important;
+  }
+
+  .chat-inbox-window .chat-bubble{
+    min-width:44px !important;
+    max-width:100% !important;
+  }
 }
 
 </style>
