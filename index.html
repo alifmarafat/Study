@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Study Timerp</title>
+<title>Study Circle — Focus App</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -406,22 +406,24 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .chat-avatar img{width:100%;height:100%;object-fit:cover}
 .chat-follow-btn{height:36px;padding:0 12px;border-radius:11px;background:#111;color:#fff;font-size:10px;font-weight:900;flex:0 0 auto}
 .chat-follow-btn.following{background:#eef8ff;color:#111;border:1px solid #cbeefb}
-.chats-layout{display:grid;grid-template-columns:285px minmax(0,1fr);gap:12px;min-height:570px}
-.chat-list-card,.chat-window-card{padding:0;overflow:hidden;min-width:0}
-.chat-list-head{padding:16px 16px 10px;border-bottom:1px solid var(--line);font-family:Nunito;font-weight:900}
-.chat-list{max-height:510px;overflow:auto;padding:8px}
+.chats-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:12px;height:620px;min-height:620px;max-height:620px}
+.chat-list-card,.chat-window-card{padding:0;overflow:hidden;min-width:0;height:100%;display:flex;flex-direction:column}
+.chat-list-head{padding:16px 16px 10px;border-bottom:1px solid var(--line);font-family:Nunito;font-weight:900;flex:0 0 auto}
+.chat-list{flex:1;overflow:auto;padding:8px;min-height:0}
+.chat-typing{padding:4px 16px 8px;font-size:11px;color:#8a919b;font-weight:700;min-height:22px;flex:0 0 auto}
+.chat-typing b{color:#555d68}
 .chat-list-empty{padding:28px 15px;color:#858c96;font-size:12px;text-align:center;line-height:1.5}
 .chat-list-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:14px;cursor:pointer}
 .chat-list-item:hover{background:#f5f7f9}.chat-list-item.active{background:rgba(66,200,239,.11)}
 .chat-list-copy{min-width:0;flex:1}.chat-list-copy b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chat-list-copy small{display:block;color:#8a919b;font-size:10px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chat-window{height:100%;min-height:570px;display:flex;flex-direction:column}
-.chat-window-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.82)}
+.chat-window{height:100%;display:flex;flex-direction:column;min-height:0}
+.chat-window-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.92);flex:0 0 auto}
 .chat-window-head .chat-head-copy{min-width:0;flex:1;cursor:pointer}.chat-window-head .chat-head-copy b{display:block;font-family:Nunito;font-size:14px}.chat-window-head .chat-head-copy small{font-size:10px;color:#8a919b}
 .chat-head-actions{display:flex;gap:6px}.chat-head-btn{width:36px;height:36px;border-radius:11px;background:#f2f3f5;display:grid;place-items:center}.chat-head-btn svg{width:17px;height:17px}.chat-head-btn.danger{color:#ef476f;background:#fff0f2}
-.chat-messages{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:7px;background:linear-gradient(180deg,rgba(246,251,255,.62),rgba(255,255,255,.62))}
+.chat-messages{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:7px;background:linear-gradient(180deg,rgba(246,251,255,.62),rgba(255,255,255,.62));min-height:0}
 .chat-empty{margin:auto;text-align:center;color:#8a919b;font-size:12px;line-height:1.55;max-width:260px}.chat-empty strong{display:block;font-family:Nunito;color:#555d68;font-size:15px;margin-bottom:4px}
 .chat-bubble-row{display:flex}.chat-bubble-row.mine{justify-content:flex-end}.chat-bubble{max-width:min(72%,420px);padding:10px 12px;border-radius:16px 16px 16px 5px;background:#fff;border:1px solid var(--line);font-size:12px;line-height:1.45;box-shadow:0 5px 14px rgba(40,50,70,.06);white-space:pre-wrap;word-break:break-word}.chat-bubble-row.mine .chat-bubble{background:#111;color:#fff;border-color:#111;border-radius:16px 16px 5px 16px}.chat-bubble-time{font-size:8px;opacity:.58;margin-top:4px;text-align:right}
-.chat-compose{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line);background:#fff}.chat-compose textarea{flex:1;min-width:0;resize:none;height:44px;border:1px solid var(--line);border-radius:13px;padding:11px 12px;outline:0;font-size:12px;background:#fafbfc}.chat-send{width:46px;height:44px;border-radius:13px;background:#111;color:#fff;display:grid;place-items:center}.chat-send svg{width:18px}.chat-send:disabled{opacity:.45;cursor:not-allowed}
+.chat-compose{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line);background:#fff;flex:0 0 auto}.chat-compose textarea{flex:1;min-width:0;resize:none;height:44px;border:1px solid var(--line);border-radius:13px;padding:11px 12px;outline:0;font-size:12px;background:#fafbfc}.chat-send{width:46px;height:44px;border-radius:13px;background:#111;color:#fff;display:grid;place-items:center}.chat-send svg{width:18px}.chat-send:disabled{opacity:.45;cursor:not-allowed}
 .chat-profile-modal{position:fixed;inset:0;z-index:110;display:grid;place-items:center;padding:18px;background:rgba(18,20,25,.30);backdrop-filter:blur(13px)}
 .chat-profile-box{width:min(390px,100%);background:rgba(255,255,255,.97);border:1px solid var(--line);border-radius:28px;box-shadow:0 30px 80px rgba(25,30,40,.25);padding:22px;animation:dangerIn .3s cubic-bezier(.2,1.25,.35,1)}
 .chat-profile-full{width:min(440px,100%);max-height:92vh;overflow:auto;padding:28px 22px 22px;border-radius:32px}
@@ -433,11 +435,24 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .chat-back-mobile{display:none}
 @media(max-width:1050px){.chats-layout{grid-template-columns:250px minmax(0,1fr)}}
 @media(max-width:700px){
-  .chats-layout{display:block;min-height:0}.chat-list-card{margin-bottom:12px}.chat-list{max-height:190px}.chat-window{min-height:500px;height:calc(100vh - 250px)}
-  .chat-back-mobile{display:grid}.chat-window-head{padding:10px}.chat-window-head .chat-head-copy b{font-size:13px}.chat-messages{padding:12px}.chat-bubble{max-width:82%}.chat-compose{padding:8px}.chat-user-row{padding:8px}.chat-profile-box{padding:19px}.chats-search-card{padding:11px}
+  .chats-layout{display:block;height:auto;min-height:0;max-height:none}.chat-list-card{margin-bottom:12px;height:auto}.chat-list{max-height:180px}.chat-window-card{height:auto}.chat-window{height:calc(100vh - 210px);min-height:420px;max-height:none}
+  .chat-back-mobile{display:grid!important}.chat-window-head{padding:10px}.chat-window-head .chat-head-copy b{font-size:13px}.chat-messages{padding:12px}.chat-bubble{max-width:82%}.chat-compose{padding:8px}.chat-user-row{padding:8px}.chat-profile-box{padding:19px}.chats-search-card{padding:11px}
 }
 
 @media(max-width:700px){.mobile-nav{grid-template-columns:repeat(5,1fr)}.bottom-item{font-size:9px}.bottom-item i{font-size:19px}}
+
+/* Messenger-style mobile full chat */
+@media(max-width:700px){
+  .chats-page.chat-mobile-open .chat-top-tabs,
+  .chats-page.chat-mobile-open #chatTabExplore,
+  .chats-page.chat-mobile-open .chats-search-card,
+  .chats-page.chat-mobile-open .chat-list-card{display:none!important}
+  .chats-page.chat-mobile-open .chats-layout{display:block;height:calc(100vh - 120px);max-height:none}
+  .chats-page.chat-mobile-open .chat-window-card{height:100%;border-radius:22px}
+  .chats-page.chat-mobile-open .chat-window{height:100%;min-height:0}
+  .chats-page.chat-mobile-open .topbar{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -1407,6 +1422,70 @@ let chatMessagesUnsub=null;
 let chatListProfilesCache={};
 let chatBlockedByMe=false;
 let chatBlockedMe=false;
+let chatTypingUnsub=null;
+let typingTimeout=null;
+let lastMsgCount=0;
+let knownMsgIds=new Set();
+
+function playMessageSound(){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator();
+    const g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.type="sine";
+    o.frequency.setValueAtTime(880,ctx.currentTime);
+    o.frequency.setValueAtTime(1175,ctx.currentTime+0.08);
+    g.gain.setValueAtTime(0.0001,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.12,ctx.currentTime+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.28);
+    o.start(ctx.currentTime);o.stop(ctx.currentTime+0.3);
+  }catch(e){}
+}
+
+function setMobileChatOpen(open){
+  const page=document.querySelector(".chats-page");
+  if(!page)return;
+  page.classList.toggle("chat-mobile-open",!!open);
+}
+
+async function setTypingStatus(isTyping){
+  if(!firestore||!selectedChatId||!currentUid())return;
+  try{
+    const ref=doc(firestore,"chats",selectedChatId);
+    await setDoc(ref,{
+      typing:{
+        ...(isTyping?{[currentUid()]:Date.now()}:{})
+      }
+    },{merge:true});
+  }catch(e){}
+}
+
+function onChatInputTyping(){
+  clearTimeout(typingTimeout);
+  setTypingStatus(true);
+  typingTimeout=setTimeout(()=>setTypingStatus(false),1600);
+}
+
+function subscribeTyping(chatId){
+  if(chatTypingUnsub){try{chatTypingUnsub()}catch(e){} chatTypingUnsub=null}
+  if(!chatId||!firestore)return;
+  const ref=doc(firestore,"chats",chatId);
+  chatTypingUnsub=onSnapshot(ref,snap=>{
+    if(selectedChatId!==chatId)return;
+    const el=document.getElementById("chatTypingStatus");
+    if(!el)return;
+    const data=snap.exists?snap.data():{};
+    const typing=data.typing||{};
+    const now=Date.now();
+    let otherTyping=false;
+    for(const [uid,ts] of Object.entries(typing)){
+      if(uid!==currentUid() && now-Number(ts)<2500){otherTyping=true;break}
+    }
+    el.innerHTML=otherTyping?`<b>${esc(selectedChatUser?.name||"User")}</b> is typing…`:"";
+  },err=>console.warn("typing listener",err));
+}
+
 
 function currentUid(){return firebaseUser?.uid||state.authUid||""}
 function chatIdFor(a,b){return [a,b].sort().join("_")}
@@ -1423,7 +1502,7 @@ function escapeChatText(v=""){return esc(v)}
 
 function chatsPage(){
   return `<div class="chats-page">
-    <div class="topbar"><div><h1 class="page-title">Message</h1><div class="page-sub">Chat with friends in real time</div></div></div>
+    <div class="topbar"><div><h1 class="page-title">Message 🥺</h1><div class="page-sub">Chat with friends in real time</div></div></div>
     <div class="chat-top-tabs">
       <button class="chat-tab active" id="tabSearch" onclick="switchChatTab('search')"><i data-lucide="search" style="width:15px;height:15px"></i> Search</button>
       <button class="chat-tab" id="tabExplore" onclick="switchChatTab('explore')"><i data-lucide="compass" style="width:15px;height:15px"></i> Explore</button>
@@ -1483,9 +1562,12 @@ function initChatsPage(){
   if(window.lucide)lucide.createIcons();
 }
 function stopChatListeners(){
-  if(chatListUnsub){chatListUnsub();chatListUnsub=null}
-  if(chatMessagesUnsub){chatMessagesUnsub();chatMessagesUnsub=null}
+  if(chatListUnsub){try{chatListUnsub()}catch(e){} chatListUnsub=null}
+  if(chatMessagesUnsub){try{chatMessagesUnsub()}catch(e){} chatMessagesUnsub=null}
+  if(chatTypingUnsub){try{chatTypingUnsub()}catch(e){} chatTypingUnsub=null}
+  setTypingStatus(false);
   selectedChatId="";selectedChatUser=null;
+  setMobileChatOpen(false);
 }
 
 function queueUserSearch(value){
@@ -1562,27 +1644,41 @@ function loadChatList(){
 
 async function openChat(otherUid){
   if(!currentUid()||!otherUid||otherUid===currentUid())return;
-  // Ensure we are on the Chats page so the chat window exists
+  otherUid=String(otherUid);
+
+  // Stop any previous message listener immediately
+  if(chatMessagesUnsub){try{chatMessagesUnsub()}catch(e){} chatMessagesUnsub=null}
+
+  // Ensure we are on the Chats page
   if(activePage!=="chats"){
     activePage="chats";
     try{sessionStorage.setItem("study_circle_active_page","chats")}catch(e){}
     renderApp();
-    await new Promise(r=>setTimeout(r,50));
-    loadExploreUsers();
-    loadChatList();
+    await new Promise(r=>setTimeout(r,80));
   }
+
+  // Always show the Search/inbox tab when opening a chat
+  try{switchChatTab("search")}catch(e){}
+
   const user=chatListProfilesCache[otherUid] || await fetchPublicProfile(otherUid);
   if(!user){
     alert("This user profile could not be loaded.");
     return;
   }
+
   selectedChatUser=user;
   selectedChatId=chatIdFor(currentUid(),otherUid);
+
   await refreshBlockState(otherUid);
   renderChatWindow();
-  subscribeToMessages();
+
+  // Clear messages area before loading new chat
+  const msgHost=document.getElementById("chatMessages");
+  if(msgHost)msgHost.innerHTML=`<div class="chat-empty">Loading messages…</div>`;
+
+  subscribeToMessages(selectedChatId);
   loadChatList();
-  // Scroll chat window into view on mobile
+
   const win=document.getElementById("chatWindow");
   if(win)win.scrollIntoView({behavior:"smooth",block:"nearest"});
 }
@@ -1608,6 +1704,9 @@ async function refreshBlockState(otherUid){
 function renderChatWindow(){
   const host=document.getElementById("chatWindow");if(!host||!selectedChatUser)return;
   const blocked=chatBlockedByMe||chatBlockedMe;
+  setMobileChatOpen(true);
+  knownMsgIds=new Set();
+  lastMsgCount=0;
   host.innerHTML=`
     <div class="chat-window-head">
       <button class="chat-head-btn chat-back-mobile" onclick="closeSelectedChat()"><i data-lucide="arrow-left"></i></button>
@@ -1618,24 +1717,73 @@ function renderChatWindow(){
     ${chatBlockedMe?`<div class="chat-blocked-banner">This user has blocked you. You cannot send messages.</div>`:""}
     ${chatBlockedByMe?`<div class="chat-blocked-banner">You blocked this user. Unblock them from their profile to chat again.</div>`:""}
     <div id="chatMessages" class="chat-messages"><div class="chat-empty">Loading messages…</div></div>
-    <div class="chat-compose"><textarea id="chatMessageInput" maxlength="2000" placeholder="Write a message…" ${blocked?"disabled":""} onkeydown="handleChatKeydown(event)"></textarea><button class="chat-send" id="chatSendBtn" onclick="sendChatMessage()" ${blocked?"disabled":""}><i data-lucide="send"></i></button></div>`;
+    <div id="chatTypingStatus" class="chat-typing"></div>
+    <div class="chat-compose"><textarea id="chatMessageInput" maxlength="2000" placeholder="Write a message…" ${blocked?"disabled":""} onkeydown="handleChatKeydown(event)" oninput="onChatInputTyping()"></textarea><button class="chat-send" id="chatSendBtn" onclick="sendChatMessage()" ${blocked?"disabled":""}><i data-lucide="send"></i></button></div>`;
   if(window.lucide)lucide.createIcons();
+  subscribeTyping(selectedChatId);
 }
 function closeSelectedChat(){
-  if(chatMessagesUnsub){chatMessagesUnsub();chatMessagesUnsub=null}
+  if(chatMessagesUnsub){try{chatMessagesUnsub()}catch(e){} chatMessagesUnsub=null}
+  if(chatTypingUnsub){try{chatTypingUnsub()}catch(e){} chatTypingUnsub=null}
+  setTypingStatus(false);
   selectedChatId="";selectedChatUser=null;chatBlockedByMe=false;chatBlockedMe=false;
-  const host=document.getElementById("chatWindow");if(host)host.innerHTML=`<div class="chat-empty"><strong>Select a chat</strong>Search for a username above or choose a conversation from your chat list.</div>`;
+  setMobileChatOpen(false);
+  knownMsgIds=new Set();
+  lastMsgCount=0;
+  const host=document.getElementById("chatWindow");
+  if(host)host.innerHTML=`<div class="chat-empty"><strong>Messages exchanged with your friends will be displayed here.</strong></div>`;
   loadChatList();
 }
-function subscribeToMessages(){
-  if(chatMessagesUnsub)chatMessagesUnsub();
-  const host=document.getElementById("chatMessages");if(!host||!selectedChatId)return;
-  const q=query(collection(firestore,"chats",selectedChatId,"messages"),orderBy("createdAt","asc"),limit(200));
+function subscribeToMessages(forChatId){
+  if(chatMessagesUnsub){try{chatMessagesUnsub()}catch(e){} chatMessagesUnsub=null}
+  const expectedId=forChatId||selectedChatId;
+  if(!expectedId)return;
+
+  const getHost=()=>document.getElementById("chatMessages");
+  const host=getHost();
+  if(!host)return;
+
+  // Reset known messages when switching chats
+  knownMsgIds=new Set();
+  lastMsgCount=0;
+
+  const q=query(collection(firestore,"chats",expectedId,"messages"),orderBy("createdAt","asc"),limit(200));
   chatMessagesUnsub=onSnapshot(q,snap=>{
-    if(!snap.docs.length){host.innerHTML=`<div class="chat-empty"><strong>Messages exchanged with your friends will be displayed here.</strong></div>`;return}
-    host.innerHTML=snap.docs.map(d=>{const m=d.data();const mine=m.senderId===currentUid();return `<div class="chat-bubble-row ${mine?"mine":""}"><div class="chat-bubble">${escapeChatText(m.text)}<div class="chat-bubble-time">${formatChatTime(m.createdAt)}</div></div></div>`}).join("");
-    host.scrollTop=host.scrollHeight;
-  },err=>{console.warn("Message listener failed",err);host.innerHTML=`<div class="chat-empty">Messages could not load. Check your Firestore rules.</div>`});
+    if(selectedChatId!==expectedId)return;
+    const h=getHost();
+    if(!h)return;
+
+    if(!snap.docs.length){
+      h.innerHTML=`<div class="chat-empty"><strong>Messages exchanged with your friends will be displayed here.</strong></div>`;
+      knownMsgIds=new Set();
+      lastMsgCount=0;
+      return;
+    }
+
+    // Play sound for NEW messages from the other person
+    let shouldSound=false;
+    snap.docs.forEach(d=>{
+      const m=d.data();
+      if(!knownMsgIds.has(d.id) && m.senderId!==currentUid() && lastMsgCount>0){
+        shouldSound=true;
+      }
+      knownMsgIds.add(d.id);
+    });
+    if(shouldSound)playMessageSound();
+    lastMsgCount=snap.docs.length;
+
+    h.innerHTML=snap.docs.map(d=>{
+      const m=d.data();
+      const mine=m.senderId===currentUid();
+      return `<div class="chat-bubble-row ${mine?"mine":""}"><div class="chat-bubble">${escapeChatText(m.text)}<div class="chat-bubble-time">${formatChatTime(m.createdAt)}</div></div></div>`;
+    }).join("");
+    h.scrollTop=h.scrollHeight;
+  },err=>{
+    if(selectedChatId!==expectedId)return;
+    console.warn("Message listener failed",err);
+    const h=getHost();
+    if(h)h.innerHTML=`<div class="chat-empty">Messages could not load. Check your Firestore rules.</div>`;
+  });
 }
 function handleChatKeydown(e){
   if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChatMessage()}
@@ -1644,7 +1792,7 @@ async function sendChatMessage(){
   const input=document.getElementById("chatMessageInput");if(!input||!selectedChatUser||!currentUid()||!firestore)return;
   const text=input.value.trim();if(!text)return;
   if(chatBlockedByMe||chatBlockedMe)return alert("Messaging is unavailable for this user.");
-  const otherUid=selectedChatUser.uid;const cid=selectedChatId||chatIdFor(currentUid(),otherUid);
+  const otherUid=selectedChatUser.uid;const cid=selectedChatId||chatIdFor(currentUid(),otherUid);if(!cid||!otherUid)return;
   const btn=document.getElementById("chatSendBtn");
   if(btn)btn.disabled=true;
   input.value="";
@@ -1653,7 +1801,7 @@ async function sendChatMessage(){
       getDoc(doc(firestore,"blocks",`${currentUid()}_${otherUid}`)),
       getDoc(doc(firestore,"blocks",`${otherUid}_${currentUid()}`))
     ]);
-    if(mine.exists||theirs.exists){await refreshBlockState(otherUid);renderChatWindow();subscribeToMessages();if(btn)btn.disabled=false;return alert("Messaging is unavailable because one of you has blocked the other.")}
+    if(mine.exists||theirs.exists){await refreshBlockState(otherUid);renderChatWindow();subscribeToMessages(selectedChatId);if(btn)btn.disabled=false;return alert("Messaging is unavailable because one of you has blocked the other.")}
     const chatRef=doc(firestore,"chats",cid);
     // Create/update chat first
     await setDoc(chatRef,{
@@ -1669,6 +1817,7 @@ async function sendChatMessage(){
       text,
       createdAt:serverTimestamp()
     });
+    setTypingStatus(false);
   }catch(err){
     console.error("Send message failed",err);
     alert("Message could not be sent. Please update Firestore rules (see latest rules).\n\nError: "+(err.message||err));
@@ -1751,7 +1900,7 @@ async function toggleBlockUser(uid,isBlocked){
   const ref=doc(firestore,"blocks",`${currentUid()}_${uid}`);
   try{
     if(isBlocked)await deleteDoc(ref);else await setDoc(ref,{blockerId:currentUid(),blockedId:uid,createdAt:serverTimestamp()});
-    if(selectedChatUser?.uid===uid){await refreshBlockState(uid);renderChatWindow();subscribeToMessages()}
+    if(selectedChatUser?.uid===uid){await refreshBlockState(uid);renderChatWindow();subscribeToMessages(selectedChatId)}
     openUserProfile(uid);
   }catch(err){console.error(err);alert("Could not update block status.")}
 }
