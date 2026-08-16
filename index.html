@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Study Circle — Focus App</title>
+
+<!--
+  ICON / IMAGE NOTES
+  ------------------------------------------------------------
+  You asked to add Google-style image placeholders so you can
+  download your own assets and replace them yourself.
+
+  Recommended folders:
+    /assets/logo.png
+    /assets/subjects/chemistry.png
+    /assets/subjects/physics.png
+    /assets/subjects/biology.png
+    /assets/subjects/math.png
+    /assets/subjects/english.png
+    /assets/profile/default-avatar.png
+    /assets/celebration/hedgehog.png
+
+  Search Google Images for the exact style you want, download
+  your chosen PNG/WebP, then replace the src values in JS.
+
+  SUBJECT ICONS:
+    The default UI uses Lucide SVG icons for a clean premium look.
+    If you want custom Google-image icons, put them in:
+      /assets/subjects/biology.png
+      /assets/subjects/chemistry.png
+      /assets/subjects/physics.png
+      /assets/subjects/math.png
+    Then paste the file path into the "Optional image URL" field.
+
+  Example:
+    icon: "assets/subjects/chemistry.png"
+
+  The app currently uses premium emoji/icon fallbacks so the
+  UI works immediately even before you add your own images.
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<!-- REAL GOOGLE AUTH (optional): fill FIREBASE_CONFIG below to enable it. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<style>
+:root{
+  --bg:#f6fbff;
+  --surface:rgba(255,255,255,.88);
+  --surface-solid:#fff;
+  --ink:#111318;
+  --muted:#6f7580;
+  --line:rgba(24,28,35,.10);
+  --shadow:0 12px 34px rgba(46,61,79,.10);
+  --yellow:#ffe638;
+  --blue:#72c9ef;
+  --cyan:#3cc6ee;
+  --purple:#a52fc4;
+  --green:#54b95b;
+  --pink:#ef2670;
+  --lime:#e9ff24;
+  --accent:#9f2abf;
+  --nav:#ffffffd9;
+  --danger:#ef476f;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:"DM Sans",system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+body{
+  overflow-x:hidden;
+  background:
+    radial-gradient(circle at 20% 0%,rgba(255,255,255,.96),transparent 34%),
+    radial-gradient(circle at 100% 30%,rgba(184,238,255,.34),transparent 35%),
+    #f5fbff;
+}
+button,input,textarea,select{font:inherit}
+button{border:0;cursor:pointer;color:inherit}
+img{max-width:100%;display:block}
+.hidden{display:none!important}
+.app-shell{min-height:100vh;position:relative}
+.honeycomb{
+  position:fixed;inset:0;pointer-events:none;opacity:.28;z-index:0;
+  background-image:
+    linear-gradient(30deg,rgba(150,180,205,.12) 12%,transparent 12.5%,transparent 87%,rgba(150,180,205,.12) 87.5%,rgba(150,180,205,.12)),
+    linear-gradient(150deg,rgba(150,180,205,.12) 12%,transparent 12.5%,transparent 87%,rgba(150,180,205,.12) 87.5%,rgba(150,180,205,.12)),
+    linear-gradient(30deg,rgba(150,180,205,.12) 12%,transparent 12.5%,transparent 87%,rgba(150,180,205,.12) 87.5%,rgba(150,180,205,.12)),
+    linear-gradient(150deg,rgba(150,180,205,.12) 12%,transparent 12.5%,transparent 87%,rgba(150,180,205,.12) 87.5%,rgba(150,180,205,.12)),
+    linear-gradient(60deg,rgba(150,180,205,.08) 25%,transparent 25.5%,transparent 75%,rgba(150,180,205,.08) 75%);
+  background-size:80px 140px;
+  background-position:0 0,0 0,40px 70px,40px 70px,0 0;
+}
+.page{position:relative;z-index:1}
+button,.card,.subject-card,.nav-item,.bottom-item,.task,.profile-card{transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease,background .22s ease,border-color .22s ease,opacity .22s ease}
+button:active{transform:scale(.965)!important}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid rgba(70,190,240,.30);outline-offset:2px}
+
+/* ---------- onboarding ---------- */
+.onboarding{min-height:100vh;display:grid;place-items:center;padding:24px}
+.onboard-card{width:min(520px,100%);text-align:center;min-height:700px;display:flex;flex-direction:column;justify-content:center;padding:34px 28px}
+.brand-art{width:210px;height:160px;margin:0 auto 28px;display:grid;place-items:center;position:relative}
+.brand-note{width:150px;height:110px;background:#ffe38a;display:grid;place-items:center;font-family:Nunito;font-size:27px;line-height:1.05;transform:rotate(-1.5deg);box-shadow:0 12px 20px rgba(60,60,30,.08);border:2px solid #303030;border-radius:3px;position:relative;z-index:2}
+.brand-note:after{content:"";position:absolute;right:-18px;bottom:-4px;width:35px;height:45px;background:#fff;border-left:2px solid #303030;transform:skew(-18deg);z-index:-1}
+.hedgehog{position:absolute;right:35px;bottom:15px;font-size:64px;z-index:3;filter:drop-shadow(0 4px 2px rgba(0,0,0,.08))}
+.onboard-title{font-family:Nunito;font-size:24px;font-weight:900;margin:0 0 26px}
+.onboard-copy{font-size:18px;line-height:1.55;color:#343840;margin:0 auto 38px;max-width:430px}
+.primary-btn,.secondary-btn{
+  width:100%;height:58px;border-radius:31px;font-size:17px;font-weight:800;
+  box-shadow:0 7px 15px rgba(35,42,50,.12);
+}
+.primary-btn{background:var(--yellow)}
+.secondary-btn{background:#73ccef}
+.google-btn{background:#fff;border:1px solid rgba(0,0,0,.11);display:flex;align-items:center;justify-content:center;gap:12px}
+.google-mark{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#4285f4}
+.onboard-actions{display:grid;gap:16px}
+.form-screen{width:min(520px,100%);padding:40px 30px;min-height:620px;display:flex;flex-direction:column}
+.back-btn{width:42px;height:42px;border-radius:50%;background:#fff;border:1px solid var(--line);margin-bottom:34px}
+.form-title{text-align:center;font-family:Nunito;font-size:27px;margin:0 0 30px}
+.form-help{font-size:16px;line-height:1.5;color:#555c67;margin:0 0 20px}
+.big-input{height:78px;width:100%;border:2px solid #15171b;border-radius:24px;background:#fff;padding:0 20px;font-size:21px;color:#17181c}
+.form-bottom{margin-top:auto}
+.dots{display:flex;justify-content:center;gap:11px;margin:0 0 26px}
+.dot{width:14px;height:14px;border-radius:50%;background:#dfe1e4}
+.dot.active{background:#20c8df}
+.form-note{text-align:right;color:#666;font-size:13px;margin-top:7px}
+
+/* ---------- app ---------- */
+.dashboard{display:grid;grid-template-columns:230px minmax(0,850px) 300px;gap:22px;max-width:1440px;margin:0 auto;min-height:100vh;padding:24px}
+.rail{position:sticky;top:24px;height:calc(100vh - 48px);display:flex;flex-direction:column;padding:14px}
+.brand-mini{display:flex;align-items:center;gap:11px;padding:12px 8px 22px}
+.brand-logo{width:42px;height:42px;border-radius:13px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-family:Nunito;font-weight:900;font-size:20px;box-shadow:var(--shadow)}
+.brand-name{font-family:Nunito;font-weight:900}
+.brand-sub{font-size:9px;color:#7b8490;letter-spacing:1px;margin-top:2px}
+.rail-links{display:grid;gap:7px}
+.rail-link{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:15px;background:transparent;color:#555d68;font-weight:700}
+.rail-link.active{background:#fff;box-shadow:var(--shadow);color:#17191e}
+.rail-link .ico{width:28px;text-align:center;font-size:18px}
+.rail-user{margin-top:auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:10px;display:flex;align-items:center;gap:10px}
+.avatar{width:42px;height:42px;border-radius:13px;object-fit:cover;background:#ffe3b2;display:grid;place-items:center;font-size:23px}
+.user-name{font-weight:800;font-size:13px}.user-sub{font-size:10px;color:#8a9098}
+.main{min-width:0;padding:4px 0 110px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin:8px 0 18px}
+.page-title{font-family:Nunito;font-size:31px;font-weight:900;margin:0}
+.page-sub{color:#747b85;font-size:12px;margin-top:3px}
+.menu-btn{width:48px;height:48px;border-radius:17px;background:#fff;border:1px solid var(--line);font-size:20px;box-shadow:var(--shadow)}
+.card{background:var(--surface);border:1px solid rgba(35,40,50,.10);border-radius:24px;box-shadow:var(--shadow);backdrop-filter:blur(16px)}
+.hero{padding:20px;margin-bottom:20px}
+.hero-head{display:flex;justify-content:space-between;align-items:center}
+.hero-label{font-size:10px;font-weight:900;letter-spacing:1.6px;color:#7a818c}
+.hero-time{font-family:Nunito;font-size:54px;font-weight:900;letter-spacing:-2px;margin:8px 0}
+.hero-sub{font-size:12px;color:#6d7480}
+.subject-head{display:flex;justify-content:space-between;align-items:center;margin:22px 2px 10px}
+.section-title{font-family:Nunito;font-size:19px;font-weight:900}
+.add-head{background:#fff;border:1px solid var(--line);border-radius:13px;padding:8px 12px;font-weight:800;font-size:12px}
+.subject-list{display:grid;gap:10px}
+.subject-card{display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:14px;padding:9px 12px 9px 9px;background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 7px 18px rgba(50,60,75,.08)}
+.subject-card:hover{transform:translateY(-2px);box-shadow:0 12px 25px rgba(50,60,75,.13)}
+.subject-color{height:58px;border-radius:14px;display:grid;place-items:center;color:#fff;font-size:20px}
+.subject-name{font-family:Nunito;font-size:18px;font-weight:900}
+.subject-time{font-size:11px;color:#7a8089;margin-top:3px}
+.subject-more{width:38px;height:38px;border-radius:12px;background:#f7f8fa;font-size:19px}
+.chart-card{padding:18px;margin-top:22px}
+.chart-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:10px}
+.chart-total{font-family:Nunito;font-size:23px;font-weight:900}
+.chart-wrap{height:250px}
+.activity{margin-top:22px}
+.activity-row{display:flex;align-items:center;justify-content:space-between;padding:15px 17px;background:#fff;border:1px solid var(--line);border-radius:16px;margin-top:8px}
+.activity-name{font-weight:800}.activity-time{font-size:11px;color:#7c828b}
+.right{padding-top:62px}
+.side-card{padding:18px;margin-bottom:12px}
+.side-title{display:flex;justify-content:space-between;align-items:center;font-family:Nunito;font-weight:900}
+.task-add{display:grid;grid-template-columns:1fr 78px 42px;gap:7px;margin-top:14px}
+.task-add input,.task-add button,.profile-field input,.profile-field textarea{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 11px}
+.task-add button{background:#111;color:#fff}
+.task{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:0}
+.check{width:20px;height:20px;border-radius:6px;border:1.5px solid #a7adb6;background:#fff;cursor:pointer}
+.task.done .check{background:#45b95c;border-color:#45b95c;color:#fff}.task.done .task-text{text-decoration:line-through;color:#9ca1a8}
+.target-big{font-family:Nunito;font-size:30px;font-weight:900;margin:8px 0}
+.progress{height:10px;background:#e9ebef;border-radius:10px;overflow:hidden}.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#58c9ed,#9d36c5);border-radius:inherit}
+
+/* ---------- pages ---------- */
+.profile-page,.target-page{display:grid;gap:14px}
+.profile-card{padding:18px}
+.profile-top{display:flex;align-items:center;gap:14px}
+.profile-avatar{width:86px;height:86px;border-radius:24px;object-fit:cover;background:#ffe6b7;display:grid;place-items:center;font-size:40px}
+.profile-name{font-family:Nunito;font-size:22px;font-weight:900}.handle{font-size:12px;color:#7c838d}
+.bio{margin:18px 0 0;color:#454b55;line-height:1.5}
+.note{margin-top:12px;padding:12px;border-radius:15px;background:#fff8a9;font-size:13px}
+.edit-grid{display:grid;gap:10px;margin-top:16px}
+.profile-field label{font-size:10px;font-weight:900;letter-spacing:1px;color:#7c838d;display:block;margin:0 0 5px 4px}
+.profile-field textarea{min-height:90px;resize:vertical}
+.save-btn{height:48px;border-radius:15px;background:#111;color:#fff;font-weight:800}
+.upload-btn{height:44px;border-radius:13px;background:#eef8ff;border:1px solid #cbeefb;font-weight:800}
+.target-card{padding:20px}
+.target-input{height:54px;border:1px solid var(--line);border-radius:15px;padding:0 15px;width:100%;background:#fff;font-size:16px}
+.set-target{height:48px;border-radius:15px;background:var(--yellow);font-weight:900;width:100%;margin-top:10px}
+
+/* ---------- timer ---------- */
+.timer-modal{position:fixed;inset:0;background:rgba(18,21,27,.36);backdrop-filter:blur(12px);z-index:50;display:grid;place-items:center;padding:20px}
+.timer-box{width:min(520px,100%);background:#fff;border-radius:32px;padding:22px;box-shadow:0 35px 80px rgba(0,0,0,.25);text-align:center}
+.timer-top{display:flex;justify-content:space-between;align-items:center}.timer-subject{font-family:Nunito;font-size:21px;font-weight:900}
+.close-round{width:42px;height:42px;border-radius:50%;background:#f4f5f7;font-size:20px}
+.duration-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0}
+.duration{padding:9px 14px;border-radius:14px;background:#f1f3f5;font-weight:800;font-size:12px}.duration.active{background:#111;color:#fff}
+.clock{width:260px;height:260px;border-radius:50%;margin:18px auto;display:grid;place-items:center;background:radial-gradient(circle,#fff 62%,#f0f3f5 63%,#fff 66%);box-shadow:0 16px 34px rgba(0,0,0,.12);border:8px solid #f8f9fa}
+.clock strong{font-family:Nunito;font-size:42px;letter-spacing:1px}.clock small{display:block;color:#888}
+.timer-actions{display:flex;justify-content:center;gap:10px}.timer-action{width:82px;height:58px;border-radius:18px;background:#f2f3f5;font-weight:900}.timer-action.primary{background:#111;color:#fff}
+.complete-modal{position:fixed;inset:0;display:grid;place-items:center;background:rgba(15,18,23,.20);backdrop-filter:blur(7px);z-index:80}
+.complete-box{width:min(420px,calc(100% - 30px));background:#fff;border:2px solid #171717;border-radius:28px;padding:25px;text-align:center;box-shadow:0 30px 70px rgba(0,0,0,.28);animation:pop .55s cubic-bezier(.16,1.4,.4,1)}
+.complete-art{font-size:74px;animation:bounce .8s ease both}.complete-title{font-family:Nunito;font-size:27px;font-weight:900}.complete-time{display:inline-block;border:2px solid #bd75d1;border-radius:18px;padding:8px 18px;font-weight:900;color:#702083}
+.complete-actions{display:grid;gap:9px;margin-top:18px}.complete-actions button{height:48px;border-radius:14px;background:#e8c5ef;font-weight:900}
+.complete-actions button:last-child{background:#fff;border:1px solid #c98ad8}
+.confetti{position:fixed;width:10px;height:18px;top:-30px;z-index:90;border-radius:5px;animation:fall 2.7s linear forwards}
+
+/* ---------- bottom nav ---------- */
+.mobile-nav{display:none}
+.desktop-add{display:block}
+@keyframes pop{from{transform:scale(.78);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes bounce{0%{transform:translateY(18px) scale(.7)}65%{transform:translateY(-8px) scale(1.08)}100%{transform:none}}
+@keyframes fall{to{transform:translate3d(var(--x),110vh,0) rotate(720deg);opacity:0}}
+@media(max-width:1050px){
+  .dashboard{grid-template-columns:190px minmax(0,1fr);max-width:1000px}
+  .right{display:none}
+}
+@media(max-width:700px){
+  body{background:#f7fcff}
+  .dashboard{display:block;min-height:100vh;padding:0 14px 105px}
+  .rail{display:none}
+  .main{padding:14px 0 30px}
+  .topbar{margin:5px 2px 16px}.page-title{font-size:27px}.page-sub{font-size:11px}
+  .menu-btn{width:44px;height:44px;border-radius:15px}
+  .hero{border-radius:22px;padding:17px}.hero-time{font-size:44px}
+  .subject-head{margin-top:20px}
+  .subject-card{grid-template-columns:62px 1fr auto}
+  .subject-color{height:56px}
+  .chart-card{border-radius:22px}.chart-wrap{height:220px}
+  .mobile-nav{
+    position:fixed;display:grid;grid-template-columns:repeat(4,1fr);align-items:center;
+    left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));
+    height:68px;padding:6px;border-radius:24px;background:rgba(255,255,255,.90);
+    border:1px solid rgba(30,35,45,.10);box-shadow:0 14px 38px rgba(39,51,68,.17);
+    backdrop-filter:blur(22px);z-index:30;
+  }
+  .bottom-item{height:56px;border-radius:18px;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#9ca1aa;font-size:10px;font-weight:800}
+  .bottom-item i{font-size:21px;font-style:normal;line-height:1}
+  .bottom-item.active{color:#111;background:rgba(80,196,235,.13)}
+  .bottom-item.add{color:#fff;background:#111;box-shadow:0 6px 14px rgba(0,0,0,.16)}
+  .bottom-item.add small{color:#fff}
+  .right{display:none}
+  .timer-box{padding:18px;border-radius:28px}.clock{width:235px;height:235px}.clock strong{font-size:35px}
+  .profile-top{align-items:flex-start}.profile-avatar{width:78px;height:78px}
+  .profile-name{font-size:20px}
+  .complete-box{border-radius:26px}
+}
+@media(min-width:701px){
+  .onboard-card,.form-screen{background:rgba(255,255,255,.55);border:1px solid rgba(40,50,60,.08);border-radius:34px;box-shadow:var(--shadow);backdrop-filter:blur(18px)}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
+/* ===== PREMIUM V2 OVERRIDES ===== */
+:root{
+  --ink:#111218;
+  --muted:#707784;
+  --accent:#8f36c9;
+  --accent2:#42c8ef;
+  --danger:#ff4d68;
+  --danger-soft:rgba(255,77,104,.10);
+}
+.icon-svg{width:21px;height:21px;stroke-width:2.15;flex:0 0 auto}
+.subject-icon-svg{width:25px;height:25px;stroke-width:2.2}
+.icon-choice{
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  margin-top:8px;
+}
+.icon-choice button{
+  width:44px;height:44px;border-radius:13px;background:#fff;border:1px solid var(--line);
+  display:grid;place-items:center;box-shadow:0 4px 12px rgba(40,50,70,.06);
+}
+.icon-choice button.active{border-color:#8f36c9;box-shadow:0 0 0 3px rgba(143,54,201,.12)}
+.subject-menu-wrap{position:relative}
+.subject-menu{
+  position:absolute;right:0;top:44px;z-index:20;width:185px;padding:7px;
+  background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:16px;
+  box-shadow:0 18px 45px rgba(28,34,44,.18);backdrop-filter:blur(18px);
+}
+.subject-menu button{
+  width:100%;text-align:left;background:transparent;border-radius:11px;padding:10px 11px;
+  font-weight:700;font-size:12px;
+}
+.subject-menu button:hover{background:#f5f6f8}
+.danger-modal{position:fixed;inset:0;display:grid;place-items:center;padding:18px;background:rgba(18,20,25,.30);backdrop-filter:blur(13px);z-index:70}
+.danger-box{
+  width:min(390px,100%);padding:23px;border-radius:27px;
+  background:rgba(255,255,255,.94);border:1px solid rgba(255,77,104,.25);
+  box-shadow:0 30px 80px rgba(35,25,35,.25);animation:dangerIn .35s cubic-bezier(.2,1.25,.35,1)
+}
+.danger-icon{
+  width:54px;height:54px;border-radius:17px;background:var(--danger-soft);color:var(--danger);
+  display:grid;place-items:center;margin-bottom:13px
+}
+.danger-title{font-family:Nunito;font-size:22px;font-weight:900;margin:0 0 6px}
+.danger-copy{font-size:13px;line-height:1.55;color:#666d77;margin:0}
+.danger-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}
+.danger-actions button{height:47px;border-radius:14px;font-weight:900}
+.danger-cancel{background:#f2f3f5}
+.danger-confirm{background:#ff4d68;color:#fff}
+.target-start{
+  width:100%;height:46px;border-radius:14px;margin-top:12px;
+  background:#111;color:#fff;font-weight:900;box-shadow:0 8px 20px rgba(0,0,0,.13)
+}
+.target-start:hover{transform:translateY(-1px);box-shadow:0 11px 24px rgba(0,0,0,.17)}
+.target-running{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:11px 12px;border-radius:14px;background:#f5fbff;border:1px solid #d9f2fb;
+  margin-top:11px;font-size:12px;font-weight:800
+}
+.google-btn{
+  position:relative;overflow:hidden;
+}
+.google-btn::after{
+  content:"";position:absolute;inset:0;transform:translateX(-110%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);
+  transition:transform .6s ease;
+}
+.google-btn:hover::after{transform:translateX(110%)}
+.auth-badge{
+  display:inline-flex;align-items:center;gap:7px;margin:0 auto 18px;padding:7px 11px;border-radius:999px;
+  background:rgba(255,255,255,.78);border:1px solid var(--line);font-size:11px;font-weight:800;color:#626a75
+}
+.auth-badge .google-mark{width:17px;height:17px}
+@keyframes dangerIn{from{opacity:0;transform:translateY(12px) scale(.94)}to{opacity:1;transform:none}}
+
+
+/* ===== V3 POLISH / REQUESTED FIXES ===== */
+.filter-row{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;margin-top:9px}
+.filter-pill{height:32px;padding:0 11px;border-radius:999px;background:rgba(20,25,32,.045);border:1px solid rgba(25,30,38,.09);font-size:10px;font-weight:900;color:#737b86}
+.filter-pill.active{background:#14161b;color:#fff;border-color:#14161b;box-shadow:0 5px 14px rgba(20,22,28,.13)}
+.hero-filter-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.hero-filter-head .filter-row{margin-top:0}
+.chart-card{overflow:hidden}
+.donut-layout{display:grid;grid-template-columns:minmax(230px,1fr) minmax(190px,.8fr);gap:20px;align-items:center}
+.chart-wrap{height:285px;position:relative}
+.donut-center{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;text-align:center}
+.donut-center-inner{transform:translateY(2px)}
+.donut-center b{display:block;font:900 27px Nunito}.donut-center span{display:block;font-size:9px;letter-spacing:1.4px;color:#858c96;font-weight:900;text-transform:uppercase;margin-top:3px}
+.donut-legend{display:grid;gap:8px;max-height:250px;overflow:auto;padding-right:3px}
+.donut-legend-row{display:grid;grid-template-columns:11px 1fr auto;gap:9px;align-items:center;padding:10px;border-radius:14px;background:rgba(25,30,38,.035);border:1px solid rgba(25,30,38,.055)}
+.donut-dot{width:9px;height:9px;border-radius:50%}.donut-legend-row b{font-size:12px}.donut-legend-row small{font-size:10px;color:#8a919b}.donut-legend-row strong{font-size:11px}
+.subject-more{display:grid;place-items:center;color:#a0a6af}.subject-more:hover{background:#fff0f2;color:#ef476f}
+.subject-card .subject-menu-wrap{align-self:stretch;display:grid;place-items:center}
+.target-live{display:grid;gap:11px;margin-top:13px;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(67,199,237,.09),rgba(143,54,201,.07));border:1px solid rgba(100,185,220,.20)}
+.target-live-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.target-live-time{font:900 25px Nunito}.target-live-label{font-size:10px;color:#7c8490;font-weight:900;letter-spacing:1.2px}.target-live-sub{font-size:12px;font-weight:900}.target-live-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.target-live-actions button{height:40px;border-radius:12px;font-size:11px;font-weight:900;background:#fff;border:1px solid var(--line)}.target-live-actions .danger-stop{background:#14161b;color:#fff;border-color:#14161b}
+.target-select{display:grid;gap:12px}.target-select-subject{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:15px;background:#fff}.target-select-subject input{accent-color:#8f36c9;width:18px;height:18px}.target-select-subject .target-select-icon{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;color:#fff}.target-select-subject span{font-weight:900;font-size:12px}.target-select-subject small{display:block;color:#8a919b;font-weight:600;margin-top:2px}
+.target-choice-box{width:min(460px,100%);padding:21px;border-radius:27px;background:rgba(255,255,255,.96);border:1px solid var(--line);box-shadow:0 30px 80px rgba(25,30,40,.25);animation:dangerIn .3s cubic-bezier(.2,1.25,.35,1)}
+.target-choice-box h2{font:900 22px Nunito;margin:0 0 5px}.target-choice-box p{font-size:12px;color:#777f8a;margin:0 0 15px}.target-choice-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}.target-choice-actions button{height:46px;border-radius:14px;font-weight:900}.target-choice-actions .start{background:#111;color:#fff}.target-choice-actions .cancel{background:#f1f2f4}
+.profile-identity{display:flex;align-items:center;gap:15px;position:relative}.profile-avatar-wrap{position:relative;flex:0 0 auto}.profile-avatar-wrap .profile-avatar{width:92px;height:92px;border-radius:27px;object-fit:cover;background:#ffe4a7;border:1px solid rgba(0,0,0,.08);display:grid;place-items:center;font-size:42px}.profile-note-bubble{position:absolute;left:72px;top:-8px;min-width:145px;max-width:220px;padding:10px 13px;border-radius:16px 16px 16px 5px;background:#111820;color:#fff;box-shadow:0 12px 28px rgba(0,0,0,.17);font-size:11px;font-weight:800;line-height:1.35;z-index:2}.profile-note-bubble:after{content:"";position:absolute;left:-6px;bottom:8px;width:12px;height:12px;background:#111820;transform:rotate(45deg);z-index:-1}.profile-note-bubble small{display:block;color:#aeb6c0;font-size:8px;margin-top:4px;font-weight:700}
+.photo-picker{display:flex;align-items:center;gap:12px;padding:11px;border:1px dashed rgba(40,45,55,.18);border-radius:18px;background:rgba(25,30,38,.025)}.photo-picker-preview{width:48px;height:48px;border-radius:14px;object-fit:cover;background:#ffe4a7;display:grid;place-items:center;font-size:23px}.photo-picker-copy{min-width:0;flex:1}.photo-picker-copy b{display:block;font-size:12px}.photo-picker-copy span{display:block;font-size:10px;color:#8a919b;margin-top:2px}.photo-picker button{height:40px;padding:0 13px;border-radius:12px;background:#111;color:#fff;font-size:11px;font-weight:900}
+.google-account-modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:18px;background:rgba(20,24,30,.32);backdrop-filter:blur(13px)}.google-account-box{width:min(410px,100%);background:#fff;border:1px solid rgba(0,0,0,.09);border-radius:24px;box-shadow:0 28px 75px rgba(0,0,0,.24);padding:22px}.google-account-brand{display:flex;align-items:center;gap:10px;margin-bottom:16px}.google-account-brand .google-mark{border:1px solid #e6e7ea}.google-account-box h2{font:900 22px Nunito;margin:0 0 4px}.google-account-box p{font-size:12px;color:#777f89;margin:0 0 16px}.google-email-input{height:49px;width:100%;border:1px solid #cfd3d8;border-radius:12px;padding:0 13px;font-size:14px}.google-account-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.google-account-actions button{height:43px;padding:0 16px;border-radius:12px;font-weight:900}.google-cancel{background:#f1f2f4}.google-next{background:#1a73e8;color:#fff}
+.target-start{position:relative;overflow:hidden}.target-start:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent,rgba(255,255,255,.18),transparent);transform:translateX(-120%);transition:transform .7s}.target-start:hover:after{transform:translateX(120%)}
+@media(max-width:700px){
+ .hero-filter-head{display:block}.hero-filter-head .filter-row{justify-content:flex-start;margin-top:10px}.filter-pill{height:31px}
+ .donut-layout{grid-template-columns:1fr;gap:8px}.chart-wrap{height:235px}.donut-legend{max-height:none;grid-template-columns:1fr 1fr}.donut-legend-row{padding:8px}
+ .profile-note-bubble{left:58px;top:-13px;min-width:125px;max-width:170px}.profile-avatar-wrap .profile-avatar{width:78px;height:78px;border-radius:23px}
+ .mobile-nav{height:72px;bottom:calc(7px + env(safe-area-inset-bottom));padding:7px;border-radius:25px}.bottom-item.add{width:53px;height:53px;border-radius:18px;justify-self:center;align-self:center;box-shadow:0 12px 25px rgba(17,17,20,.25)}
+ .target-choice-box{padding:18px}.target-live-actions{grid-template-columns:1fr 1fr}.donut-center b{font-size:24px}
+}
+
+.task-add button{width:46px;height:46px;border-radius:13px;background:#111;color:#fff;display:grid;place-items:center;flex:0 0 46px}.task-add button svg{width:18px;height:18px}.task-add input{min-width:0}.save-btn,.upload-btn{border-radius:15px;min-height:48px}
+@media(max-width:700px){.task-add{grid-template-columns:minmax(0,1fr) 92px 46px!important}.task-add input[type=time]{width:92px}.add-head{padding:8px 10px}.profile-identity{padding-top:5px}}
+</style>
+</head>
+<body>
+<div class="honeycomb"></div>
+<div id="app" class="app-shell"></div>
+
+<script>
+/* ============================================================
+   STUDY CIRCLE — PREMIUM SINGLE FILE APP V2
+   ============================================================
+   This is a front-end simulation with localStorage persistence.
+   You can connect Firebase/Auth/Firestore later without changing
+   the UI architecture.
+*/
+
+const KEY="study_circle_state_v2";
+
+/* ============================================================
+   GOOGLE AUTH SETUP
+   ------------------------------------------------------------
+   REAL Google sign-in:
+   1. Create a Firebase project.
+   2. Enable Authentication > Google.
+   3. Create a Web App and paste its config below.
+   4. For cross-device cloud profile/data, enable Firestore too.
+   If the config is left as YOUR_..., the app automatically uses
+   the localStorage demo mode, so the UI still works.
+============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_FIREBASE_APP_ID"
+};
+let firebaseReady = false;
+let firebaseUser = null;
+let firestore = null;
+
+function initFirebase(){
+  try{
+    const ready = FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith("YOUR_")
+      && FIREBASE_CONFIG.authDomain && !FIREBASE_CONFIG.authDomain.startsWith("YOUR_");
+    if(!ready || typeof firebase==="undefined") return;
+    firebase.initializeApp(FIREBASE_CONFIG);
+    firestore = firebase.firestore();
+    firebaseReady = true;
+    firebase.auth().onAuthStateChanged(async user=>{
+      firebaseUser = user || null;
+      if(user){
+        const ref = firestore.collection("users").doc(user.uid);
+        const snap = await ref.get();
+        if(snap.exists){
+          const cloud = snap.data();
+          state = {...state, ...cloud, authUid:user.uid, onboarding:cloud.onboarding || "done"};
+          save();
+          render();
+        }else{
+          state.authUid=user.uid;
+          state.user.name = state.user.name || user.displayName || "";
+          state.user.username = state.user.username || (user.email ? user.email.split("@")[0] : "");
+          state.user.dp = state.user.dp || user.photoURL || "";
+          save();
+        }
+      }
+    });
+  }catch(err){ console.warn("Firebase disabled:", err); }
+}
+async function syncCloud(){
+  if(!firebaseReady || !firebaseUser || !firestore) return;
+  try{
+    await firestore.collection("users").doc(firebaseUser.uid).set(state,{merge:true});
+  }catch(err){ console.warn("Cloud sync failed:", err); }
+}
+initFirebase();
+
+
+const DEFAULT_SUBJECTS=[
+  {id:crypto.randomUUID(),name:"Bangla",icon:"book-open",color:"#8f36c9",seconds:0},
+  {id:crypto.randomUUID(),name:"English",icon:"graduation-cap",color:"#ef2670",seconds:0},
+  {id:crypto.randomUUID(),name:"Math",icon:"calculator",color:"#e2c51a",seconds:0}
+];
+
+let state=JSON.parse(localStorage.getItem(KEY)||"null")||{
+  onboarding:"welcome",
+  user:{name:"",username:"",birthday:"",dp:"",bio:""},
+  note:{text:"",expires:0},
+  target:{minutes:480,done:0,date:"",running:false,startedAt:0},
+  subjects:DEFAULT_SUBJECTS,
+  sessions:[],
+  tasks:[],
+};
+
+if(!state.subjects?.length) state.subjects=DEFAULT_SUBJECTS;
+
+/* migrate older localStorage data */
+state.subjects = (state.subjects||[]).map(s=>{
+  const map={"📖":"book-open","🎓":"graduation-cap","🧮":"calculator","📚":"book-open"};
+  return {...s,icon:map[s.icon]||s.icon||"book-open"};
+});
+state.target = {...{minutes:480,done:0,date:"",running:false,startedAt:0},...(state.target||{})};
+
+let chart=null;
+let timer=null;
+let timerState={subject:null,remaining:0,total:0,running:false,startedAt:0};
+
+function save(){localStorage.setItem(KEY,JSON.stringify(state)); syncCloud()}
+function esc(v=""){return String(v).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function fmt(sec){
+  sec=Math.max(0,Math.floor(sec));
+  const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;
+  if(h)return `${h}h ${m}m`;
+  if(m)return `${m}m ${s}s`;
+  return `${s}s`;
+}
+function fmtClock(sec){
+  sec=Math.max(0,Math.floor(sec));
+  const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;
+  return h?`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+}
+function totalFocus(){return state.subjects.reduce((a,s)=>a+(s.seconds||0),0)}
+function todayKey(){return new Date().toISOString().slice(0,10)}
+function avatarHTML(size="avatar"){
+  if(state.user.dp)return `<img class="${size}" src="${esc(state.user.dp)}" alt="Profile">`;
+  return `<div class="${size}">🙂</div>`;
+}
+
+/* ---------- onboarding ---------- */
+function render(){
+  if(state.onboarding!=="done") renderOnboarding();
+  else renderApp();
+}
+function renderOnboarding(){
+  const root=document.getElementById("app");
+  if(state.onboarding==="welcome"){
+    root.innerHTML=`
+      <main class="onboarding page">
+        <section class="onboard-card">
+          <div class="brand-art">
+            <div class="brand-note">Study<br>Circle</div>
+            <div class="hedgehog">🦔</div>
+          </div>
+          <h1 class="onboard-title">Study Circle is a focus app to enjoy studying.</h1>
+          <p class="onboard-copy">If you are having a hard time finding the motivation to study, or if you feel anxious about studying alone, this is the app for you.</p>
+          <div class="onboard-actions">
+            <button class="primary-btn google-btn" onclick="startGoogle()">
+      <span class="google-mark">G</span><span>Continue with Google</span>
+    </button>
+    <div class="auth-badge"><span class="google-mark">G</span> Your study data stays saved to your account</div>
+          </div>
+        </section>
+      </main>`;
+  }else{
+    const step=state.onboarding;
+    const meta={
+      name:{title:"Your name",help:"Tell us what we should call you.",placeholder:"Your name",next:"username"},
+      username:{title:"Your username",help:"Choose a username you like. You can change it later.",placeholder:"@username",next:"birthday"},
+      birthday:{title:"Your birthday",help:"Add your birthday to complete your profile.",placeholder:"",next:"done"}
+    }[step];
+    root.innerHTML=`
+      <main class="onboarding page">
+        <section class="form-screen">
+          <button class="back-btn" onclick="goBackOnboard()">‹</button>
+          <h1 class="form-title">${meta.title}</h1>
+          <p class="form-help">${meta.help}</p>
+          ${step==="birthday"
+            ? `<input id="onboardInput" class="big-input" type="date" value="${esc(state.user.birthday)}">`
+            : `<input id="onboardInput" class="big-input" maxlength="${step==="name"?30:20}" placeholder="${meta.placeholder}" value="${esc(step==="name"?state.user.name:state.user.username)}">`}
+          ${step!=="birthday"?`<div class="form-note"><span id="charCount">0</span>/30</div>`:""}
+          <div class="form-bottom">
+            <div class="dots">
+              <i class="dot"></i><i class="dot active"></i><i class="dot"></i><i class="dot"></i>
+            </div>
+            <button class="primary-btn" onclick="nextOnboard()">Next</button>
+          </div>
+        </section>
+      </main>`;
+    const inp=document.getElementById("onboardInput");
+    if(inp)inp.addEventListener("input",()=>{const c=document.getElementById("charCount");if(c)c.textContent=inp.value.length});
+  }
+}
+async function startGoogle(){
+  if(firebaseReady){
+    try{
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({prompt:"select_account"});
+      await firebase.auth().signInWithPopup(provider);
+      state.authUid = firebase.auth().currentUser?.uid || "";
+      state.user.name = state.user.name || firebase.auth().currentUser?.displayName || "";
+      state.user.dp = state.user.dp || firebase.auth().currentUser?.photoURL || "";
+      state.user.username = state.user.username || (firebase.auth().currentUser?.email||"").split("@")[0];
+      state.onboarding = state.user.name ? "username" : "name";
+      save(); render();
+      return;
+    }catch(err){
+      console.error(err);
+      alert("Google sign-in could not finish. Check your Firebase Google provider and authorized domain.");
+      return;
+    }
+  }
+  /* Local demo fallback:
+     Without Firebase config this keeps the account/data persistent
+     in this browser using localStorage. */
+  state.onboarding="name"; save(); render();
+}
+function nextOnboard(){
+  const v=document.getElementById("onboardInput").value.trim();
+  if(state.onboarding==="name"){if(!v)return alert("Please enter your name.");state.user.name=v;state.onboarding="username"}
+  else if(state.onboarding==="username"){if(!v)return alert("Please choose a username.");state.user.username=v.replace(/^@/,"");state.onboarding="birthday"}
+  else {if(!v)return alert("Please choose your birthday.");state.user.birthday=v;state.onboarding="done"}
+  save();render();
+}
+function goBackOnboard(){
+  if(state.onboarding==="name")state.onboarding="welcome";
+  else if(state.onboarding==="username")state.onboarding="name";
+  else if(state.onboarding==="birthday")state.onboarding="username";
+  save();render();
+}
+
+/* ---------- app ---------- */
+let activePage="home";
+function renderApp(){
+  document.getElementById("app").innerHTML=`
+    <main class="dashboard page">
+      <aside class="rail">
+        <div class="brand-mini">
+          <div class="brand-logo">S</div>
+          <div><div class="brand-name">Study Circle</div><div class="brand-sub">FOCUS • STUDY</div></div>
+        </div>
+        <nav class="rail-links">
+          <button class="rail-link ${activePage==="home"?"active":""}" onclick="navigate('home')"><span class="ico"><i data-lucide="house" class="icon-svg"></i></span>Home</button>
+          <button class="rail-link ${activePage==="add"?"active":""}" onclick="navigate('add')"><span class="ico"><i data-lucide="plus" class="icon-svg"></i></span>Add</button>
+          <button class="rail-link ${activePage==="target"?"active":""}" onclick="navigate('target')"><span class="ico"><i data-lucide="target" class="icon-svg"></i></span>Target</button>
+          <button class="rail-link ${activePage==="profile"?"active":""}" onclick="navigate('profile')"><span class="ico"><i data-lucide="user-round" class="icon-svg"></i></span>Profile</button>
+        </nav>
+        <div class="rail-user">${avatarHTML("avatar")}<div><div class="user-name">${esc(state.user.name||"Study User")}</div><div class="user-sub">@${esc(state.user.username||"student")}</div></div></div>
+      </aside>
+
+      <section class="main">
+        ${activePage==="home"?homePage():activePage==="add"?addPage():activePage==="target"?targetPage():profilePage()}
+      </section>
+
+      <aside class="right">
+        ${sideToday()}
+        ${sideTarget()}
+      </aside>
+
+      <nav class="mobile-nav">
+        <button class="bottom-item ${activePage==="home"?"active":""}" onclick="navigate('home')"><i data-lucide="house"></i><small>Home</small></button>
+        <button class="bottom-item add ${activePage==="add"?"active":""}" onclick="navigate('add')"><i data-lucide="plus"></i><small>Add</small></button>
+        <button class="bottom-item ${activePage==="target"?"active":""}" onclick="navigate('target')"><i data-lucide="target"></i><small>Target</small></button>
+        <button class="bottom-item ${activePage==="profile"?"active":""}" onclick="navigate('profile')"><i data-lucide="user-round"></i><small>Profile</small></button>
+      </nav>
+    </main>
+    <div id="modalHost"></div>`;
+  drawChart();
+  if(window.lucide) lucide.createIcons();
+}
+function navigate(page){activePage=page;renderApp();if(window.lucide)lucide.createIcons();window.scrollTo({top:0,behavior:"smooth"})}
+
+function homePage(){
+  const total=totalFocus();
+  return `
+    <div class="topbar">
+      <div><h1 class="page-title">Timer</h1><div class="page-sub">Make a little progress every day.</div></div>
+      <button class="menu-btn" onclick="showHelp()">☰</button>
+    </div>
+    <section class="card hero">
+      <div class="hero-head"><span class="hero-label">TODAY'S FOCUS</span><span class="hero-sub">${new Date().toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}</span></div>
+      <div class="hero-time">${fmt(total)}</div>
+      <div class="hero-sub">Your total study time across all subjects.</div>
+    </section>
+    <div class="subject-head">
+      <div class="section-title">Subjects</div>
+      <button class="add-head" onclick="navigate('add')">＋ Add subject</button>
+    </div>
+    <section class="subject-list">${state.subjects.map(subjectCard).join("")}</section>
+    <section class="card chart-card">
+      <div class="chart-head">
+        <div><div class="hero-label">FOCUS BREAKDOWN</div><div class="chart-total">${fmt(total)}</div></div>
+        <span class="hero-sub">By subject</span>
+      </div>
+      <div class="chart-wrap"><canvas id="focusChart"></canvas></div>
+    </section>
+    <section class="activity">
+      <div class="subject-head"><div class="section-title">Recent activity</div><span class="hero-sub">Latest sessions</span></div>
+      ${state.sessions.length?state.sessions.slice(-5).reverse().map(s=>`<div class="activity-row"><div><div class="activity-name">${esc(s.subject)}</div><div class="activity-time">${new Date(s.at).toLocaleString()}</div></div><b>${fmt(s.seconds)}</b></div>`).join(""):`<div class="activity-row"><div class="activity-time">Your completed sessions will appear here.</div></div>`}
+    </section>`;
+}
+function subjectCard(s){
+  const icon = s.icon || "book-open";
+  const image = s.image ? `<img src="${esc(s.image)}" alt="" style="width:28px;height:28px;object-fit:contain">`
+                        : `<i data-lucide="${esc(icon)}" class="subject-icon-svg"></i>`;
+  return `<article class="subject-card" onclick="openTimer('${s.id}')">
+    <div class="subject-color" style="background:${esc(s.color)}">${image}</div>
+    <div><div class="subject-name">${esc(s.name)}</div><div class="subject-time">${fmt(s.seconds||0)} focused</div></div>
+    <div class="subject-menu-wrap" onclick="event.stopPropagation()">
+      <button class="subject-more" onclick="subjectMenu('${s.id}')"><i data-lucide="more-horizontal" class="icon-svg"></i></button>
+    </div>
+  </article>`;
+}
+function addPage(){
+  return `
+    <div class="topbar"><div><h1 class="page-title">Add</h1><div class="page-sub">Create a subject that feels like yours.</div></div></div>
+    <section class="card profile-card">
+      <div class="section-title">New subject</div>
+      <div class="edit-grid">
+        <div class="profile-field"><label>SUBJECT NAME</label><input id="newSubjectName" placeholder="e.g. Chemistry"></div>
+        <div class="profile-field"><label>ICON</label>
+  <input type="hidden" id="newSubjectIcon" value="book-open">
+  <div class="icon-choice" id="iconChoice">
+    ${[
+      ["book-open","Bangla"],["languages","English"],["calculator","Math"],
+      ["dna","Biology"],["flask-conical","Chemistry"],["atom","Physics"],
+      ["sigma","Higher Math"],["globe-2","Geography"],["monitor","ICT"],
+      ["book-marked","History"],["landmark","Civics"],["music-2","Other"]
+    ].map(([ic,label],i)=>`<button type="button" title="${label}" class="${i===0?"active":""}" onclick="selectSubjectIcon('${ic}',this)"><i data-lucide="${ic}" class="icon-svg"></i></button>`).join("")}
+  </div>
+</div>
+        <div class="profile-field"><label>COLOR</label><input id="newSubjectColor" type="color" value="#a52fc4" style="height:48px;width:100%;padding:4px"></div>
+        <div class="profile-field"><label>OPTIONAL IMAGE URL — custom Google image</label><input id="newSubjectImage" placeholder="assets/subjects/chemistry.png"></div>
+        <button class="save-btn" onclick="addSubject()">Create subject</button>
+      </div>
+    </section>
+    <div class="subject-head"><div class="section-title">Your subjects</div></div>
+    <section class="subject-list">${state.subjects.map(subjectCard).join("")}</section>`;
+}
+function targetPage(){
+  const pct=Math.min(100,Math.round((state.target.done/Math.max(1,state.target.minutes))*100));
+  return `
+    <div class="topbar"><div><h1 class="page-title">Target</h1><div class="page-sub">A small plan for today's study.</div></div></div>
+    <section class="card target-card">
+      <div class="hero-label">TODAY'S TARGET</div>
+      <div class="target-big">${Math.floor(state.target.minutes/60)}h ${state.target.minutes%60}m</div>
+      <div class="hero-sub">${fmt(state.target.done)} completed today</div>
+      <div class="progress" style="margin:15px 0 18px"><i style="width:${pct}%"></i></div>
+      <input id="targetInput" class="target-input" type="number" min="1" max="1440" value="${state.target.minutes}" placeholder="Minutes">
+      <button class="set-target" onclick="setTarget()">Set today's target</button>
+    </section>
+    <section class="card target-card">
+      <div class="section-title">Tasks</div>
+      <div class="task-add"><input id="taskText" placeholder="What will you finish?"><input id="taskTime" type="time"><button onclick="addTask()">＋</button></div>
+      <div id="taskList">${renderTasks()}</div>
+    </section>`;
+}
+function profilePage(){
+  const noteActive=state.note.text && state.note.expires>Date.now();
+  return `
+    <div class="topbar"><div><h1 class="page-title">My page</h1><div class="page-sub">Your study identity, your way.</div></div><button class="menu-btn" onclick="showHelp()">☰</button></div>
+    <section class="card profile-card">
+      <div class="profile-top">${avatarHTML("profile-avatar")}<div><div class="profile-name">${esc(state.user.name||"Your name")}</div><div class="handle">@${esc(state.user.username||"username")}</div></div></div>
+      <p class="bio">${esc(state.user.bio||"Add a short bio about yourself.")}</p>
+      ${noteActive?`<div class="note">📝 ${esc(state.note.text)}<br><small>24h note • expires ${new Date(state.note.expires).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</small></div>`:""}
+    </section>
+    <section class="card profile-card">
+      <div class="section-title">Edit profile</div>
+      <div class="edit-grid">
+        <div class="profile-field"><label>NAME</label><input id="editName" value="${esc(state.user.name)}"></div>
+        <div class="profile-field"><label>USERNAME</label><input id="editUsername" value="${esc(state.user.username)}"></div>
+        <div class="profile-field"><label>BIO</label><textarea id="editBio" placeholder="Tell people a little about you...">${esc(state.user.bio)}</textarea></div>
+        <div class="profile-field"><label>PROFILE PHOTO</label><input id="dpFile" type="file" accept="image/*" onchange="previewDP(event)"></div>
+        <img id="dpPreview" class="profile-avatar ${state.user.dp?"":"hidden"}" style="width:100px;height:100px" src="${esc(state.user.dp)}">
+        <button class="save-btn" onclick="saveProfile()">Save profile</button>
+      </div>
+    </section>
+    <section class="card profile-card">
+      <div class="section-title">24h note</div>
+      <div class="edit-grid">
+        <div class="profile-field"><label>NOTE</label><input id="noteInput" maxlength="80" value="${esc(state.note.text)}" placeholder="e.g. 8 hours today. I can do this."></div>
+        <button class="upload-btn" onclick="saveNote()">Post for 24 hours</button>
+      </div>
+    </section>`;
+}
+function sideToday(){
+  return `<section class="card side-card"><div class="side-title"><span>Today</span><small class="hero-sub">${state.tasks.filter(t=>t.done).length}/${state.tasks.length} done</small></div><div class="task-add"><input id="sideTask" placeholder="Task / subject"><input id="sideTime" type="time"><button onclick="addSideTask()">＋</button></div><div id="sideTasks">${renderTasks()}</div></section>`;
+}
+function sideTarget(){
+  const pct=Math.min(100,Math.round((state.target.done/Math.max(1,state.target.minutes))*100));
+  const running = state.target.running;
+  return `<section class="card side-card">
+    <div class="side-title"><span>Target</span><small class="hero-sub">${pct}%</small></div>
+    <div class="target-big">${Math.floor(state.target.minutes/60)}h ${state.target.minutes%60}m</div>
+    <div class="progress"><i style="width:${pct}%"></i></div>
+    ${running
+      ? `<div class="target-running"><span><i data-lucide="timer" class="icon-svg"></i> Target session active</span><button onclick="stopTarget()" style="border:0;background:transparent;font-weight:900">Stop</button></div>`
+      : `<button class="target-start" onclick="startTarget()">Start target</button>`}
+  </section>`;
+}
+
+/* ---------- subjects ---------- */
+function selectSubjectIcon(icon,btn){
+  const input=document.getElementById("newSubjectIcon");
+  if(input) input.value=icon;
+  document.querySelectorAll("#iconChoice button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+}
+function addSubject(){
+  const name=document.getElementById("newSubjectName").value.trim();
+  if(!name)return alert("Enter a subject name.");
+  const icon=document.getElementById("newSubjectIcon").value.trim()||"book-open";
+  const color=document.getElementById("newSubjectColor").value||"#8f36c9";
+  const image=document.getElementById("newSubjectImage").value.trim();
+  state.subjects.push({id:crypto.randomUUID(),name,icon,color,image,seconds:0});
+  save();navigate("home");
+}
+function subjectMenu(id){
+  const s=state.subjects.find(x=>x.id===id);if(!s)return;
+  document.getElementById("modalHost").innerHTML=`
+    <div class="danger-modal" onclick="if(event.target===this)closeDanger()">
+      <section class="danger-box">
+        <div class="danger-icon"><i data-lucide="triangle-alert" class="icon-svg"></i></div>
+        <h2 class="danger-title">Delete ${esc(s.name)}?</h2>
+        <p class="danger-copy">This will permanently remove <b>${esc(s.name)}</b>, including its total focus time and recent session data. This action cannot be undone.</p>
+        <div class="danger-actions">
+          <button class="danger-cancel" onclick="closeDanger()">Cancel</button>
+          <button class="danger-confirm" onclick="confirmDeleteSubject('${s.id}')">Delete subject</button>
+        </div>
+      </section>
+    </div>`;
+  if(window.lucide) lucide.createIcons();
+}
+function confirmDeleteSubject(id){
+  state.subjects=state.subjects.filter(x=>x.id!==id);
+  save();closeDanger();renderApp();
+}
+function closeDanger(){const host=document.getElementById("modalHost");if(host)host.innerHTML=""}
+
+/* ---------- chart ---------- */
+function drawChart(){
+  if(activePage!=="home")return;
+  const canvas=document.getElementById("focusChart");if(!canvas)return;
+  if(chart)chart.destroy();
+  const labels=state.subjects.map(s=>s.name);
+  const values=state.subjects.map(s=>Math.max(0,Math.round((s.seconds||0)/60)));
+  chart=new Chart(canvas,{
+    type:"bar",
+    data:{labels,datasets:[{
+      label:"Minutes",
+      data:values,
+      backgroundColor:state.subjects.map(s=>s.color),
+      borderRadius:9,
+      borderSkipped:false,
+      maxBarThickness:38
+    }]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw} min`}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:"#7b828d",font:{size:10}}},
+        y:{beginAtZero:true,grid:{color:"rgba(30,35,45,.07)"},ticks:{color:"#8a919b",font:{size:10},callback:v=>v+"m"}}
+      }
+    }
+  });
+  if(window.lucide) lucide.createIcons();
+}
+
+/* ---------- timer ---------- */
+function openTimer(id){
+  const s=state.subjects.find(x=>x.id===id);if(!s)return;
+  timerState={subject:s,remaining:3600,total:3600,running:false,startedAt:0};
+  document.getElementById("modalHost").innerHTML=`
+    <div class="timer-modal">
+      <section class="timer-box">
+        <div class="timer-top"><div class="timer-subject"><i data-lucide="${esc(s.icon||"book-open")}" class="icon-svg"></i> ${esc(s.name)}</div><button class="close-round" onclick="closeTimer()">×</button></div>
+        <div class="duration-row">
+          ${[15,30,60,120].map(m=>`<button class="duration ${m===60?"active":""}" onclick="chooseDuration(${m},this)">${m<60?m+" min":m/60+" h"}</button>`).join("")}
+        </div>
+        <div class="clock"><div><strong id="timerDisplay">01:00:00</strong><small>focus time</small></div></div>
+        <div class="timer-actions">
+          <button class="timer-action" onclick="resetTimer()">Reset</button>
+          <button class="timer-action primary" id="timerPlay" onclick="toggleTimer()">Start</button>
+          <button class="timer-action" onclick="finishTimer()">Done</button>
+        </div>
+      </section>
+    </div>`;
+  if(window.lucide) lucide.createIcons();
+}
+function chooseDuration(min,btn){
+  clearInterval(timer);timer=null;
+  document.querySelectorAll(".duration").forEach(x=>x.classList.remove("active"));btn.classList.add("active");
+  timerState.total=timerState.remaining=min*60;timerState.running=false;
+  document.getElementById("timerPlay").textContent="Start";updateTimerUI();
+}
+function toggleTimer(){
+  if(timerState.running){pauseTimer();return}
+  timerState.running=true;
+  timerState.startedAt=Date.now();
+  document.getElementById("timerPlay").textContent="Pause";
+  timer=setInterval(()=>{
+    timerState.remaining--;
+    updateTimerUI();
+    if(timerState.remaining<=0){clearInterval(timer);timer=null;timerState.running=false;completeTimer()}
+  },1000);
+}
+function pauseTimer(){clearInterval(timer);timer=null;timerState.running=false;document.getElementById("timerPlay").textContent="Resume"}
+function resetTimer(){clearInterval(timer);timer=null;timerState.remaining=timerState.total;timerState.running=false;document.getElementById("timerPlay").textContent="Start";updateTimerUI()}
+function updateTimerUI(){const el=document.getElementById("timerDisplay");if(el)el.textContent=fmtClock(timerState.remaining)}
+function finishTimer(){
+  const elapsed=timerState.total-timerState.remaining;
+  if(elapsed<1){closeTimer();return}
+  saveSession(elapsed);closeTimer();renderApp();
+}
+function saveSession(seconds){
+  const s=state.subjects.find(x=>x.id===timerState.subject.id);if(!s)return;
+  s.seconds=(s.seconds||0)+seconds;
+  state.sessions.push({subject:s.name,seconds,at:new Date().toISOString()});
+  state.target.done=(state.target.done||0)+Math.floor(seconds/60);
+  save();
+}
+function completeTimer(){
+  const elapsed=timerState.total;
+  saveSession(elapsed);
+  closeTimer();
+  showComplete(elapsed,timerState.subject.name);
+}
+function closeTimer(){clearInterval(timer);timer=null;const host=document.getElementById("modalHost");if(host)host.innerHTML=""}
+function showComplete(seconds,subject){
+  const host=document.getElementById("modalHost");
+  host.innerHTML=`<div class="complete-modal"><section class="complete-box"><div class="complete-art">🦔🎉</div><div class="complete-time">${fmt(seconds)} of focus</div><h2 class="complete-title">You did great!</h2><p class="hero-sub">${esc(subject)} session completed. Keep your little streak going.</p><div class="complete-actions"><button onclick="closeComplete()">Continue</button><button onclick="closeComplete();navigate('target')">View target</button></div></section></div>`;
+  for(let i=0;i<28;i++){
+    const c=document.createElement("i");c.className="confetti";c.style.left=Math.random()*100+"%";c.style.background=["#a52fc4","#72c9ef","#ffe638","#54b95b","#ef2670"][i%5];c.style.setProperty("--x",(Math.random()*260-130)+"px");c.style.animationDelay=(Math.random()*.6)+"s";document.body.appendChild(c);setTimeout(()=>c.remove(),3300);
+  }
+}
+function closeComplete(){document.getElementById("modalHost").innerHTML=""}
+
+/* ---------- profile ---------- */
+function previewDP(e){
+  const file=e.target.files?.[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{state.user.dp=reader.result;const img=document.getElementById("dpPreview");img.src=reader.result;img.classList.remove("hidden")};
+  reader.readAsDataURL(file);
+}
+function saveProfile(){
+  state.user.name=document.getElementById("editName").value.trim()||state.user.name;
+  state.user.username=document.getElementById("editUsername").value.trim().replace(/^@/,"")||state.user.username;
+  state.user.bio=document.getElementById("editBio").value.trim();
+  save();renderApp();
+}
+function saveNote(){
+  const text=document.getElementById("noteInput").value.trim();
+  state.note={text,expires:text?Date.now()+86400000:0};save();renderApp();
+}
+
+/* ---------- target / tasks ---------- */
+function setTarget(){
+  const mins=Math.max(1,Math.min(1440,Number(document.getElementById("targetInput").value)||480));
+  state.target.minutes=mins;state.target.done=0;state.target.date=todayKey();save();renderApp();
+}
+function addTask(){
+  const text=document.getElementById("taskText").value.trim();if(!text)return;
+  state.tasks.push({id:crypto.randomUUID(),text,time:document.getElementById("taskTime").value,done:false});save();renderApp();
+}
+function addSideTask(){
+  const text=document.getElementById("sideTask").value.trim();if(!text)return;
+  state.tasks.push({id:crypto.randomUUID(),text,time:document.getElementById("sideTime").value,done:false});save();renderApp();
+}
+function renderTasks(){
+  if(!state.tasks.length)return `<div class="hero-sub" style="padding:15px 0">No tasks yet. Add one above.</div>`;
+  return state.tasks.map(t=>`<div class="task ${t.done?"done":""}"><button class="check" onclick="toggleTask('${t.id}')">${t.done?"✓":""}</button><div class="task-text" style="flex:1;font-size:12px;font-weight:700">${esc(t.text)}</div><small class="hero-sub">${t.time||""}</small></div>`).join("");
+}
+function toggleTask(id){const t=state.tasks.find(x=>x.id===id);if(!t)return;t.done=!t.done;save();renderApp()}
+
+
+function startTarget(){
+  if((state.target.done||0) >= state.target.minutes) state.target.done=0;
+  state.target.running=true;
+  state.target.startedAt=Date.now();
+  save();renderApp();
+}
+function stopTarget(){
+  if(state.target.running && state.target.startedAt){
+    const mins=Math.max(0,Math.floor((Date.now()-state.target.startedAt)/60000));
+    state.target.done=Math.min(state.target.minutes,(state.target.done||0)+mins);
+  }
+  state.target.running=false;
+  state.target.startedAt=0;
+  save();renderApp();
+}
+
+/* ---------- reminders / misc ---------- */
+function showHelp(){alert("Study Circle: choose a subject, set a focus time, study, and watch your target grow.")}
+
+/* ===== V3 REQUESTED LOGIC OVERRIDES ===== */
+state.filter=state.filter||"all";
+state.user=state.user||{name:"",username:"",birthday:"",dp:"",bio:""};
+state.user.email=state.user.email||"";
+state.target={minutes:480,doneSeconds:0,done:0,date:"",running:false,startedAt:0,activeSubjectId:"",selectedSubjectIds:[],subjectStartedAt:0,...(state.target||{})};
+state.target.doneSeconds=state.target.doneSeconds||((state.target.done||0)*60);
+if(!state.target.date)state.target.date=todayKey();
+
+function targetElapsedSeconds(){
+  let sec=state.target.doneSeconds||((state.target.done||0)*60);
+  if(state.target.running&&state.target.startedAt)sec+=Math.max(0,Math.floor((Date.now()-state.target.startedAt)/1000));
+  return Math.min(sec,Math.max(1,state.target.minutes*60));
+}
+function selectedTargetSubjects(){return (state.target.selectedSubjectIds||[]).map(id=>state.subjects.find(s=>s.id===id)).filter(Boolean)}
+function resetDailyTargetIfNeeded(){
+  if(state.target.date!==todayKey()){
+    state.target.date=todayKey();state.target.doneSeconds=0;state.target.done=0;state.target.running=false;state.target.startedAt=0;state.target.activeSubjectId="";state.target.selectedSubjectIds=[];state.target.subjectStartedAt=0;save();
+  }
+}
+resetDailyTargetIfNeeded();
+
+function filteredSessions(){
+  const now=Date.now();
+  if(state.filter==="all")return state.sessions||[];
+  const days=state.filter==="7d"?7:30;
+  const cutoff=now-days*86400000;
+  return (state.sessions||[]).filter(s=>new Date(s.at).getTime()>=cutoff);
+}
+function filteredSubjectSeconds(subject){return filteredSessions().filter(x=>x.subject===subject.name).reduce((a,x)=>a+(x.seconds||0),0)}
+function filteredTotal(){return filteredSessions().reduce((a,x)=>a+(x.seconds||0),0)}
+function setFocusFilter(filter){state.filter=filter;save();renderApp()}
+
+/* Local username uniqueness + Firestore username reservation when configured. */
+async function claimUsername(username){
+  const clean=String(username||"").trim().replace(/^@/,"").toLowerCase();
+  if(!clean)return false;
+  const ownerKey="study_circle_username_registry_v1";
+  let registry=JSON.parse(localStorage.getItem(ownerKey)||"{}");
+  const me=state.authUid||state.user.email||"local-user";
+  if(registry[clean] && registry[clean]!==me)return false;
+  if(firebaseReady&&firestore){
+    try{
+      const ref=firestore.collection("usernames").doc(clean);
+      await firestore.runTransaction(async tx=>{
+        const snap=await tx.get(ref);
+        if(snap.exists && snap.data().uid!==me)throw new Error("USERNAME_TAKEN");
+        tx.set(ref,{uid:me,username:clean,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+      });
+    }catch(e){if(e.message==="USERNAME_TAKEN")return false;console.warn(e)}
+  }
+  registry[clean]=me;localStorage.setItem(ownerKey,JSON.stringify(registry));
+  return true;
+}
+
+async function startGoogle(){
+  if(firebaseReady){
+    try{
+      const provider=new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({prompt:"select_account"});
+      await firebase.auth().signInWithPopup(provider);
+      const u=firebase.auth().currentUser;
+      state.authUid=u?.uid||"";state.user.email=u?.email||"";state.user.name=state.user.name||u?.displayName||"";state.user.dp=state.user.dp||u?.photoURL||"";
+      if(!state.user.username && u?.email){state.user.username=(u.email.split("@")[0]||"student").replace(/[^a-zA-Z0-9._-]/g,"");await claimUsername(state.user.username)}
+      state.onboarding=state.user.name?"username":"name";save();render();return;
+    }catch(err){console.error("Google auth",err);showGoogleChooser(true);return;}
+  }
+  showGoogleChooser(false);
+}
+function showGoogleChooser(realFallback){
+  document.getElementById("modalHost").innerHTML=`<div class="google-account-modal" onclick="if(event.target===this)closeGoogleChooser()"><section class="google-account-box">
+    <div class="google-account-brand"><span class="google-mark">G</span><div><b style="font-size:13px">Sign in with Google</b><div style="font-size:9px;color:#89909a">Study Circle</div></div></div>
+    <h2>Choose your Google account</h2><p>Enter the Google email you want to use for your Study Circle account.</p>
+    <input id="googleEmailInput" class="google-email-input" type="email" autocomplete="email" placeholder="you@gmail.com" value="${esc(state.user.email||"")}">
+    <div class="google-account-actions"><button class="google-cancel" onclick="closeGoogleChooser()">Cancel</button><button class="google-next" onclick="finishGoogleChooser(${!!realFallback})">Continue</button></div>
+  </section></div>`;
+}
+async function finishGoogleChooser(realFallback){
+  const email=(document.getElementById("googleEmailInput")?.value||"").trim().toLowerCase();
+  if(!/^\S+@\S+\.\S+$/.test(email))return alert("Enter a valid Google email.");
+  state.user.email=email;closeGoogleChooser();
+  state.onboarding="name";save();render();
+}
+function closeGoogleChooser(){const h=document.getElementById("modalHost");if(h)h.innerHTML=""}
+
+async function nextOnboard(){
+  const v=(document.getElementById("onboardInput")?.value||"").trim();
+  if(state.onboarding==="name"){if(!v)return alert("Please enter your name.");state.user.name=v;state.onboarding="username"}
+  else if(state.onboarding==="username"){
+    if(!v)return alert("Please choose a username.");
+    const username=v.replace(/^@/,"").toLowerCase();
+    if(!/^[a-z0-9._-]{3,20}$/.test(username))return alert("Username: 3–20 letters, numbers, dot, underscore or hyphen.");
+    if(username!==String(state.user.username||"").toLowerCase() && !(await claimUsername(username)))return alert("That username is already taken. Choose another one.");
+    state.user.username=username;state.onboarding="birthday";
+  }else{if(!v)return alert("Please choose your birthday.");state.user.birthday=v;state.onboarding="done"}
+  save();render();
+}
+
+function homePage(){
+  resetDailyTargetIfNeeded();
+  const total=filteredTotal();
+  const filter=state.filter||"all";
+  return `<div class="topbar"><div><h1 class="page-title">Timer</h1><div class="page-sub">Make a little progress every day.</div></div><button class="menu-btn" onclick="showHelp()"><i data-lucide="sparkles" class="icon-svg"></i></button></div>
+  <section class="card hero"><div class="hero-filter-head"><div><div class="hero-label">FOCUS TIME</div><div class="hero-time">${fmt(total)}</div><div class="hero-sub">Study time for the selected period.</div></div><div><div class="hero-label" style="text-align:right">PERIOD</div><div class="filter-row">${[["7d","7 days"],["30d","30 days"],["all","All time"]].map(([id,label])=>`<button class="filter-pill ${filter===id?"active":""}" onclick="setFocusFilter('${id}')">${label}</button>`).join("")}</div></div></div></section>
+  <div class="subject-head"><div class="section-title">Subjects</div><button class="add-head" onclick="navigate('add')"><i data-lucide="plus" style="width:15px;height:15px;vertical-align:-3px"></i> Add subject</button></div>
+  <section class="subject-list">${state.subjects.map(subjectCard).join("")}</section>
+  <section class="card chart-card"><div class="chart-head"><div><div class="hero-label">SUBJECT BREAKDOWN</div><div class="chart-total">${fmt(total)}</div></div><span class="hero-sub">${filter==="all"?"All time":filter==="7d"?"Last 7 days":"Last 30 days"}</span></div><div class="donut-layout"><div class="chart-wrap"><canvas id="focusChart"></canvas><div class="donut-center"><div class="donut-center-inner"><b>${fmt(total)}</b><span>Total focus</span></div></div></div><div class="donut-legend">${state.subjects.map(s=>`<div class="donut-legend-row"><i class="donut-dot" style="background:${esc(s.color)}"></i><div><b>${esc(s.name)}</b><small>${fmt(filteredSubjectSeconds(s))}</small></div><strong>${total?Math.round(filteredSubjectSeconds(s)/total*100):0}%</strong></div>`).join("")}</div></div></section>
+  <section class="activity"><div class="subject-head"><div class="section-title">Recent activity</div><span class="hero-sub">Latest sessions</span></div>${state.sessions.length?state.sessions.slice(-5).reverse().map(s=>`<div class="activity-row"><div><div class="activity-name">${esc(s.subject)}</div><div class="activity-time">${new Date(s.at).toLocaleString()}</div></div><b>${fmt(s.seconds)}</b></div>`).join(""):`<div class="activity-row"><div class="activity-time">Your completed sessions will appear here.</div></div>`}</section>`;
+}
+function subjectCard(s){
+  const icon=s.icon||"book-open";const image=s.image?`<img src="${esc(s.image)}" alt="" style="width:28px;height:28px;object-fit:contain">`:`<i data-lucide="${esc(icon)}" class="subject-icon-svg"></i>`;
+  return `<article class="subject-card" onclick="openTimer('${s.id}')"><div class="subject-color" style="background:${esc(s.color)}">${image}</div><div><div class="subject-name">${esc(s.name)}</div><div class="subject-time">${fmt(filteredSubjectSeconds(s))} focused</div></div><div class="subject-menu-wrap" onclick="event.stopPropagation()"><button class="subject-more" aria-label="Delete subject" title="Delete subject" onclick="subjectMenu('${s.id}')"><i data-lucide="trash-2" class="icon-svg"></i></button></div></article>`;
+}
+
+function drawChart(){
+  if(activePage!=="home")return;const canvas=document.getElementById("focusChart");if(!canvas)return;if(chart)chart.destroy();
+  const labels=state.subjects.map(s=>s.name),values=state.subjects.map(s=>filteredSubjectSeconds(s));
+  chart=new Chart(canvas,{type:"doughnut",data:{labels,datasets:[{data:values,backgroundColor:state.subjects.map(s=>s.color),borderColor:"#fff",borderWidth:4,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:"72%",plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${fmt(c.raw)}`}}}}});
+  if(window.lucide)lucide.createIcons();
+}
+
+function targetPage(){
+  resetDailyTargetIfNeeded();const elapsed=targetElapsedSeconds();const pct=Math.min(100,Math.round(elapsed/(state.target.minutes*60)*100));const selected=selectedTargetSubjects();const running=state.target.running;
+  return `<div class="topbar"><div><h1 class="page-title">Target</h1><div class="page-sub">Choose subjects, start your target, and switch anytime.</div></div></div>
+  <section class="card target-card"><div class="hero-label">TODAY'S TARGET</div><div class="target-big">${Math.floor(state.target.minutes/60)}h ${state.target.minutes%60}m</div><div class="hero-sub">${fmt(elapsed)} studied • ${pct}% complete</div><div class="progress" style="margin:15px 0 18px"><i style="width:${pct}%"></i></div>
+  <input id="targetInput" class="target-input" type="number" min="1" max="1440" value="${Math.round(state.target.minutes)}" placeholder="Minutes"><button class="set-target" onclick="setTarget()">Set today's target</button>
+  ${running?targetLiveCard():`<button class="target-start" onclick="startTarget()">Start target</button>`}</section>
+  <section class="card target-card"><div class="section-title">Tasks</div><div class="task-add"><input id="taskText" placeholder="What will you finish?"><input id="taskTime" type="time"><button onclick="addTask()"><i data-lucide="plus"></i></button></div><div id="taskList">${renderTasks()}</div></section>`;
+}
+function targetLiveCard(){
+  const active=state.subjects.find(s=>s.id===state.target.activeSubjectId);const elapsed=targetElapsedSeconds();
+  return `<div class="target-live"><div class="target-live-top"><div><div class="target-live-label">TARGET SESSION</div><div class="target-live-time" id="targetLiveClock">${fmtClock(elapsed)}</div></div><div class="target-live-sub">${active?esc(active.name):"No subject"}</div></div><div class="hero-sub">Current subject: <b>${active?esc(active.name):"—"}</b> • ${selectedTargetSubjects().length} subjects selected</div><div class="target-live-actions"><button onclick="switchTargetSubject()">Switch subject</button><button class="danger-stop" onclick="stopTarget()">Stop target</button></div></div>`;
+}
+function sideTarget(){
+  resetDailyTargetIfNeeded();const pct=Math.min(100,Math.round(targetElapsedSeconds()/(state.target.minutes*60)*100));const running=state.target.running;const active=state.subjects.find(s=>s.id===state.target.activeSubjectId);
+  return `<section class="card side-card"><div class="side-title"><span>Target</span><small class="hero-sub">${pct}%</small></div><div class="target-big">${Math.floor(state.target.minutes/60)}h ${state.target.minutes%60}m</div><div class="hero-sub">${fmt(targetElapsedSeconds())} studied today</div><div class="progress"><i style="width:${pct}%"></i></div>${running?`<div class="target-live" style="margin-top:11px"><div class="target-live-time" id="sideTargetClock">${fmtClock(targetElapsedSeconds())}</div><div class="target-live-sub">${active?esc(active.name):"Subject"}</div><div class="target-live-actions"><button onclick="switchTargetSubject()">Switch</button><button class="danger-stop" onclick="stopTarget()">Stop</button></div></div>`:`<button class="target-start" onclick="startTarget()">Start target</button>`}</section>`;
+}
+
+function openTargetChooser(){
+  const selected=new Set(state.target.selectedSubjectIds||[]);
+  document.getElementById("modalHost").innerHTML=`<div class="danger-modal" onclick="if(event.target===this)closeDanger()"><section class="target-choice-box"><h2>Choose your study subjects</h2><p>Select every subject you want included in this target. You can switch between them while studying.</p><div class="target-select">${state.subjects.map(s=>`<label class="target-select-subject"><input type="checkbox" value="${s.id}" ${selected.has(s.id)?"checked":""}><span class="target-select-icon" style="background:${esc(s.color)}"><i data-lucide="${esc(s.icon||"book-open")}"></i></span><span style="flex:1">${esc(s.name)}<small>${fmt(s.seconds||0)} total focus</small></span></label>`).join("")}</div><div class="target-choice-actions"><button class="cancel" onclick="closeDanger()">Cancel</button><button class="start" onclick="confirmTargetSubjects()">Start studying</button></div></section></div>`;
+  if(window.lucide)lucide.createIcons();
+}
+function confirmTargetSubjects(){
+  const ids=[...document.querySelectorAll('.target-select-subject input:checked')].map(x=>x.value);if(!ids.length)return alert("Select at least one subject.");
+  state.target.selectedSubjectIds=ids;state.target.activeSubjectId=ids[0];state.target.running=true;state.target.startedAt=Date.now();state.target.subjectStartedAt=Date.now();save();closeDanger();renderApp();startTargetTicker();
+}
+function startTarget(){resetDailyTargetIfNeeded();if(targetElapsedSeconds()>=state.target.minutes*60){state.target.doneSeconds=0;state.target.done=0}openTargetChooser()}
+function recordTargetSegment(){
+  if(!state.target.running||!state.target.startedAt||!state.target.activeSubjectId)return 0;
+  const sec=Math.max(0,Math.floor((Date.now()-state.target.startedAt)/1000));if(!sec)return 0;
+  const s=state.subjects.find(x=>x.id===state.target.activeSubjectId);if(s){s.seconds=(s.seconds||0)+sec;state.sessions.push({subject:s.name,seconds:sec,at:new Date().toISOString(),source:"target"})}
+  state.target.doneSeconds=Math.min(state.target.minutes*60,(state.target.doneSeconds||0)+sec);state.target.done=Math.floor(state.target.doneSeconds/60);state.target.startedAt=0;state.target.subjectStartedAt=0;save();return sec;
+}
+function switchTargetSubject(){
+  if(!state.target.running)return;recordTargetSegment();openTargetChooserForSwitch();
+}
+function openTargetChooserForSwitch(){
+  const ids=state.target.selectedSubjectIds||[];document.getElementById("modalHost").innerHTML=`<div class="danger-modal" onclick="if(event.target===this)closeDanger()"><section class="target-choice-box"><h2>Switch subject</h2><p>Your current segment is saved. Choose the next subject.</p><div class="target-select">${ids.map(id=>state.subjects.find(s=>s.id===id)).filter(Boolean).map(s=>`<button class="target-select-subject" onclick="chooseSwitchSubject('${s.id}')"><span class="target-select-icon" style="background:${esc(s.color)}"><i data-lucide="${esc(s.icon||"book-open")}"></i></span><span style="flex:1;text-align:left">${esc(s.name)}<small>${fmt(s.seconds||0)} total focus</small></span><i data-lucide="chevron-right"></i></button>`).join("")}</div><div class="target-choice-actions"><button class="cancel" onclick="resumeCurrentTarget()">Keep current</button></div></section></div>`;if(window.lucide)lucide.createIcons();
+}
+function chooseSwitchSubject(id){state.target.activeSubjectId=id;state.target.startedAt=Date.now();state.target.subjectStartedAt=Date.now();save();closeDanger();renderApp();startTargetTicker()}
+function resumeCurrentTarget(){state.target.startedAt=Date.now();state.target.subjectStartedAt=Date.now();save();closeDanger();renderApp();startTargetTicker()}
+function stopTarget(){
+  if(state.target.running)recordTargetSegment();state.target.running=false;state.target.startedAt=0;state.target.subjectStartedAt=0;save();renderApp();
+}
+function startTargetTicker(){clearInterval(window.targetTicker);window.targetTicker=setInterval(()=>{if(!state.target.running){clearInterval(window.targetTicker);return}const t=targetElapsedSeconds();["targetLiveClock","sideTargetClock"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=fmtClock(t)});if(t>=state.target.minutes*60){recordTargetSegment();state.target.running=false;clearInterval(window.targetTicker);save();showTargetComplete();renderApp()}},1000)}
+function showTargetComplete(){const h=document.getElementById("modalHost");if(!h)return;h.innerHTML=`<div class="complete-modal"><section class="complete-box"><div class="complete-art">🎉</div><div class="complete-time">Target complete</div><h2 class="complete-title">You did it!</h2><p class="hero-sub">You reached ${Math.floor(state.target.minutes/60)}h ${state.target.minutes%60}m of study today.</p><div class="complete-actions"><button onclick="closeComplete()">Continue</button></div></section></div>`;for(let i=0;i<34;i++){const c=document.createElement("i");c.className="confetti";c.style.left=Math.random()*100+"%";c.style.background=["#8f36c9","#42c8ef","#ffe638","#54b95b","#ef2670"][i%5];c.style.setProperty("--x",(Math.random()*260-130)+"px");c.style.animationDelay=(Math.random()*.6)+"s";document.body.appendChild(c);setTimeout(()=>c.remove(),3300)}}
+
+function profilePage(){
+  const noteActive=state.note.text&&state.note.expires>Date.now();
+  return `<div class="topbar"><div><h1 class="page-title">Profile</h1><div class="page-sub">Your study identity, your way.</div></div></div>
+  <section class="card profile-card"><div class="profile-identity"><div class="profile-avatar-wrap">${avatarHTML("profile-avatar")}${noteActive?`<div class="profile-note-bubble">${esc(state.note.text)}<small>24h note</small></div>`:""}</div><div><div class="profile-name">${esc(state.user.name||"Your name")}</div><div class="handle">@${esc(state.user.username||"username")}</div><div class="hero-sub" style="margin-top:7px">${esc(state.user.bio||"Add a short bio about yourself.")}</div></div></div></section>
+  <section class="card profile-card"><div class="section-title">Edit profile</div><div class="edit-grid"><div class="profile-field"><label>NAME</label><input id="editName" value="${esc(state.user.name)}"></div><div class="profile-field"><label>USERNAME • UNIQUE</label><input id="editUsername" value="${esc(state.user.username)}" maxlength="20"></div><div class="profile-field"><label>BIO</label><textarea id="editBio" placeholder="Tell people a little about you...">${esc(state.user.bio)}</textarea></div><div class="profile-field"><label>PROFILE PHOTO</label><div class="photo-picker"><div id="photoPickerPreview" class="photo-picker-preview">${state.user.dp?`<img src="${esc(state.user.dp)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:"🙂"}</div><div class="photo-picker-copy"><b>Choose a profile picture</b><span>Upload from your device • JPG, PNG, WebP</span></div><button type="button" onclick="document.getElementById('dpFile').click()">Choose photo</button><input id="dpFile" class="hidden" type="file" accept="image/*" onchange="previewDP(event)"></div></div><button class="save-btn" onclick="saveProfile()">Save profile</button></div></section>
+  <section class="card profile-card"><div class="section-title">24h note</div><div class="hero-sub" style="margin:5px 0 12px">A small status that sits beside your DP, like a social profile note.</div><div class="edit-grid"><div class="profile-field"><label>NOTE</label><input id="noteInput" maxlength="80" value="${esc(state.note.text)}" placeholder="e.g. 8 hours today. I can do this."></div><button class="upload-btn" onclick="saveNote()">Post for 24 hours</button></div></section>`;
+}
+async function saveProfile(){
+  const name=document.getElementById("editName").value.trim()||state.user.name;const username=(document.getElementById("editUsername").value.trim().replace(/^@/,"")||state.user.username).toLowerCase();
+  if(username!==String(state.user.username||"").toLowerCase())if(!(await claimUsername(username)))return alert("That username is already taken. Choose another one.");
+  state.user.name=name;state.user.username=username;state.user.bio=document.getElementById("editBio").value.trim();save();renderApp();
+}
+function previewDP(e){const file=e.target.files?.[0];if(!file)return;if(file.size>4*1024*1024)return alert("Please choose an image smaller than 4MB.");const reader=new FileReader();reader.onload=()=>{state.user.dp=reader.result;const box=document.getElementById("photoPickerPreview");if(box)box.innerHTML=`<img src="${esc(reader.result)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;save()};reader.readAsDataURL(file)}
+
+
+function setTarget(){
+  const input=document.getElementById("targetInput");
+  const mins=Math.max(1,Math.min(1440,Number(input?.value)||480));
+  if(state.target.running)recordTargetSegment();
+  state.target.minutes=mins;state.target.doneSeconds=0;state.target.done=0;state.target.date=todayKey();state.target.running=false;state.target.startedAt=0;state.target.activeSubjectId="";state.target.selectedSubjectIds=[];state.target.subjectStartedAt=0;save();renderApp();
+}
+
+/* Better Google-like account chooser when using the local/demo mode. */
+
+render();
+</script>
+</body>
+</html>
