@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Study</title>
+<title>Stdj</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -570,6 +571,20 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   }
 }
 
+
+.auth-divider{display:flex;align-items:center;gap:12px;margin:4px 0;color:#8a919b;font-size:12px;font-weight:800}
+.auth-divider:before,.auth-divider:after{content:"";flex:1;height:1px;background:rgba(0,0,0,.10)}
+.email-auth-box{width:min(420px,100%);background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:0 28px 75px rgba(0,0,0,.22)}
+.email-auth-box h2{font:900 22px Nunito;margin:0 0 6px}
+.email-auth-box p{font-size:12px;color:#777f89;margin:0 0 14px}
+.email-auth-field{display:grid;gap:6px;margin-bottom:12px}
+.email-auth-field label{font-size:10px;font-weight:900;letter-spacing:1px;color:#7c838d}
+.email-auth-field input{height:48px;border:1px solid var(--line);border-radius:14px;padding:0 14px;background:#fff;font-size:14px}
+.email-auth-actions{display:grid;gap:8px;margin-top:8px}
+.email-auth-actions .primary-btn,.email-auth-actions .secondary-btn{height:48px;border-radius:14px;font-size:15px}
+.email-auth-switch{text-align:center;margin-top:12px;font-size:12px;color:#6f7580}
+.email-auth-switch button{background:none;color:#1a73e8;font-weight:800;padding:0}
+
 </style>
 </head>
 <body>
@@ -621,6 +636,8 @@ function getAuth(){return firebase.auth()}
 function getFirestore(){return firebase.firestore()}
 function GoogleAuthProvider(){return new firebase.auth.GoogleAuthProvider()}
 function signInWithPopup(a,p){return a.signInWithPopup(p)}
+function createUserWithEmailAndPassword(a,email,password){return a.createUserWithEmailAndPassword(email,password)}
+function signInWithEmailAndPassword(a,email,password){return a.signInWithEmailAndPassword(email,password)}
 function onAuthStateChanged(a,cb){return a.onAuthStateChanged(cb)}
 function collection(parent,name){return parent.collection(name)}
 function doc(parent,name,id){return id===undefined?parent.doc(name):parent.collection(name).doc(id)}
@@ -745,9 +762,12 @@ function renderOnboarding(){
           <p class="onboard-copy">If you are having a hard time finding the motivation to study, or if you feel anxious about studying alone, this is the app for you.</p>
           <div class="onboard-actions">
             <button class="primary-btn google-btn" onclick="startGoogle()">
-      <span class="google-mark">G</span><span>Continue with Google</span>
-    </button>
-    <div class="auth-badge"><span class="google-mark">G</span> Your study data stays saved to your account</div>
+              <span class="google-mark">G</span><span>Continue with Google</span>
+            </button>
+            <div class="auth-divider"><span>or</span></div>
+            <button class="secondary-btn" type="button" onclick="showEmailAuth('signup')">Create account with Email</button>
+            <button class="secondary-btn" type="button" style="background:#fff;border:1px solid rgba(0,0,0,.12);box-shadow:none" onclick="showEmailAuth('login')">Sign in with Email</button>
+            <div class="auth-badge"><span class="google-mark">G</span> Your study data stays saved to your account</div>
           </div>
         </section>
       </main>`;
@@ -1255,6 +1275,118 @@ async function claimUsername(username){
   }
   registry[clean]=me;localStorage.setItem(ownerKey,JSON.stringify(registry));
   return true;
+}
+
+
+/* ---------- Email / Password Auth ---------- */
+function showEmailAuth(mode="signup"){
+  const isLogin = mode === "login";
+  let host = document.getElementById("modalHost");
+  if(!host){host=document.createElement("div");host.id="modalHost";document.body.appendChild(host)}
+  host.innerHTML = `<div class="google-account-modal" onclick="if(event.target===this)closeEmailAuth()">
+    <section class="email-auth-box" onclick="event.stopPropagation()">
+      <h2>${isLogin?"Sign in with Email":"Create account"}</h2>
+      <p>${isLogin?"Enter your email and password to continue.":"Create an account with email and password. Then complete your profile."}</p>
+      <div class="email-auth-field"><label>EMAIL</label><input id="emailAuthEmail" type="email" autocomplete="email" placeholder="you@email.com"></div>
+      <div class="email-auth-field"><label>PASSWORD</label><input id="emailAuthPassword" type="password" autocomplete="${isLogin?"current-password":"new-password"}" placeholder="At least 6 characters"></div>
+      ${isLogin?"":`<div class="email-auth-field"><label>CONFIRM PASSWORD</label><input id="emailAuthPassword2" type="password" autocomplete="new-password" placeholder="Repeat password"></div>`}
+      <div class="email-auth-actions">
+        <button class="primary-btn" onclick="${isLogin?"loginWithEmail()":"signupWithEmail()"}">${isLogin?"Sign in":"Create account"}</button>
+        <button class="secondary-btn" style="background:#f1f2f4;box-shadow:none" onclick="closeEmailAuth()">Cancel</button>
+      </div>
+      <div class="email-auth-switch">
+        ${isLogin
+          ? `No account? <button type="button" onclick="showEmailAuth('signup')">Create one</button>`
+          : `Already have an account? <button type="button" onclick="showEmailAuth('login')">Sign in</button>`}
+      </div>
+    </section>
+  </div>`;
+}
+function closeEmailAuth(){
+  const h=document.getElementById("modalHost");
+  if(h)h.innerHTML="";
+}
+async function signupWithEmail(){
+  if(!firebaseReady||!auth){
+    return alert("Firebase is not connected. Enable Email/Password in Authentication.");
+  }
+  const email=(document.getElementById("emailAuthEmail")?.value||"").trim().toLowerCase();
+  const pass=document.getElementById("emailAuthPassword")?.value||"";
+  const pass2=document.getElementById("emailAuthPassword2")?.value||"";
+  if(!/^\S+@\S+\.\S+$/.test(email))return alert("Enter a valid email address.");
+  if(pass.length<6)return alert("Password must be at least 6 characters.");
+  if(pass!==pass2)return alert("Passwords do not match.");
+  try{
+    const cred=await createUserWithEmailAndPassword(auth,email,pass);
+    const u=cred.user;
+    firebaseUser=u;
+    state.authUid=u.uid;
+    state.user.email=email;
+    state.user.name=state.user.name||"";
+    state.user.username=state.user.username||"";
+    state.user.dp=state.user.dp||"";
+    state.onboarding="name";
+    closeEmailAuth();
+    save();
+    render();
+  }catch(err){
+    console.error("Email signup",err);
+    const code=err?.code||"";
+    if(code==="auth/email-already-in-use"){
+      alert("This email is already registered. Please sign in instead.");
+      showEmailAuth("login");
+      const el=document.getElementById("emailAuthEmail");
+      if(el)el.value=email;
+    }else if(code==="auth/weak-password"){
+      alert("Password is too weak. Use at least 6 characters.");
+    }else if(code==="auth/invalid-email"){
+      alert("Invalid email address.");
+    }else if(code==="auth/operation-not-allowed"){
+      alert("Email/Password sign-in is disabled. Enable it in Firebase Authentication > Sign-in method.");
+    }else{
+      alert("Could not create account: "+(err.message||err));
+    }
+  }
+}
+async function loginWithEmail(){
+  if(!firebaseReady||!auth){
+    return alert("Firebase is not connected. Enable Email/Password in Authentication.");
+  }
+  const email=(document.getElementById("emailAuthEmail")?.value||"").trim().toLowerCase();
+  const pass=document.getElementById("emailAuthPassword")?.value||"";
+  if(!/^\S+@\S+\.\S+$/.test(email))return alert("Enter a valid email address.");
+  if(!pass)return alert("Enter your password.");
+  try{
+    const cred=await signInWithEmailAndPassword(auth,email,pass);
+    const u=cred.user;
+    firebaseUser=u;
+    state.authUid=u.uid;
+    state.user.email=email;
+    if(!state.user.name){
+      state.onboarding="name";
+    }else if(!state.user.username){
+      state.onboarding="username";
+    }else if(!state.user.birthday){
+      state.onboarding="birthday";
+    }else{
+      state.onboarding="done";
+    }
+    closeEmailAuth();
+    save();
+    render();
+  }catch(err){
+    console.error("Email login",err);
+    const code=err?.code||"";
+    if(code==="auth/user-not-found"||code==="auth/invalid-credential"||code==="auth/wrong-password"||code==="auth/invalid-login-credentials"){
+      alert("Wrong email or password.");
+    }else if(code==="auth/invalid-email"){
+      alert("Invalid email address.");
+    }else if(code==="auth/operation-not-allowed"){
+      alert("Email/Password sign-in is disabled. Enable it in Firebase Authentication > Sign-in method.");
+    }else{
+      alert("Could not sign in: "+(err.message||err));
+    }
+  }
 }
 
 async function startGoogle(){
