@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Study App</title>
+<title>Study Circle — Focus App</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -184,7 +184,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .progress{height:10px;background:#e9ebef;border-radius:10px;overflow:hidden}.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#58c9ed,#9d36c5);border-radius:inherit}
 
 /* ---------- pages ---------- */
-.profile-page,.target-page{display:grid;gap:14px}
+.profile-page{display:grid;gap:18px}.target-page{display:grid;gap:14px}
 .profile-card{padding:18px}
 .profile-top{display:flex;align-items:center;gap:14px}
 .profile-avatar{width:86px;height:86px;border-radius:24px;object-fit:cover;background:#ffe6b7;display:grid;place-items:center;font-size:40px}
@@ -360,7 +360,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .target-select{display:grid;gap:12px}.target-select-subject{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:15px;background:#fff}.target-select-subject input{accent-color:#8f36c9;width:18px;height:18px}.target-select-subject .target-select-icon{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;color:#fff}.target-select-subject span{font-weight:900;font-size:12px}.target-select-subject small{display:block;color:#8a919b;font-weight:600;margin-top:2px}
 .target-choice-box{width:min(460px,100%);padding:21px;border-radius:27px;background:rgba(255,255,255,.96);border:1px solid var(--line);box-shadow:0 30px 80px rgba(25,30,40,.25);animation:dangerIn .3s cubic-bezier(.2,1.25,.35,1)}
 .target-choice-box h2{font:900 22px Nunito;margin:0 0 5px}.target-choice-box p{font-size:12px;color:#777f8a;margin:0 0 15px}.target-choice-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}.target-choice-actions button{height:46px;border-radius:14px;font-weight:900}.target-choice-actions .start{background:#111;color:#fff}.target-choice-actions .cancel{background:#f1f2f4}
-.profile-identity{display:flex;align-items:center;gap:15px;position:relative}.profile-avatar-wrap{position:relative;flex:0 0 auto}.profile-avatar-wrap .profile-avatar{width:92px;height:92px;border-radius:27px;object-fit:cover;background:#ffe4a7;border:1px solid rgba(0,0,0,.08);display:grid;place-items:center;font-size:42px}.profile-note-bubble{position:absolute;left:72px;top:-8px;min-width:145px;max-width:220px;padding:10px 13px;border-radius:16px 16px 16px 5px;background:#111820;color:#fff;box-shadow:0 12px 28px rgba(0,0,0,.17);font-size:11px;font-weight:800;line-height:1.35;z-index:2}.profile-note-bubble:after{content:"";position:absolute;left:-6px;bottom:8px;width:12px;height:12px;background:#111820;transform:rotate(45deg);z-index:-1}.profile-note-bubble small{display:block;color:#aeb6c0;font-size:8px;margin-top:4px;font-weight:700}
+.profile-identity{display:flex;align-items:center;gap:15px;position:relative}.profile-avatar-wrap{position:relative;flex:0 0 auto;z-index:3}.profile-avatar-wrap .profile-avatar{width:92px;height:92px;border-radius:27px;object-fit:cover;background:#ffe4a7;border:1px solid rgba(0,0,0,.08);display:grid;place-items:center;font-size:42px}.profile-note-bubble{position:absolute;left:50%;top:-50px;transform:translateX(-50%);width:164px;min-height:48px;padding:7px 10px 8px;border-radius:14px 14px 14px 4px;color:#18202a;box-shadow:0 8px 20px rgba(35,45,55,.16);font-size:10px;font-weight:700;line-height:1.22;z-index:8;border:1px solid rgba(0,0,0,.06);word-break:break-word}.profile-note-bubble:after{content:"";position:absolute;left:20px;bottom:-7px;width:14px;height:14px;background:inherit;border-right:1px solid rgba(0,0,0,.06);border-bottom:1px solid rgba(0,0,0,.06);transform:rotate(45deg);z-index:-1}.profile-note-head{display:flex;align-items:center;gap:5px;min-width:0;margin-bottom:3px}.profile-note-head b{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px}.profile-note-head span{font-size:8px;opacity:.62;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.profile-note-text{font-size:10px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.profile-note-expiry{display:block;margin-top:2px;font-size:7px;opacity:.58;font-weight:700}@media(max-width:700px){.profile-note-bubble{top:-47px;width:145px;padding:6px 8px 7px}.profile-avatar-wrap .profile-avatar{width:78px;height:78px;border-radius:23px}}
 .photo-picker{display:flex;align-items:center;gap:12px;padding:11px;border:1px dashed rgba(40,45,55,.18);border-radius:18px;background:rgba(25,30,38,.025)}.photo-picker-preview{width:48px;height:48px;border-radius:14px;object-fit:cover;background:#ffe4a7;display:grid;place-items:center;font-size:23px}.photo-picker-copy{min-width:0;flex:1}.photo-picker-copy b{display:block;font-size:12px}.photo-picker-copy span{display:block;font-size:10px;color:#8a919b;margin-top:2px}.photo-picker button{height:40px;padding:0 13px;border-radius:12px;background:#111;color:#fff;font-size:11px;font-weight:900}
 .google-account-modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:18px;background:rgba(20,24,30,.32);backdrop-filter:blur(13px)}.google-account-box{width:min(410px,100%);background:#fff;border:1px solid rgba(0,0,0,.09);border-radius:24px;box-shadow:0 28px 75px rgba(0,0,0,.24);padding:22px}.google-account-brand{display:flex;align-items:center;gap:10px;margin-bottom:16px}.google-account-brand .google-mark{border:1px solid #e6e7ea}.google-account-box h2{font:900 22px Nunito;margin:0 0 4px}.google-account-box p{font-size:12px;color:#777f89;margin:0 0 16px}.google-email-input{height:49px;width:100%;border:1px solid #cfd3d8;border-radius:12px;padding:0 13px;font-size:14px}.google-account-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.google-account-actions button{height:43px;padding:0 16px;border-radius:12px;font-weight:900}.google-cancel{background:#f1f2f4}.google-next{background:#1a73e8;color:#fff}
 .target-start{position:relative;overflow:hidden}.target-start:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent,rgba(255,255,255,.18),transparent);transform:translateX(-120%);transition:transform .7s}.target-start:hover:after{transform:translateX(120%)}
@@ -375,11 +375,63 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .task-add button{width:46px;height:46px;border-radius:13px;background:#111;color:#fff;display:grid;place-items:center;flex:0 0 46px}.task-add button svg{width:18px;height:18px}.task-add input{min-width:0}.save-btn,.upload-btn{border-radius:15px;min-height:48px}
 @media(max-width:700px){.task-add{grid-template-columns:minmax(0,1fr) 92px 46px!important}.task-add input[type=time]{width:92px}.add-head{padding:8px 10px}.profile-identity{padding-top:5px}}
 
-/* NOTE-ONLY FIX — keeps the original app intact */
-.profile-note-bubble{position:absolute!important;left:50%!important;top:-48px!important;transform:translateX(-50%)!important;width:max-content!important;min-width:72px!important;max-width:190px!important;padding:9px 12px!important;border-radius:16px 16px 16px 6px!important;border:1px solid rgba(25,30,38,.10)!important;box-shadow:0 9px 22px rgba(20,28,38,.16)!important;font-size:11px!important;font-weight:800!important;line-height:1.3!important;z-index:20!important;white-space:normal!important;word-break:break-word!important;text-align:left!important}
-.profile-note-bubble:after{content:""!important;position:absolute!important;left:18px!important;bottom:-6px!important;width:12px!important;height:12px!important;background:inherit!important;border:0!important;transform:rotate(45deg)!important;z-index:-1!important}
-.note-color-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.note-color-btn{width:28px;height:28px;border-radius:50%;border:2px solid rgba(0,0,0,.10);cursor:pointer;position:relative;box-shadow:0 3px 9px rgba(20,28,38,.10)}.note-color-btn.active{outline:2px solid #111;outline-offset:2px}.note-color-btn.active:after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:900;color:#111}.note-color-label{font-size:9px;font-weight:900;color:#858c96;letter-spacing:.7px;text-transform:uppercase}
-@media(max-width:700px){.profile-note-bubble{top:-45px!important;max-width:165px!important;padding:8px 10px!important}.note-color-btn{width:27px;height:27px}}
+/* ===== PREMIUM 24H NOTE ===== */
+.note-composer{display:grid;gap:14px;padding:15px;border:1px solid var(--line);border-radius:20px;background:rgba(25,30,38,.025)}
+.note-compose-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.note-compose-user{display:flex;align-items:center;gap:10px;min-width:0}
+.note-compose-avatar{width:40px;height:40px;border-radius:13px;object-fit:cover;background:#ffe4a7;display:grid;place-items:center;font-weight:900;flex:0 0 auto}
+.note-compose-user b{display:block;font-size:12px;line-height:1.2}.note-compose-user span{display:block;font-size:10px;color:#858d98;margin-top:3px}
+.note-live-preview{min-height:92px;border-radius:18px;padding:15px 16px;display:flex;align-items:center;gap:12px;border:1px solid rgba(25,30,38,.08);box-shadow:0 8px 22px rgba(40,55,70,.06);transition:.2s ease}
+.note-live-preview .note-preview-avatar{width:46px;height:46px;border-radius:15px;object-fit:cover;display:grid;place-items:center;background:rgba(255,255,255,.7);font-weight:900;flex:0 0 auto}
+.note-preview-copy{min-width:0;flex:1}.note-preview-copy b{display:block;font-size:11px}.note-preview-copy span{display:block;font-size:9px;opacity:.62;margin-top:2px}.note-preview-copy p{font-size:13px;font-weight:800;line-height:1.35;margin:8px 0 0;word-break:break-word}
+.note-style-title{font-size:9px;font-weight:900;letter-spacing:1.1px;color:#858d98;text-transform:uppercase}
+.note-style-row{display:flex;flex-wrap:wrap;gap:8px}
+.note-swatch{width:42px;height:34px;border-radius:12px;border:2px solid transparent;cursor:pointer;box-shadow:0 4px 10px rgba(30,35,40,.08);position:relative;transition:.16s ease}
+.note-swatch:hover{transform:translateY(-2px)}.note-swatch.active{border-color:#111;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 5px 15px rgba(30,35,40,.13)}
+.note-swatch.active:after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:900;color:#111}
+.note-composer .note-input-wrap{position:relative}.note-composer .note-input-wrap input{padding-right:48px}.note-char{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:9px;color:#8a919b;font-weight:800}
+.note-actions{display:grid;grid-template-columns:1fr auto;gap:9px}.note-clear-btn{height:48px;padding:0 15px;border-radius:15px;border:1px solid var(--line);background:transparent;color:var(--ink);font-weight:900}
+[data-theme="dark"] .note-composer{background:rgba(255,255,255,.025)}
+[data-theme="dark"] .note-swatch.active{border-color:#fff;box-shadow:0 0 0 2px rgba(20,25,32,.9)}
+[data-theme="dark"] .note-swatch.active:after{color:#fff}
+@media(max-width:700px){.note-actions{grid-template-columns:1fr}.note-clear-btn{width:100%}}
+/* ===== V5 PREMIUM SPACING / TASK / THEME ===== */
+[data-theme="dark"]{--bg:#0b0f14;--surface:rgba(20,25,32,.90);--surface-solid:#151b22;--ink:#f3f6f8;--muted:#9aa4af;--line:rgba(255,255,255,.09);--shadow:0 16px 40px rgba(0,0,0,.30)}
+[data-theme="dark"] body{background:radial-gradient(circle at 15% 0%,rgba(66,110,145,.16),transparent 32%),radial-gradient(circle at 100% 25%,rgba(91,43,125,.12),transparent 32%),#0b0f14}
+[data-theme="dark"] .card,[data-theme="dark"] .subject-card,[data-theme="dark"] .rail-user,[data-theme="dark"] .rail-link.active,[data-theme="dark"] .task-add input,[data-theme="dark"] .profile-field input,[data-theme="dark"] .profile-field textarea,[data-theme="dark"] .add-head{background:rgba(22,28,36,.92);color:var(--ink);border-color:var(--line)}
+[data-theme="dark"] .hero-sub,[data-theme="dark"] .page-sub,[data-theme="dark"] .user-sub,[data-theme="dark"] .subject-time,[data-theme="dark"] .activity-time,[data-theme="dark"] .hero-label{color:#9aa4af}
+[data-theme="dark"] .filter-pill{background:rgba(255,255,255,.06);border-color:var(--line);color:#aeb7c1}
+[data-theme="dark"] .filter-pill.active,[data-theme="dark"] .task-add button{background:#f4f6f8;color:#111;border-color:#f4f6f8}
+[data-theme="dark"] .profile-note-inline{background:linear-gradient(145deg,#1b232c,#151b22);border-color:var(--line);box-shadow:none}
+.main > .card{margin-bottom:20px}
+.main > .card + .card{margin-top:2px}
+.right > .card{margin-bottom:18px}
+.task-panel{margin-bottom:18px}
+.task-add input[type=time]{appearance:none;-webkit-appearance:none;min-width:0;text-align:center;font-weight:800;letter-spacing:.2px;background:var(--surface-solid)!important;border:1px solid var(--line)!important;box-shadow:0 4px 14px rgba(40,55,70,.05)}
+.task-add input[type=time]::-webkit-calendar-picker-indicator{opacity:.58;cursor:pointer}
+.profile-identity-main{min-width:0;flex:1}
+.profile-note-inline{margin-top:13px;padding:12px 14px;border-radius:16px;background:linear-gradient(145deg,#f7fbff,#fff);border:1px solid rgba(25,30,38,.08);box-shadow:0 8px 20px rgba(40,55,70,.055)}
+.profile-note-inline .profile-note-text{font-size:12px;line-height:1.5}
+.profile-note-inline .profile-note-by{margin-top:6px;font-size:10px;color:#818994}
+.profile-note-inline .profile-note-by b{color:var(--ink)}
+.theme-fab{position:fixed;right:24px;top:24px;z-index:50;min-width:118px;height:44px;padding:0 14px;border-radius:14px;background:var(--surface-solid);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;gap:8px;font-size:11px;font-weight:900}
+.theme-fab:hover{transform:translateY(-2px)}
+.welcome-auth-card{width:min(500px,100%);padding:42px 30px;border-radius:30px;background:rgba(255,255,255,.90);border:1px solid var(--line);box-shadow:var(--shadow);text-align:center}
+.welcome-auth-icon{width:64px;height:64px;border-radius:20px;background:#111;color:#fff;display:grid;place-items:center;margin:0 auto 18px;font:900 28px Nunito}
+.welcome-auth-card h1{font:900 30px Nunito;margin:0 0 10px}.welcome-auth-card p{color:#6d7480;line-height:1.55;margin:0 auto 24px;max-width:390px}
+[data-theme="dark"] .welcome-auth-card{background:rgba(20,25,32,.94);color:var(--ink)}
+.logout-card{margin-top:0}.logout-row{display:flex;align-items:center;justify-content:space-between;gap:16px}.logout-copy{display:grid;gap:5px}.logout-copy b{font:900 18px Nunito}.logout-copy span{font-size:11px;color:#7d858f}.logout-btn{height:44px;padding:0 18px;border-radius:13px;background:#fff1f4;color:#d52c51;border:1px solid #ffd0da;font-weight:900}
+
+
+@media(max-width:1000px){.theme-fab{top:16px;right:16px}}
+@media(max-width:700px){.main > .card{margin-bottom:16px}.right > .card{margin-bottom:14px}.theme-fab{min-width:44px;width:44px;height:44px;padding:0;border-radius:14px}.theme-fab .theme-text{display:none}.logout-row{align-items:flex-start;flex-direction:column}.logout-btn{width:100%}.profile-note-inline{margin-top:12px}}
+
+
+/* Final note presentation: compact Instagram-style bubble; only note text is shown. */
+.profile-avatar-wrap{position:relative;overflow:visible!important}
+.profile-note-bubble{position:absolute!important;left:50%!important;top:-48px!important;transform:translateX(-50%)!important;width:auto!important;min-width:92px!important;max-width:190px!important;min-height:0!important;padding:8px 12px!important;border-radius:15px 15px 15px 5px!important;border:1px solid rgba(0,0,0,.07)!important;box-shadow:0 7px 18px rgba(30,40,55,.14)!important;font-size:11px!important;font-weight:700!important;line-height:1.25!important;z-index:20!important;white-space:normal!important;word-break:break-word!important;text-align:left!important}
+.profile-note-bubble:after{content:""!important;position:absolute!important;left:18px!important;bottom:-6px!important;width:11px!important;height:11px!important;background:inherit!important;border:0!important;transform:rotate(45deg)!important;z-index:-1!important}
+.profile-note-only{max-width:166px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
 
 </style>
 </head>
@@ -410,12 +462,13 @@ const KEY="study_circle_state_v2";
    the localStorage demo mode, so the UI still works.
 ============================================================ */
 const FIREBASE_CONFIG = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_FIREBASE_APP_ID"
+  apiKey: "AIzaSyAqaGDE013miUh1CsJajj7_bG6xNLPv0h0",
+  authDomain: "study-timer11.firebaseapp.com",
+  projectId: "study-timer11",
+  storageBucket: "study-timer11.firebasestorage.app",
+  messagingSenderId: "72603722283",
+  appId: "1:72603722283:web:0132b781b6fb325f25406e",
+  measurementId: "G-P6F9YSY860"
 };
 let firebaseReady = false;
 let firebaseUser = null;
@@ -473,9 +526,15 @@ let state=JSON.parse(localStorage.getItem(KEY)||"null")||{
   subjects:DEFAULT_SUBJECTS,
   sessions:[],
   tasks:[],
+  filter:"1d",
+  theme:"light",
 };
 
 if(!state.subjects?.length) state.subjects=DEFAULT_SUBJECTS;
+if(!state.note) state.note={text:"",expires:0,bg:"sunset"};
+if(!state.note.bg) state.note.bg="sunset";
+state.filter=state.filter||"1d";
+state.theme=state.theme||localStorage.getItem("study_circle_theme")||"light";
 
 /* migrate older localStorage data */
 state.subjects = (state.subjects||[]).map(s=>{
@@ -508,6 +567,10 @@ function avatarHTML(size="avatar"){
   if(state.user.dp)return `<img class="${size}" src="${esc(state.user.dp)}" alt="Profile">`;
   return `<div class="${size}">🙂</div>`;
 }
+function applyTheme(){document.documentElement.setAttribute("data-theme",state.theme||"light");}
+function toggleTheme(){state.theme=(state.theme||"light")==="dark"?"light":"dark";localStorage.setItem("study_circle_theme",state.theme);applyTheme();save();renderApp();}
+function themeButton(){const dark=state.theme==="dark";return `<button class="theme-fab" onclick="toggleTheme()" aria-label="Switch to ${dark?"day":"dark"} mode"><i data-lucide="${dark?"sun":"moon"}"></i><span class="theme-text">${dark?"Day mode":"Dark mode"}</span></button>`}
+applyTheme();
 
 /* ---------- onboarding ---------- */
 function render(){
@@ -534,6 +597,8 @@ function renderOnboarding(){
           </div>
         </section>
       </main>`;
+  }else if(state.onboarding==="welcomeAuth"){
+    root.innerHTML=`<main class="onboarding page"><section class="welcome-auth-card"><div class="welcome-auth-icon">S</div><h1>Welcome to Study Circle</h1><p>Your Google account is connected. Let's set up your profile in a few quick steps.</p><button class="primary-btn" onclick="nextOnboard()">Continue</button></section></main>`;
   }else{
     const step=state.onboarding;
     const meta={
@@ -566,36 +631,53 @@ function renderOnboarding(){
 async function startGoogle(){
   if(firebaseReady){
     try{
-      const provider = new firebase.auth.GoogleAuthProvider();
+      const provider=new firebase.auth.GoogleAuthProvider();
       provider.setCustomParameters({prompt:"select_account"});
       await firebase.auth().signInWithPopup(provider);
-      state.authUid = firebase.auth().currentUser?.uid || "";
-      state.user.name = state.user.name || firebase.auth().currentUser?.displayName || "";
-      state.user.dp = state.user.dp || firebase.auth().currentUser?.photoURL || "";
-      state.user.username = state.user.username || (firebase.auth().currentUser?.email||"").split("@")[0];
-      state.onboarding = state.user.name ? "username" : "name";
-      save(); render();
-      return;
-    }catch(err){
-      console.error(err);
-      alert("Google sign-in could not finish. Check your Firebase Google provider and authorized domain.");
-      return;
-    }
+      const u=firebase.auth().currentUser;
+      state.authUid=u?.uid||"";state.user.email=u?.email||"";
+      state.user.name=state.user.name||u?.displayName||"";
+      state.user.dp=state.user.dp||u?.photoURL||"";
+      let existing=false;
+      if(firestore&&u?.uid){const snap=await firestore.collection("users").doc(u.uid).get();existing=snap.exists&&snap.data()?.onboarding==="done";if(snap.exists){state={...state,...snap.data(),authUid:u.uid};state.user={...state.user,email:u.email||state.user.email,dp:state.user.dp||u.photoURL||""};}}
+      state.onboarding=existing?"done":"welcomeAuth";
+      save();render();return;
+    }catch(err){console.error("Google auth",err);showGoogleChooser(true);return;}
   }
-  /* Local demo fallback:
-     Without Firebase config this keeps the account/data persistent
-     in this browser using localStorage. */
-  state.onboarding="name"; save(); render();
+  showGoogleChooser(false);
 }
-function nextOnboard(){
-  const v=document.getElementById("onboardInput").value.trim();
+function showGoogleChooser(realFallback){
+  document.getElementById("modalHost").innerHTML=`<div class="google-account-modal" onclick="if(event.target===this)closeGoogleChooser()"><section class="google-account-box">
+    <div class="google-account-brand"><span class="google-mark">G</span><div><b style="font-size:13px">Sign in with Google</b><div style="font-size:9px;color:#89909a">Study Circle</div></div></div>
+    <h2>Choose your Google account</h2><p>Enter the Google email you want to use for your Study Circle account.</p>
+    <input id="googleEmailInput" class="google-email-input" type="email" autocomplete="email" placeholder="you@gmail.com" value="${esc(state.user.email||"")}">
+    <div class="google-account-actions"><button class="google-cancel" onclick="closeGoogleChooser()">Cancel</button><button class="google-next" onclick="finishGoogleChooser(${!!realFallback})">Continue</button></div>
+  </section></div>`;
+}
+async function finishGoogleChooser(realFallback){
+  const email=(document.getElementById("googleEmailInput")?.value||"").trim().toLowerCase();
+  if(!/^\S+@\S+\.\S+$/.test(email))return alert("Enter a valid Google email.");
+  state.user.email=email;closeGoogleChooser();state.onboarding="welcomeAuth";save();render();
+}
+function closeGoogleChooser(){const h=document.getElementById("modalHost");if(h)h.innerHTML=""}
+
+async function nextOnboard(){
+  if(state.onboarding==="welcomeAuth"){state.onboarding="name";save();render();return;}
+  const v=(document.getElementById("onboardInput")?.value||"").trim();
   if(state.onboarding==="name"){if(!v)return alert("Please enter your name.");state.user.name=v;state.onboarding="username"}
-  else if(state.onboarding==="username"){if(!v)return alert("Please choose a username.");state.user.username=v.replace(/^@/,"");state.onboarding="birthday"}
-  else {if(!v)return alert("Please choose your birthday.");state.user.birthday=v;state.onboarding="done"}
+  else if(state.onboarding==="username"){
+    if(!v)return alert("Please choose a username.");
+    const username=v.replace(/^@/,"").toLowerCase();
+    if(!/^[a-z0-9._-]{3,20}$/.test(username))return alert("Username: 3–20 letters, numbers, dot, underscore or hyphen.");
+    if(username!==String(state.user.username||"").toLowerCase() && !(await claimUsername(username)))return alert("That username is already taken. Choose another one.");
+    state.user.username=username;state.onboarding="birthday";
+  }else{if(!v)return alert("Please choose your birthday.");state.user.birthday=v;state.onboarding="done"}
   save();render();
 }
+
 function goBackOnboard(){
-  if(state.onboarding==="name")state.onboarding="welcome";
+  if(state.onboarding==="name")state.onboarding="welcomeAuth";
+  else if(state.onboarding==="welcomeAuth")state.onboarding="welcome";
   else if(state.onboarding==="username")state.onboarding="name";
   else if(state.onboarding==="birthday")state.onboarding="username";
   save();render();
@@ -629,6 +711,7 @@ function renderApp(){
         ${sideTarget()}
       </aside>
 
+      ${themeButton()}
       <nav class="mobile-nav">
         <button class="bottom-item ${activePage==="home"?"active":""}" onclick="navigate('home')"><i data-lucide="house"></i><small>Home</small></button>
         <button class="bottom-item add ${activePage==="add"?"active":""}" onclick="navigate('add')"><i data-lucide="plus"></i><small>Add</small></button>
@@ -727,438 +810,87 @@ function targetPage(){
       <div id="taskList">${renderTasks()}</div>
     </section>`;
 }
-function profilePage(){
-  const noteActive=state.note.text && state.note.expires>Date.now();
-  return `
-    <div class="topbar"><div><h1 class="page-title">My page</h1><div class="page-sub">Your study identity, your way.</div></div><button class="menu-btn" onclick="showHelp()">☰</button></div>
-    <section class="card profile-card">
-      <div class="profile-top">${avatarHTML("profile-avatar")}<div><div class="profile-name">${esc(state.user.name||"Your name")}</div><div class="handle">@${esc(state.user.username||"username")}</div></div></div>
-      <p class="bio">${esc(state.user.bio||"Add a short bio about yourself.")}</p>
-      ${noteActive?`<div class="note">📝 ${esc(state.note.text)}<br><small>24h note • expires ${new Date(state.note.expires).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</small></div>`:""}
-    </section>
-    <section class="card profile-card">
-      <div class="section-title">Edit profile</div>
-      <div class="edit-grid">
-        <div class="profile-field"><label>NAME</label><input id="editName" value="${esc(state.user.name)}"></div>
-        <div class="profile-field"><label>USERNAME</label><input id="editUsername" value="${esc(state.user.username)}"></div>
-        <div class="profile-field"><label>BIO</label><textarea id="editBio" placeholder="Tell people a little about you...">${esc(state.user.bio)}</textarea></div>
-        <div class="profile-field"><label>PROFILE PHOTO</label><input id="dpFile" type="file" accept="image/*" onchange="previewDP(event)"></div>
-        <img id="dpPreview" class="profile-avatar ${state.user.dp?"":"hidden"}" style="width:100px;height:100px" src="${esc(state.user.dp)}">
-        <button class="save-btn" onclick="saveProfile()">Save profile</button>
-      </div>
-    </section>
-    <section class="card profile-card">
-      <div class="section-title">24h note</div>
-      <div class="edit-grid">
-        <div class="profile-field"><label>NOTE</label><input id="noteInput" maxlength="80" value="${esc(state.note.text)}" placeholder="e.g. 8 hours today. I can do this."></div>
-        <button class="upload-btn" onclick="saveNote()">Post for 24 hours</button>
-      </div>
-    </section>`;
+const NOTE_BG_STYLES={
+  sunset:'linear-gradient(135deg,#ffd36b,#ff9f9f)',
+  sky:'linear-gradient(135deg,#aee8ff,#b7c8ff)',
+  mint:'linear-gradient(135deg,#bff5dc,#8fe8cf)',
+  lavender:'linear-gradient(135deg,#dcc7ff,#bda8ff)',
+  rose:'linear-gradient(135deg,#ffc2d6,#ff9bb7)',
+  midnight:'linear-gradient(135deg,#303846,#161c27)'
+};
+function noteBgStyle(bg){return NOTE_BG_STYLES[bg]||NOTE_BG_STYLES.sunset}
+function noteTextColor(bg){return bg==='midnight'?'#fff':'#18202a'}
+function noteAvatarHTML(){
+  return state.user.dp?`<img src="${esc(state.user.dp)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:`${esc((state.user.name||'S').charAt(0).toUpperCase())}`;
 }
-function sideToday(){
-  return `<section class="card side-card"><div class="side-title"><span>Today</span><small class="hero-sub">${state.tasks.filter(t=>t.done).length}/${state.tasks.length} done</small></div><div class="task-add"><input id="sideTask" placeholder="Task / subject"><input id="sideTime" type="time"><button onclick="addSideTask()">＋</button></div><div id="sideTasks">${renderTasks()}</div></section>`;
+function selectNoteBg(bg){
+  if(!NOTE_BG_STYLES[bg])bg='sunset';
+  state.note.bg=bg; save();
+  const preview=document.getElementById('notePreview');
+  if(preview){preview.style.background=noteBgStyle(bg);preview.style.color=noteTextColor(bg)}
+  document.querySelectorAll('.note-swatch').forEach(b=>b.classList.toggle('active',b.getAttribute('title')===bg));
 }
-function sideTarget(){
-  const pct=Math.min(100,Math.round((state.target.done/Math.max(1,state.target.minutes))*100));
-  const running = state.target.running;
-  return `<section class="card side-card">
-    <div class="side-title"><span>Target</span><small class="hero-sub">${pct}%</small></div>
-    <div class="target-big">${Math.floor(state.target.minutes/60)}h ${state.target.minutes%60}m</div>
-    <div class="progress"><i style="width:${pct}%"></i></div>
-    ${running
-      ? `<div class="target-running"><span><i data-lucide="timer" class="icon-svg"></i> Target session active</span><button onclick="stopTarget()" style="border:0;background:transparent;font-weight:900">Stop</button></div>`
-      : `<button class="target-start" onclick="startTarget()">Start target</button>`}
-  </section>`;
+function updateNotePreview(){
+  const input=document.getElementById('noteInput');
+  const text=(input?.value||'').slice(0,80);
+  const out=document.getElementById('notePreviewText');
+  const count=document.getElementById('noteCharCount');
+  if(out)out.textContent=text||'Write a little update…';
+  if(count)count.textContent=text.length+'/80';
 }
-
-/* ---------- subjects ---------- */
-function selectSubjectIcon(icon,btn){
-  const input=document.getElementById("newSubjectIcon");
-  if(input) input.value=icon;
-  document.querySelectorAll("#iconChoice button").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-}
-function addSubject(){
-  const name=document.getElementById("newSubjectName").value.trim();
-  if(!name)return alert("Enter a subject name.");
-  const icon=document.getElementById("newSubjectIcon").value.trim()||"book-open";
-  const color=document.getElementById("newSubjectColor").value||"#8f36c9";
-  const image=document.getElementById("newSubjectImage").value.trim();
-  state.subjects.push({id:crypto.randomUUID(),name,icon,color,image,seconds:0});
-  save();navigate("home");
-}
-function subjectMenu(id){
-  const s=state.subjects.find(x=>x.id===id);if(!s)return;
-  document.getElementById("modalHost").innerHTML=`
-    <div class="danger-modal" onclick="if(event.target===this)closeDanger()">
-      <section class="danger-box">
-        <div class="danger-icon"><i data-lucide="triangle-alert" class="icon-svg"></i></div>
-        <h2 class="danger-title">Delete ${esc(s.name)}?</h2>
-        <p class="danger-copy">This will permanently remove <b>${esc(s.name)}</b>, including its total focus time and recent session data. This action cannot be undone.</p>
-        <div class="danger-actions">
-          <button class="danger-cancel" onclick="closeDanger()">Cancel</button>
-          <button class="danger-confirm" onclick="confirmDeleteSubject('${s.id}')">Delete subject</button>
-        </div>
-      </section>
-    </div>`;
-  if(window.lucide) lucide.createIcons();
-}
-function confirmDeleteSubject(id){
-  state.subjects=state.subjects.filter(x=>x.id!==id);
-  save();closeDanger();renderApp();
-}
-function closeDanger(){const host=document.getElementById("modalHost");if(host)host.innerHTML=""}
-
-/* ---------- chart ---------- */
-function drawChart(){
-  if(activePage!=="home")return;
-  const canvas=document.getElementById("focusChart");if(!canvas)return;
-  if(chart)chart.destroy();
-  const labels=state.subjects.map(s=>s.name);
-  const values=state.subjects.map(s=>Math.max(0,Math.round((s.seconds||0)/60)));
-  chart=new Chart(canvas,{
-    type:"bar",
-    data:{labels,datasets:[{
-      label:"Minutes",
-      data:values,
-      backgroundColor:state.subjects.map(s=>s.color),
-      borderRadius:9,
-      borderSkipped:false,
-      maxBarThickness:38
-    }]},
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw} min`}}},
-      scales:{
-        x:{grid:{display:false},ticks:{color:"#7b828d",font:{size:10}}},
-        y:{beginAtZero:true,grid:{color:"rgba(30,35,45,.07)"},ticks:{color:"#8a919b",font:{size:10},callback:v=>v+"m"}}
-      }
-    }
-  });
-  if(window.lucide) lucide.createIcons();
-}
-
-/* ---------- timer ---------- */
-function openTimer(id){
-  const s=state.subjects.find(x=>x.id===id);if(!s)return;
-  timerState={subject:s,remaining:3600,total:3600,running:false,startedAt:0};
-  document.getElementById("modalHost").innerHTML=`
-    <div class="timer-modal">
-      <section class="timer-box">
-        <div class="timer-top"><div class="timer-subject"><i data-lucide="${esc(s.icon||"book-open")}" class="icon-svg"></i> ${esc(s.name)}</div><button class="close-round" onclick="closeTimer()">×</button></div>
-        <div class="duration-row">
-          ${[15,30,60,120].map(m=>`<button class="duration ${m===60?"active":""}" onclick="chooseDuration(${m},this)">${m<60?m+" min":m/60+" h"}</button>`).join("")}
-        </div>
-        <div class="clock"><div><strong id="timerDisplay">01:00:00</strong><small>focus time</small></div></div>
-        <div class="timer-actions">
-          <button class="timer-action" onclick="resetTimer()">Reset</button>
-          <button class="timer-action primary" id="timerPlay" onclick="toggleTimer()">Start</button>
-          <button class="timer-action" onclick="finishTimer()">Done</button>
-        </div>
-      </section>
-    </div>`;
-  if(window.lucide) lucide.createIcons();
-}
-function chooseDuration(min,btn){
-  clearInterval(timer);timer=null;
-  document.querySelectorAll(".duration").forEach(x=>x.classList.remove("active"));btn.classList.add("active");
-  timerState.total=timerState.remaining=min*60;timerState.running=false;
-  document.getElementById("timerPlay").textContent="Start";updateTimerUI();
-}
-function toggleTimer(){
-  if(timerState.running){pauseTimer();return}
-  timerState.running=true;
-  timerState.startedAt=Date.now();
-  document.getElementById("timerPlay").textContent="Pause";
-  timer=setInterval(()=>{
-    timerState.remaining--;
-    updateTimerUI();
-    if(timerState.remaining<=0){clearInterval(timer);timer=null;timerState.running=false;completeTimer()}
-  },1000);
-}
-function pauseTimer(){clearInterval(timer);timer=null;timerState.running=false;document.getElementById("timerPlay").textContent="Resume"}
-function resetTimer(){clearInterval(timer);timer=null;timerState.remaining=timerState.total;timerState.running=false;document.getElementById("timerPlay").textContent="Start";updateTimerUI()}
-function updateTimerUI(){const el=document.getElementById("timerDisplay");if(el)el.textContent=fmtClock(timerState.remaining)}
-function finishTimer(){
-  const elapsed=timerState.total-timerState.remaining;
-  if(elapsed<1){closeTimer();return}
-  saveSession(elapsed);closeTimer();renderApp();
-}
-function saveSession(seconds){
-  const s=state.subjects.find(x=>x.id===timerState.subject.id);if(!s)return;
-  s.seconds=(s.seconds||0)+seconds;
-  state.sessions.push({subject:s.name,seconds,at:new Date().toISOString()});
-  state.target.done=(state.target.done||0)+Math.floor(seconds/60);
-  save();
-}
-function completeTimer(){
-  const elapsed=timerState.total;
-  saveSession(elapsed);
-  closeTimer();
-  showComplete(elapsed,timerState.subject.name);
-}
-function closeTimer(){clearInterval(timer);timer=null;const host=document.getElementById("modalHost");if(host)host.innerHTML=""}
-function showComplete(seconds,subject){
-  const host=document.getElementById("modalHost");
-  host.innerHTML=`<div class="complete-modal"><section class="complete-box"><div class="complete-art">🦔🎉</div><div class="complete-time">${fmt(seconds)} of focus</div><h2 class="complete-title">You did great!</h2><p class="hero-sub">${esc(subject)} session completed. Keep your little streak going.</p><div class="complete-actions"><button onclick="closeComplete()">Continue</button><button onclick="closeComplete();navigate('target')">View target</button></div></section></div>`;
-  for(let i=0;i<28;i++){
-    const c=document.createElement("i");c.className="confetti";c.style.left=Math.random()*100+"%";c.style.background=["#a52fc4","#72c9ef","#ffe638","#54b95b","#ef2670"][i%5];c.style.setProperty("--x",(Math.random()*260-130)+"px");c.style.animationDelay=(Math.random()*.6)+"s";document.body.appendChild(c);setTimeout(()=>c.remove(),3300);
-  }
-}
-function closeComplete(){document.getElementById("modalHost").innerHTML=""}
-
-/* ---------- profile ---------- */
-function previewDP(e){
-  const file=e.target.files?.[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=()=>{state.user.dp=reader.result;const img=document.getElementById("dpPreview");img.src=reader.result;img.classList.remove("hidden")};
-  reader.readAsDataURL(file);
-}
-function saveProfile(){
-  state.user.name=document.getElementById("editName").value.trim()||state.user.name;
-  state.user.username=document.getElementById("editUsername").value.trim().replace(/^@/,"")||state.user.username;
-  state.user.bio=document.getElementById("editBio").value.trim();
-  save();renderApp();
+function clearNoteDraft(){
+  const input=document.getElementById('noteInput');
+  if(input){input.value='';updateNotePreview();input.focus()}
 }
 function saveNote(){
-  const text=document.getElementById("noteInput").value.trim();
-  state.note={text,expires:text?Date.now()+86400000:0,bg:state.note?.bg||"sunset"};save();renderApp();
-}
-
-/* ---------- target / tasks ---------- */
-function setTarget(){
-  const mins=Math.max(1,Math.min(1440,Number(document.getElementById("targetInput").value)||480));
-  state.target.minutes=mins;state.target.done=0;state.target.date=todayKey();save();renderApp();
-}
-function addTask(){
-  const text=document.getElementById("taskText").value.trim();if(!text)return;
-  state.tasks.push({id:crypto.randomUUID(),text,time:document.getElementById("taskTime").value,done:false});save();renderApp();
-}
-function addSideTask(){
-  const text=document.getElementById("sideTask").value.trim();if(!text)return;
-  state.tasks.push({id:crypto.randomUUID(),text,time:document.getElementById("sideTime").value,done:false});save();renderApp();
-}
-function renderTasks(){
-  if(!state.tasks.length)return `<div class="hero-sub" style="padding:15px 0">No tasks yet. Add one above.</div>`;
-  return state.tasks.map(t=>`<div class="task ${t.done?"done":""}"><button class="check" onclick="toggleTask('${t.id}')">${t.done?"✓":""}</button><div class="task-text" style="flex:1;font-size:12px;font-weight:700">${esc(t.text)}</div><small class="hero-sub">${t.time||""}</small></div>`).join("");
-}
-function toggleTask(id){const t=state.tasks.find(x=>x.id===id);if(!t)return;t.done=!t.done;save();renderApp()}
-
-
-function startTarget(){
-  if((state.target.done||0) >= state.target.minutes) state.target.done=0;
-  state.target.running=true;
-  state.target.startedAt=Date.now();
+  const input=document.getElementById('noteInput');
+  const text=(input?.value||'').trim();
+  if(!text)return alert('Please write a note first.');
+  state.note={text:text.slice(0,80),expires:Date.now()+24*60*60*1000,bg:state.note.bg||'sunset'};
   save();renderApp();
 }
-function stopTarget(){
-  if(state.target.running && state.target.startedAt){
-    const mins=Math.max(0,Math.floor((Date.now()-state.target.startedAt)/60000));
-    state.target.done=Math.min(state.target.minutes,(state.target.done||0)+mins);
-  }
-  state.target.running=false;
-  state.target.startedAt=0;
-  save();renderApp();
-}
-
-/* ---------- reminders / misc ---------- */
-function showHelp(){alert("Study Circle: choose a subject, set a focus time, study, and watch your target grow.")}
-
-/* ===== V3 REQUESTED LOGIC OVERRIDES ===== */
-state.filter=state.filter||"all";
-state.user=state.user||{name:"",username:"",birthday:"",dp:"",bio:""};
-state.user.email=state.user.email||"";
-state.target={minutes:480,doneSeconds:0,done:0,date:"",running:false,startedAt:0,activeSubjectId:"",selectedSubjectIds:[],subjectStartedAt:0,...(state.target||{})};
-state.target.doneSeconds=state.target.doneSeconds||((state.target.done||0)*60);
-if(!state.target.date)state.target.date=todayKey();
-
-function targetElapsedSeconds(){
-  let sec=state.target.doneSeconds||((state.target.done||0)*60);
-  if(state.target.running&&state.target.startedAt)sec+=Math.max(0,Math.floor((Date.now()-state.target.startedAt)/1000));
-  return Math.min(sec,Math.max(1,state.target.minutes*60));
-}
-function selectedTargetSubjects(){return (state.target.selectedSubjectIds||[]).map(id=>state.subjects.find(s=>s.id===id)).filter(Boolean)}
-function resetDailyTargetIfNeeded(){
-  if(state.target.date!==todayKey()){
-    state.target.date=todayKey();state.target.doneSeconds=0;state.target.done=0;state.target.running=false;state.target.startedAt=0;state.target.activeSubjectId="";state.target.selectedSubjectIds=[];state.target.subjectStartedAt=0;save();
-  }
-}
-resetDailyTargetIfNeeded();
-
-function filteredSessions(){
-  const now=Date.now();
-  if(state.filter==="all")return state.sessions||[];
-  const days=state.filter==="7d"?7:30;
-  const cutoff=now-days*86400000;
-  return (state.sessions||[]).filter(s=>new Date(s.at).getTime()>=cutoff);
-}
-function filteredSubjectSeconds(subject){return filteredSessions().filter(x=>x.subject===subject.name).reduce((a,x)=>a+(x.seconds||0),0)}
-function filteredTotal(){return filteredSessions().reduce((a,x)=>a+(x.seconds||0),0)}
-function setFocusFilter(filter){state.filter=filter;save();renderApp()}
-
-/* Local username uniqueness + Firestore username reservation when configured. */
-async function claimUsername(username){
-  const clean=String(username||"").trim().replace(/^@/,"").toLowerCase();
-  if(!clean)return false;
-  const ownerKey="study_circle_username_registry_v1";
-  let registry=JSON.parse(localStorage.getItem(ownerKey)||"{}");
-  const me=state.authUid||state.user.email||"local-user";
-  if(registry[clean] && registry[clean]!==me)return false;
-  if(firebaseReady&&firestore){
-    try{
-      const ref=firestore.collection("usernames").doc(clean);
-      await firestore.runTransaction(async tx=>{
-        const snap=await tx.get(ref);
-        if(snap.exists && snap.data().uid!==me)throw new Error("USERNAME_TAKEN");
-        tx.set(ref,{uid:me,username:clean,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-      });
-    }catch(e){if(e.message==="USERNAME_TAKEN")return false;console.warn(e)}
-  }
-  registry[clean]=me;localStorage.setItem(ownerKey,JSON.stringify(registry));
-  return true;
-}
-
-async function startGoogle(){
-  if(firebaseReady){
-    try{
-      const provider=new firebase.auth.GoogleAuthProvider();
-      provider.setCustomParameters({prompt:"select_account"});
-      await firebase.auth().signInWithPopup(provider);
-      const u=firebase.auth().currentUser;
-      state.authUid=u?.uid||"";state.user.email=u?.email||"";state.user.name=state.user.name||u?.displayName||"";state.user.dp=state.user.dp||u?.photoURL||"";
-      if(!state.user.username && u?.email){state.user.username=(u.email.split("@")[0]||"student").replace(/[^a-zA-Z0-9._-]/g,"");await claimUsername(state.user.username)}
-      state.onboarding=state.user.name?"username":"name";save();render();return;
-    }catch(err){console.error("Google auth",err);showGoogleChooser(true);return;}
-  }
-  showGoogleChooser(false);
-}
-function showGoogleChooser(realFallback){
-  document.getElementById("modalHost").innerHTML=`<div class="google-account-modal" onclick="if(event.target===this)closeGoogleChooser()"><section class="google-account-box">
-    <div class="google-account-brand"><span class="google-mark">G</span><div><b style="font-size:13px">Sign in with Google</b><div style="font-size:9px;color:#89909a">Study Circle</div></div></div>
-    <h2>Choose your Google account</h2><p>Enter the Google email you want to use for your Study Circle account.</p>
-    <input id="googleEmailInput" class="google-email-input" type="email" autocomplete="email" placeholder="you@gmail.com" value="${esc(state.user.email||"")}">
-    <div class="google-account-actions"><button class="google-cancel" onclick="closeGoogleChooser()">Cancel</button><button class="google-next" onclick="finishGoogleChooser(${!!realFallback})">Continue</button></div>
-  </section></div>`;
-}
-async function finishGoogleChooser(realFallback){
-  const email=(document.getElementById("googleEmailInput")?.value||"").trim().toLowerCase();
-  if(!/^\S+@\S+\.\S+$/.test(email))return alert("Enter a valid Google email.");
-  state.user.email=email;closeGoogleChooser();
-  state.onboarding="name";save();render();
-}
-function closeGoogleChooser(){const h=document.getElementById("modalHost");if(h)h.innerHTML=""}
-
-async function nextOnboard(){
-  const v=(document.getElementById("onboardInput")?.value||"").trim();
-  if(state.onboarding==="name"){if(!v)return alert("Please enter your name.");state.user.name=v;state.onboarding="username"}
-  else if(state.onboarding==="username"){
-    if(!v)return alert("Please choose a username.");
-    const username=v.replace(/^@/,"").toLowerCase();
-    if(!/^[a-z0-9._-]{3,20}$/.test(username))return alert("Username: 3–20 letters, numbers, dot, underscore or hyphen.");
-    if(username!==String(state.user.username||"").toLowerCase() && !(await claimUsername(username)))return alert("That username is already taken. Choose another one.");
-    state.user.username=username;state.onboarding="birthday";
-  }else{if(!v)return alert("Please choose your birthday.");state.user.birthday=v;state.onboarding="done"}
-  save();render();
-}
-
-function homePage(){
-  resetDailyTargetIfNeeded();
-  const total=filteredTotal();
-  const filter=state.filter||"all";
-  return `<div class="topbar"><div><h1 class="page-title">Timer</h1><div class="page-sub">Make a little progress every day.</div></div><button class="menu-btn" onclick="showHelp()"><i data-lucide="sparkles" class="icon-svg"></i></button></div>
-  <section class="card hero"><div class="hero-filter-head"><div><div class="hero-label">FOCUS TIME</div><div class="hero-time">${fmt(total)}</div><div class="hero-sub">Study time for the selected period.</div></div><div><div class="hero-label" style="text-align:right">PERIOD</div><div class="filter-row">${[["7d","7 days"],["30d","30 days"],["all","All time"]].map(([id,label])=>`<button class="filter-pill ${filter===id?"active":""}" onclick="setFocusFilter('${id}')">${label}</button>`).join("")}</div></div></div></section>
-  <div class="subject-head"><div class="section-title">Subjects</div><button class="add-head" onclick="navigate('add')"><i data-lucide="plus" style="width:15px;height:15px;vertical-align:-3px"></i> Add subject</button></div>
-  <section class="subject-list">${state.subjects.map(subjectCard).join("")}</section>
-  <section class="card chart-card"><div class="chart-head"><div><div class="hero-label">SUBJECT BREAKDOWN</div><div class="chart-total">${fmt(total)}</div></div><span class="hero-sub">${filter==="all"?"All time":filter==="7d"?"Last 7 days":"Last 30 days"}</span></div><div class="donut-layout"><div class="chart-wrap"><canvas id="focusChart"></canvas><div class="donut-center"><div class="donut-center-inner"><b>${fmt(total)}</b><span>Total focus</span></div></div></div><div class="donut-legend">${state.subjects.map(s=>`<div class="donut-legend-row"><i class="donut-dot" style="background:${esc(s.color)}"></i><div><b>${esc(s.name)}</b><small>${fmt(filteredSubjectSeconds(s))}</small></div><strong>${total?Math.round(filteredSubjectSeconds(s)/total*100):0}%</strong></div>`).join("")}</div></div></section>
-  <section class="activity"><div class="subject-head"><div class="section-title">Recent activity</div><span class="hero-sub">Latest sessions</span></div>${state.sessions.length?state.sessions.slice(-5).reverse().map(s=>`<div class="activity-row"><div><div class="activity-name">${esc(s.subject)}</div><div class="activity-time">${new Date(s.at).toLocaleString()}</div></div><b>${fmt(s.seconds)}</b></div>`).join(""):`<div class="activity-row"><div class="activity-time">Your completed sessions will appear here.</div></div>`}</section>`;
-}
-function subjectCard(s){
-  const icon=s.icon||"book-open";const image=s.image?`<img src="${esc(s.image)}" alt="" style="width:28px;height:28px;object-fit:contain">`:`<i data-lucide="${esc(icon)}" class="subject-icon-svg"></i>`;
-  return `<article class="subject-card" onclick="openTimer('${s.id}')"><div class="subject-color" style="background:${esc(s.color)}">${image}</div><div><div class="subject-name">${esc(s.name)}</div><div class="subject-time">${fmt(filteredSubjectSeconds(s))} focused</div></div><div class="subject-menu-wrap" onclick="event.stopPropagation()"><button class="subject-more" aria-label="Delete subject" title="Delete subject" onclick="subjectMenu('${s.id}')"><i data-lucide="trash-2" class="icon-svg"></i></button></div></article>`;
-}
-
-function drawChart(){
-  if(activePage!=="home")return;const canvas=document.getElementById("focusChart");if(!canvas)return;if(chart)chart.destroy();
-  const labels=state.subjects.map(s=>s.name),values=state.subjects.map(s=>filteredSubjectSeconds(s));
-  chart=new Chart(canvas,{type:"doughnut",data:{labels,datasets:[{data:values,backgroundColor:state.subjects.map(s=>s.color),borderColor:"#fff",borderWidth:4,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:"72%",plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${fmt(c.raw)}`}}}}});
-  if(window.lucide)lucide.createIcons();
-}
-
-function targetPage(){
-  resetDailyTargetIfNeeded();const elapsed=targetElapsedSeconds();const pct=Math.min(100,Math.round(elapsed/(state.target.minutes*60)*100));const selected=selectedTargetSubjects();const running=state.target.running;
-  return `<div class="topbar"><div><h1 class="page-title">Target</h1><div class="page-sub">Choose subjects, start your target, and switch anytime.</div></div></div>
-  <section class="card target-card"><div class="hero-label">TODAY'S TARGET</div><div class="target-big">${Math.floor(state.target.minutes/60)}h ${state.target.minutes%60}m</div><div class="hero-sub">${fmt(elapsed)} studied • ${pct}% complete</div><div class="progress" style="margin:15px 0 18px"><i style="width:${pct}%"></i></div>
-  <input id="targetInput" class="target-input" type="number" min="1" max="1440" value="${Math.round(state.target.minutes)}" placeholder="Minutes"><button class="set-target" onclick="setTarget()">Set today's target</button>
-  ${running?targetLiveCard():`<button class="target-start" onclick="startTarget()">Start target</button>`}</section>
-  <section class="card target-card"><div class="section-title">Tasks</div><div class="task-add"><input id="taskText" placeholder="What will you finish?"><input id="taskTime" type="time"><button onclick="addTask()"><i data-lucide="plus"></i></button></div><div id="taskList">${renderTasks()}</div></section>`;
-}
-function targetLiveCard(){
-  const active=state.subjects.find(s=>s.id===state.target.activeSubjectId);const elapsed=targetElapsedSeconds();
-  return `<div class="target-live"><div class="target-live-top"><div><div class="target-live-label">TARGET SESSION</div><div class="target-live-time" id="targetLiveClock">${fmtClock(elapsed)}</div></div><div class="target-live-sub">${active?esc(active.name):"No subject"}</div></div><div class="hero-sub">Current subject: <b>${active?esc(active.name):"—"}</b> • ${selectedTargetSubjects().length} subjects selected</div><div class="target-live-actions"><button onclick="switchTargetSubject()">Switch subject</button><button class="danger-stop" onclick="stopTarget()">Stop target</button></div></div>`;
-}
-function sideTarget(){
-  resetDailyTargetIfNeeded();const pct=Math.min(100,Math.round(targetElapsedSeconds()/(state.target.minutes*60)*100));const running=state.target.running;const active=state.subjects.find(s=>s.id===state.target.activeSubjectId);
-  return `<section class="card side-card"><div class="side-title"><span>Target</span><small class="hero-sub">${pct}%</small></div><div class="target-big">${Math.floor(state.target.minutes/60)}h ${state.target.minutes%60}m</div><div class="hero-sub">${fmt(targetElapsedSeconds())} studied today</div><div class="progress"><i style="width:${pct}%"></i></div>${running?`<div class="target-live" style="margin-top:11px"><div class="target-live-time" id="sideTargetClock">${fmtClock(targetElapsedSeconds())}</div><div class="target-live-sub">${active?esc(active.name):"Subject"}</div><div class="target-live-actions"><button onclick="switchTargetSubject()">Switch</button><button class="danger-stop" onclick="stopTarget()">Stop</button></div></div>`:`<button class="target-start" onclick="startTarget()">Start target</button>`}</section>`;
-}
-
-function openTargetChooser(){
-  const selected=new Set(state.target.selectedSubjectIds||[]);
-  document.getElementById("modalHost").innerHTML=`<div class="danger-modal" onclick="if(event.target===this)closeDanger()"><section class="target-choice-box"><h2>Choose your study subjects</h2><p>Select every subject you want included in this target. You can switch between them while studying.</p><div class="target-select">${state.subjects.map(s=>`<label class="target-select-subject"><input type="checkbox" value="${s.id}" ${selected.has(s.id)?"checked":""}><span class="target-select-icon" style="background:${esc(s.color)}"><i data-lucide="${esc(s.icon||"book-open")}"></i></span><span style="flex:1">${esc(s.name)}<small>${fmt(s.seconds||0)} total focus</small></span></label>`).join("")}</div><div class="target-choice-actions"><button class="cancel" onclick="closeDanger()">Cancel</button><button class="start" onclick="confirmTargetSubjects()">Start studying</button></div></section></div>`;
-  if(window.lucide)lucide.createIcons();
-}
-function confirmTargetSubjects(){
-  const ids=[...document.querySelectorAll('.target-select-subject input:checked')].map(x=>x.value);if(!ids.length)return alert("Select at least one subject.");
-  state.target.selectedSubjectIds=ids;state.target.activeSubjectId=ids[0];state.target.running=true;state.target.startedAt=Date.now();state.target.subjectStartedAt=Date.now();save();closeDanger();renderApp();startTargetTicker();
-}
-function startTarget(){resetDailyTargetIfNeeded();if(targetElapsedSeconds()>=state.target.minutes*60){state.target.doneSeconds=0;state.target.done=0}openTargetChooser()}
-function recordTargetSegment(){
-  if(!state.target.running||!state.target.startedAt||!state.target.activeSubjectId)return 0;
-  const sec=Math.max(0,Math.floor((Date.now()-state.target.startedAt)/1000));if(!sec)return 0;
-  const s=state.subjects.find(x=>x.id===state.target.activeSubjectId);if(s){s.seconds=(s.seconds||0)+sec;state.sessions.push({subject:s.name,seconds:sec,at:new Date().toISOString(),source:"target"})}
-  state.target.doneSeconds=Math.min(state.target.minutes*60,(state.target.doneSeconds||0)+sec);state.target.done=Math.floor(state.target.doneSeconds/60);state.target.startedAt=0;state.target.subjectStartedAt=0;save();return sec;
-}
-function switchTargetSubject(){
-  if(!state.target.running)return;recordTargetSegment();openTargetChooserForSwitch();
-}
-function openTargetChooserForSwitch(){
-  const ids=state.target.selectedSubjectIds||[];document.getElementById("modalHost").innerHTML=`<div class="danger-modal" onclick="if(event.target===this)closeDanger()"><section class="target-choice-box"><h2>Switch subject</h2><p>Your current segment is saved. Choose the next subject.</p><div class="target-select">${ids.map(id=>state.subjects.find(s=>s.id===id)).filter(Boolean).map(s=>`<button class="target-select-subject" onclick="chooseSwitchSubject('${s.id}')"><span class="target-select-icon" style="background:${esc(s.color)}"><i data-lucide="${esc(s.icon||"book-open")}"></i></span><span style="flex:1;text-align:left">${esc(s.name)}<small>${fmt(s.seconds||0)} total focus</small></span><i data-lucide="chevron-right"></i></button>`).join("")}</div><div class="target-choice-actions"><button class="cancel" onclick="resumeCurrentTarget()">Keep current</button></div></section></div>`;if(window.lucide)lucide.createIcons();
-}
-function chooseSwitchSubject(id){state.target.activeSubjectId=id;state.target.startedAt=Date.now();state.target.subjectStartedAt=Date.now();save();closeDanger();renderApp();startTargetTicker()}
-function resumeCurrentTarget(){state.target.startedAt=Date.now();state.target.subjectStartedAt=Date.now();save();closeDanger();renderApp();startTargetTicker()}
-function stopTarget(){
-  if(state.target.running)recordTargetSegment();state.target.running=false;state.target.startedAt=0;state.target.subjectStartedAt=0;save();renderApp();
-}
-function startTargetTicker(){clearInterval(window.targetTicker);window.targetTicker=setInterval(()=>{if(!state.target.running){clearInterval(window.targetTicker);return}const t=targetElapsedSeconds();["targetLiveClock","sideTargetClock"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=fmtClock(t)});if(t>=state.target.minutes*60){recordTargetSegment();state.target.running=false;clearInterval(window.targetTicker);save();showTargetComplete();renderApp()}},1000)}
-function showTargetComplete(){const h=document.getElementById("modalHost");if(!h)return;h.innerHTML=`<div class="complete-modal"><section class="complete-box"><div class="complete-art">🎉</div><div class="complete-time">Target complete</div><h2 class="complete-title">You did it!</h2><p class="hero-sub">You reached ${Math.floor(state.target.minutes/60)}h ${state.target.minutes%60}m of study today.</p><div class="complete-actions"><button onclick="closeComplete()">Continue</button></div></section></div>`;for(let i=0;i<34;i++){const c=document.createElement("i");c.className="confetti";c.style.left=Math.random()*100+"%";c.style.background=["#8f36c9","#42c8ef","#ffe638","#54b95b","#ef2670"][i%5];c.style.setProperty("--x",(Math.random()*260-130)+"px");c.style.animationDelay=(Math.random()*.6)+"s";document.body.appendChild(c);setTimeout(()=>c.remove(),3300)}}
-
-function noteBgStyle(bg){
-  const map={
-    sunset:'linear-gradient(135deg,#fff0c9,#ffd9b8)',
-    sky:'linear-gradient(135deg,#e2f5ff,#cfe9ff)',
-    mint:'linear-gradient(135deg,#e2faef,#c9f0dc)',
-    lavender:'linear-gradient(135deg,#f0e7ff,#dfd0ff)',
-    rose:'linear-gradient(135deg,#ffe7ef,#ffd0dc)',
-    midnight:'linear-gradient(135deg,#1a2029,#11161d)'
-  };
-  return map[bg]||map.sunset;
-}
-function noteTextColor(bg){return bg==='midnight'?'#fff':'#18202a'}
-function selectNoteBg(bg){state.note.bg=bg;save();renderApp()}
 
 function profilePage(){
   const noteActive=state.note.text&&state.note.expires>Date.now();
-  const noteBg=state.note.bg||"sunset";
-  const colors=["sunset","sky","mint","lavender","rose","midnight"];
-  return `<div class="topbar"><div><h1 class="page-title">Profile</h1><div class="page-sub">Your study identity, your way.</div></div></div>
-  <section class="card profile-card"><div class="profile-identity"><div class="profile-avatar-wrap">${noteActive?`<div class="profile-note-bubble" style="background:${noteBgStyle(noteBg)};color:${noteTextColor(noteBg)}" title="${esc(state.note.text)}">${esc(state.note.text)}</div>`:""}${avatarHTML("profile-avatar")}</div><div><div class="profile-name">${esc(state.user.name||"Your name")}</div><div class="handle">@${esc(state.user.username||"username")}</div><div class="hero-sub" style="margin-top:7px">${esc(state.user.bio||"Add a short bio about yourself.")}</div></div></div></section>
-  <section class="card profile-card"><div class="section-title">Edit profile</div><div class="edit-grid"><div class="profile-field"><label>NAME</label><input id="editName" value="${esc(state.user.name)}"></div><div class="profile-field"><label>USERNAME • UNIQUE</label><input id="editUsername" value="${esc(state.user.username)}" maxlength="20"></div><div class="profile-field"><label>BIO</label><textarea id="editBio" placeholder="Tell people a little about you...">${esc(state.user.bio)}</textarea></div><div class="profile-field"><label>PROFILE PHOTO</label><div class="photo-picker"><div id="photoPickerPreview" class="photo-picker-preview">${state.user.dp?`<img src="${esc(state.user.dp)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:"🙂"}</div><div class="photo-picker-copy"><b>Choose a profile picture</b><span>Upload from your device • JPG, PNG, WebP</span></div><button type="button" onclick="document.getElementById('dpFile').click()">Choose photo</button><input id="dpFile" class="hidden" type="file" accept="image/*" onchange="previewDP(event)"></div></div><button class="save-btn" onclick="saveProfile()">Save profile</button></div></section>
-  <section class="card profile-card"><div class="section-title">24h note</div><div class="hero-sub" style="margin:5px 0 12px">Write a short note. Only the text you write will appear above your profile photo.</div><div class="edit-grid"><div class="profile-field"><label>NOTE</label><input id="noteInput" maxlength="80" value="${esc(state.note.text)}" placeholder="Write your note..."></div><div><div class="note-color-label">NOTE COLOUR</div><div class="note-color-row">${colors.map(bg=>`<button type="button" class="note-color-btn ${noteBg===bg?"active":""}" title="${bg}" aria-label="${bg}" onclick="selectNoteBg('${bg}')" style="background:${noteBgStyle(bg)}"></button>`).join("")}</div></div><button class="upload-btn" onclick="saveNote()">${noteActive?'Update note':'Post for 24 hours'}</button></div></section>`;
+  const noteTime=noteActive?new Date(state.note.expires).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):'';
+  const noteBg=state.note.bg||'sunset';
+  const swatches=[['sunset',''],['sky',''],['mint',''],['lavender',''],['rose',''],['midnight','']];
+  const noteBubble=noteActive?`<div class="profile-note-bubble" style="background:${noteBgStyle(noteBg)};color:${noteTextColor(noteBg)}" title="${esc(state.note.text)}"><div class="profile-note-only">${esc(state.note.text)}</div></div>`:'';
+  return `<div class="profile-page"><div class="topbar"><div><h1 class="page-title">Profile</h1><div class="page-sub">Your study identity, your way.</div></div></div>
+  <section class="card profile-card profile-hero">
+    <div class="profile-identity">
+      <div class="profile-avatar-wrap">${noteBubble}${avatarHTML('profile-avatar')}</div>
+      <div class="profile-identity-main"><div class="profile-name">${esc(state.user.name||'Your name')}</div><div class="handle" style="margin-top:3px">@${esc(state.user.username||'username')}</div><div class="hero-sub" style="margin-top:7px">${esc(state.user.bio||'Add a short bio about yourself.')}</div></div>
+    </div>
+  </section>
+  <section class="card profile-card"><div class="section-title">Edit profile</div><div class="edit-grid"><div class="profile-field"><label>NAME</label><input id="editName" value="${esc(state.user.name)}"></div><div class="profile-field"><label>USERNAME • UNIQUE</label><input id="editUsername" value="${esc(state.user.username)}" maxlength="20"></div><div class="profile-field"><label>BIO</label><textarea id="editBio" placeholder="Tell people a little about you...">${esc(state.user.bio)}</textarea></div><div class="profile-field"><label>PROFILE PHOTO</label><div class="photo-picker"><div id="photoPickerPreview" class="photo-picker-preview">${state.user.dp?`<img src="${esc(state.user.dp)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:'🙂'}</div><div class="photo-picker-copy"><b>Choose a profile picture</b><span>Upload from your device • JPG, PNG, WebP</span></div><button type="button" onclick="document.getElementById('dpFile').click()">Choose photo</button><input id="dpFile" class="hidden" type="file" accept="image/*" onchange="previewDP(event)"></div></div><button class="save-btn" onclick="saveProfile()">Save profile</button></div></section>
+  <section class="card profile-card"><div class="section-title">Share a note</div><div class="hero-sub" style="margin:5px 0 14px">A small 24-hour update with your name and username.</div>
+    <div class="note-composer">
+      <div class="note-compose-head"><div class="note-compose-user"><div class="note-compose-avatar">${noteAvatarHTML()}</div><div><b>${esc(state.user.name||'Your name')}</b><span>@${esc(state.user.username||'username')} · 24 hours</span></div></div><span class="hero-sub" style="font-size:9px">${noteActive?'Live now':'Ready to share'}</span></div>
+      <div id="notePreview" class="note-live-preview" style="background:${noteBgStyle(noteBg)};color:${noteTextColor(noteBg)}"><div class="note-preview-avatar">${noteAvatarHTML()}</div><div class="note-preview-copy"><b>${esc(state.user.name||'Your name')}</b><span>@${esc(state.user.username||'username')}</span><p id="notePreviewText">${esc(state.note.text||'Write a little update…')}</p></div></div>
+      <div class="profile-field"><label>YOUR NOTE</label><div class="note-input-wrap"><input id="noteInput" maxlength="80" value="${esc(state.note.text)}" oninput="updateNotePreview()" placeholder="e.g. 8 hours today. I can do this."><span id="noteCharCount" class="note-char">${String(state.note.text||'').length}/80</span></div></div>
+      <div><div class="note-style-title">NOTE BACKGROUND</div><div class="note-style-row" style="margin-top:8px">${swatches.map(([bg])=>`<button type="button" class="note-swatch ${noteBg===bg?'active':''}" title="${bg}" aria-label="${bg} note background" onclick="selectNoteBg('${bg}')" style="background:${noteBgStyle(bg)}"></button>`).join('')}</div></div>
+      <div class="note-actions"><button class="upload-btn" onclick="saveNote()">${noteActive?'Update note':'Post for 24 hours'}</button><button class="note-clear-btn" type="button" onclick="clearNoteDraft()">Clear</button></div>
+    </div>
+  </section>
+  <section class="card profile-card logout-card"><div class="logout-row"><div class="logout-copy"><b>Account</b><span>Sign out of your Study Circle account on this device.</span></div><button class="logout-btn" onclick="logout()">Log out</button></div></section></div>`;
+}
+
+async function logout(){
+  try{
+    if(firebaseReady && typeof firebase !== 'undefined' && firebase.auth) await firebase.auth().signOut();
+  }catch(err){ console.warn('Logout failed:',err); }
+  localStorage.removeItem(KEY);
+  location.reload();
 }
 async function saveProfile(){
-  const name=document.getElementById("editName").value.trim()||state.user.name;const username=(document.getElementById("editUsername").value.trim().replace(/^@/,"")||state.user.username).toLowerCase();
-  if(username!==String(state.user.username||"").toLowerCase())if(!(await claimUsername(username)))return alert("That username is already taken. Choose another one.");
+  const name=document.getElementById("editName").value.trim()||state.user.name;
+  const username=(document.getElementById("editUsername").value.trim().replace(/^@/,"")||state.user.username).toLowerCase();
+  if(!/^[a-z0-9._-]{3,20}$/.test(username))return alert("Username: 3–20 letters, numbers, dot, underscore or hyphen.");
+  if(username!==String(state.user.username||"").toLowerCase()&&!(await claimUsername(username)))return alert("That username is already taken. Choose another one.");
   state.user.name=name;state.user.username=username;state.user.bio=document.getElementById("editBio").value.trim();save();renderApp();
 }
+
 function previewDP(e){const file=e.target.files?.[0];if(!file)return;if(file.size>4*1024*1024)return alert("Please choose an image smaller than 4MB.");const reader=new FileReader();reader.onload=()=>{state.user.dp=reader.result;const box=document.getElementById("photoPickerPreview");if(box)box.innerHTML=`<img src="${esc(reader.result)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;save()};reader.readAsDataURL(file)}
 
 
