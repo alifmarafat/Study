@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>StyFlow</title>
+<title>StudyFlow</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -1975,6 +1975,41 @@ body:has(.chat-inbox-page){
   display:flex;flex-direction:column;gap:12px;
   position:relative;z-index:6;
 }
+.doodle-v2 .dv2-panel{display:flex;flex-direction:column;gap:12px}
+.doodle-v2 .dv2-panel.hidden{display:none!important}
+.doodle-v2 .dv2-hint{
+  margin:0;font-size:11px;font-weight:600;color:#8a919b;text-align:center;
+}
+.doodle-v2 .dv2-shape-row{
+  display:flex;justify-content:center;gap:8px;flex-wrap:wrap;
+}
+.doodle-v2 .dv2-shape{
+  width:48px;height:48px;border-radius:14px;border:0;
+  background:#f3f5f8;font-size:20px;cursor:pointer;
+  display:grid;place-items:center;
+  transition:background .15s,box-shadow .15s;
+}
+.doodle-v2 .dv2-shape.active{
+  background:#e8f3ff;box-shadow:inset 0 0 0 2px #3b82f6;
+}
+.doodle-v2 .dv2-emoji-grid{
+  display:grid;
+  grid-template-columns:repeat(8,1fr);
+  gap:4px;
+  max-height:140px;
+  overflow-y:auto;
+  padding:4px;
+  -webkit-overflow-scrolling:touch;
+}
+.doodle-v2 .dv2-emoji-btn{
+  width:100%;aspect-ratio:1;border:0;border-radius:10px;
+  background:transparent;font-size:22px;cursor:pointer;
+  display:grid;place-items:center;
+  transition:background .12s,transform .12s;
+}
+.doodle-v2 .dv2-emoji-btn:active{transform:scale(.9)}
+.doodle-v2 .dv2-emoji-btn.active,
+.doodle-v2 .dv2-emoji-btn:hover{background:#eef4ff}
 .doodle-v2 .dv2-brush-row{
   display:flex;justify-content:space-between;gap:6px;
 }
@@ -2076,7 +2111,7 @@ body:has(.chat-inbox-page){
 .doodle-v2 .dv2-btn-ghost svg,
 .doodle-v2 .dv2-btn-primary svg{width:16px;height:16px}
 
-/* Desktop: keep elegant centered card, still use v2 chrome */
+/* Desktop: elegant floating toolbar under canvas */
 @media(min-width:701px){
   .doodle-modal.doodle-v2{
     background:
@@ -2085,21 +2120,53 @@ body:has(.chat-inbox-page){
       #eef3f9 !important;
   }
   .doodle-v2 .dv2-body{
-    max-width:920px;margin:0 auto;width:100%;
-    padding:8px 24px;
+    max-width:980px;margin:0 auto;width:100%;
+    padding:8px 24px 0;
+    align-items:stretch;
   }
-  .doodle-v2 .dv2-sidebar{flex-basis:72px}
+  .doodle-v2 .dv2-sidebar{
+    flex-basis:76px;
+    padding:10px 8px;
+    border-radius:22px;
+  }
   .doodle-v2 .dv2-canvas-card{
-    max-width:520px;margin:0 auto;
-    aspect-ratio:3/4;height:auto !important;
-    max-height:min(58vh,620px);
+    max-width:480px;margin:0 auto;
+    aspect-ratio:4/3;height:auto !important;
+    max-height:min(52vh,560px);
+    border-radius:24px !important;
   }
   .doodle-v2 .dv2-bottom{
-    max-width:640px;margin:0 auto 16px;
-    border-radius:24px;
-    box-shadow:0 12px 40px rgba(40,50,70,.12);
+    max-width:520px;
+    margin:12px auto 20px;
+    border-radius:22px;
+    padding:14px 16px 16px;
+    box-shadow:
+      0 4px 6px rgba(40,50,70,.04),
+      0 16px 40px rgba(40,50,70,.12);
+    gap:10px;
   }
-  .doodle-v2 .dv2-top{max-width:920px;margin:0 auto;width:100%}
+  .doodle-v2 .dv2-top{max-width:980px;margin:0 auto;width:100%}
+  .doodle-v2 .dv2-brush-row{gap:8px}
+  .doodle-v2 .dv2-brush{
+    height:52px;border-radius:16px;
+    background:#f5f7fa;
+  }
+  .doodle-v2 .dv2-brush.active{
+    background:#e8f2ff;
+    box-shadow:inset 0 0 0 2.5px #3b82f6;
+  }
+  .doodle-v2 .dv2-size-row{padding:0 4px}
+  .doodle-v2 .dv2-color-row{
+    justify-content:center;gap:12px;padding:4px 0;
+  }
+  .doodle-v2 .doodle-color{width:32px;height:32px}
+  .doodle-v2 .dv2-actions{gap:10px;margin-top:2px}
+  .doodle-v2 .dv2-btn-ghost,
+  .doodle-v2 .dv2-btn-primary{height:46px;border-radius:14px;font-size:13.5px}
+  .doodle-v2 .dv2-emoji-grid{
+    grid-template-columns:repeat(10,1fr);
+    max-height:160px;
+  }
 }
 
 /* Hide legacy absolute toolbars when v2 is active */
@@ -6264,16 +6331,13 @@ function openDoodlePad(){
   const root=document.createElement("div");
   root.id="doodlePadRoot";
   root.className="doodle-modal doodle-v2";
+  const EMOJI_LIST="😀😃😄😁😆😅🤣😂🙂🙃😉😊😇🥰😍🤩😘😗😚😙🥲😋😛😜🤪😝🤑🤗🤭🤫🤔🤐🤨😐😑😶😏😒🙄😬🤥😌😔😪🤤😴😷🤒🤕🤢🤮🤧🥵🥶🥴😵🤯🤠🥳🥸😎🤓🧐😕😟🙁☹️😮😯😲😳🥺😦😧😨😰😥😢😭😱😖😣😞😓😩😫🥱😤😡😠🤬😈👿💀☠️💩🤡👹👺👻👽👾🤖😺😸😹😻😼😽🙀😿😾🙈🙉🙊💋💌💘💝💖💗💓💞💕💟❣️💔❤️🧡💛💚💙💜🤎🖤🤍💯💢💥💫💦💨🕳️💣💬👁️🗨️🗨️🗯️💭💤👋🤚🖐️✋🖖👌🤌🤏✌️🤞🤟🤘🤙👈👉👆🖕👇☝️👍👎✊👊🤛🤜👏🙌👐🤲🤝🙏✍️💅🤳💪🦾🦿🦵🦶👂🦻👃🧠🫀🫁🦷🦴👀👁️👅👄👶🧒👦👧🧑👱👨🧔👩🧓👴👵🙍🙎🙅🙆💁🙋🧏🙇🤦🤷👮🕵️💂🥷👷🤴👸👳👲🧕🤵👰🤰🤱👼🎅🤶🦸🦹🧙🧚🧛🧜🧝🧞🧟💆💇🚶🧍🧎🏃💃🕺🕴️👯🧖🧗🤺🏇⛷️🏂🏌️🏄🚣🏊⛹️🏋️🚴🚵🤸🤼🤽🤾🤹🧘🛀🛌👭👫👬💏💑👪👤👥🫂👣🐵🐒🦍🦧🐶🐕🦮🐩🐺🦊🦝🐱🐈🦁🐯🐅🐆🐴🐎🦄🦓🦌🦬🐮🐂🐃🐄🐷🐖🐗🐽🐏🐑🐐🐪🐫🦙🦒🐘🦣🦏🦛🐭🐁🐀🐹🐰🐇🐿️🦫🦔🦇🐻🐨🐼🦥🦦🦨🦘🦡🐾🦃🐔🐓🐣🐤🐥🐦🐧🕊️🦅🦆🦢🦉🦤🪶🦩🦚🦜🐸🐊🐢🦎🐍🐲🐉🦕🦖🐳🐋🐬🦭🐟🐠🐡🦈🐙🐚🪸🐌🦋🐛🐜🐝🪲🐞🦗🪳🕷️🕸️🦂🦟🪰🪱🦠💐🌸💮🏵️🌹🥀🌺🌻🌼🌷🌱🪴🌲🌳🌴🌵🌾🌿☘️🍀🍁🍂🍃🍇🍈🍉🍊🍋🍌🍍🥭🍎🍏🍐🍑🍒🍓🫐🥝🍅🫒🥥🥑🍆🥔🥕🌽🌶️🫑🥒🥬🥦🧄🧅🍄🥜🌰🍞🥐🥖🫓🥨🥯🥞🧇🧀🍖🍗🥩🥓🍔🍟🍕🌭🥪🌮🌯🫔🥙🧆🥚🍳🥘🍲🫕🥣🥗🍿🧈🧂🥫🍱🍘🍙🍚🍛🍜🍝🍠🍢🍣🍤🍥🥮🍡🥟🥠🥡🍦🍧🍨🍩🍪🎂🍰🧁🥧🍫🍬🍭🍮🍯🍼🥛☕🫖🍵🍶🍾🍷🍸🍹🍺🍻🥂🥃🥤🧋🧃🧉🧊🥢🍽️🍴🥄🔪🏺🌍🌎🌏🌐🗺️🗾🧭🏔️⛰️🌋🗻🏕️🏖️🏜️🏝️🏞️🏟️🏛️🏗️🧱🪨🪵🛖🏘️🏚️🏠🏡🏢🏣🏤🏥🏦🏨🏩🏪🏫🏬🏭🏯🏰💒🗼🗽⛪🕌🛕🕍⛩️🕋⛲⛺🌁🌃🏙️🌄🌅🌆🌇🌉♨️🎠🎡🎢💈🎪🚂🚃🚄🚅🚆🚇🚈🚉🚊🚝🚞🚋🚌🚍🚎🚐🚑🚒🚓🚔🚕🚖🚗🚘🚙🛻🚚🚛🚜🏎️🏍️🛵🦽🦼🛺🚲🛴🛹🛼🚏🛣️🛤️🛢️⛽🚨🚥🚦🛑🚏⚓⛵🛶🚤🛳️⛴️🛥️🚢✈️🛩️🛫🛬🪂💺🚁🚟🚠🚡🛰️🚀🛸🛎️🧳⌛⏳⌚⏰⏱️⏲️🕰️🕛🕧🕐🕜🕑🕝🕒🕞🕓🕟🕔🕠🕕🕡🕖🕢🕗🕣🕘🕤🕙🕥🕚🕦🌑🌒🌓🌔🌕🌖🌗🌘🌙🌚🌛🌜🌡️☀️🌝🌞🪐⭐🌟🌠🌌☁️⛅⛈️🌤️🌥️🌦️🌧️🌨️🌩️🌪️🌫️🌬️🌀🌈🌂☂️☔⛱️⚡❄️☃️⛄☄️🔥💧🌊🎃🎄🎆🎇🧨✨🎈🎉🎊🎋🎍🎎🎏🎐🎑🧧🎀🎁🎟️🎫🎖️🏆🏅🥇🥈🥉⚽⚾🥎🏀🏐🏈🏉🎾🥏🎳🏏🏑🏒🥍🏓🏸🥊🥋🥅⛳⛸️🎣🤿🎽🎿🛷🥌🎯🪀🎱🔮🪄🧿🎮🕹️🎰🎲🧩🧸🪩🪆♠️♥️♦️♣️♟️🃏🀄🎴🎭🖼️🎨🧵🪡🧶👓🕶️🥽🥼🦺👔👕👖🧣🧤🧥🧦👗👘🥻🩱🩲🩳👙👚👛👜👝🛍️🎒🩴👞👟🥾🥿👠👡🩰👢👑👒🎩🎓🧢🪖⛑️📿💄💍💎🔇🔈🔉🔊📢📣📯🔔🔕🎼🎵🎶🎙️🎚️🎛️🎤🎧📻🎷🪗🎸🎹🎺🎻🪕🥁🪘📱📲☎️📞📟📠🔋🔌💻🖥️🖨️⌨️🖱️🖲️💽💾💿📀🧮🎥🎞️📽️🎬📺📷📸📹📼🔍🔎🕯️💡🔦🏮🪔📔📕📖📗📘📙📚📓📒📃📜📄📰🗞️📑🔖🏷️💰🪙💴💵💶💷💸💳🧾💹✉️📧📨📩📤📥📦📫📪📬📭📮🗳️✏️✒️🖋️🖊️🖌️🖍️📝💼📁📂🗂️📅📆🗒️🗓️📇📈📉📊📋📌📍📎🖇️📏📐✂️🗃️🗄️🗑️🔒🔓🔏🔐🔑🗝️🔨🪓⛏️⚒️🛠️🗡️⚔️🔫🪃🏹🛡️🪚🔧🔩⚙️🗜️⚖️🦯🔗⛓️🪝🧰🧲🪜⚗️🧪🧫🧬🔬🔭📡💉🩸💊🩹🩺🚪🛗🪞🪟🛏️🛋️🪑🚽🪠🚿🛁🪤🪒🧴🧷🧹🧺🧻🪣🧼🫧🪥🧽🧯🛒🚬⚰️🪦⚱️🗿🪧";
   root.innerHTML=`
     <header class="dv2-top">
       <button type="button" class="dv2-icon-btn" onclick="closeDoodlePad()" aria-label="Back"><i data-lucide="chevron-left"></i></button>
       <div class="dv2-title-wrap">
         <h2>Doodle</h2>
         <span>Create your art</span>
-      </div>
-      <div class="dv2-top-right">
-        <button type="button" class="dv2-icon-btn" aria-label="Layers"><i data-lucide="layers"></i></button>
-        <button type="button" class="dv2-icon-btn" aria-label="More"><i data-lucide="more-horizontal"></i></button>
       </div>
     </header>
 
@@ -6288,14 +6352,8 @@ function openDoodlePad(){
         <button type="button" class="dv2-tool" data-tool="shapes" onclick="setDoodleTool('shapes')">
           <i data-lucide="square"></i><span>Shapes</span>
         </button>
-        <button type="button" class="dv2-tool" data-tool="text" onclick="setDoodleTool('text')">
-          <i data-lucide="type"></i><span>Text</span>
-        </button>
-        <button type="button" class="dv2-tool" data-tool="sticker" onclick="setDoodleTool('sticker')">
-          <i data-lucide="smile"></i><span>Sticker</span>
-        </button>
-        <button type="button" class="dv2-tool" data-tool="image" onclick="setDoodleTool('image')">
-          <i data-lucide="image"></i><span>Image</span>
+        <button type="button" class="dv2-tool" data-tool="emoji" onclick="setDoodleTool('emoji')">
+          <i data-lucide="smile"></i><span>Emoji</span>
         </button>
       </aside>
 
@@ -6311,28 +6369,48 @@ function openDoodlePad(){
     </div>
 
     <footer class="dv2-bottom">
-      <div class="dv2-brush-row">
-        <button type="button" class="dv2-brush active" data-brush="marker" onclick="setDoodleBrush(this,'marker')"><span class="dv2-brush-icon tip-marker"></span></button>
-        <button type="button" class="dv2-brush" data-brush="pen" onclick="setDoodleBrush(this,'pen')"><span class="dv2-brush-icon tip-pen"></span></button>
-        <button type="button" class="dv2-brush" data-brush="fountain" onclick="setDoodleBrush(this,'fountain')"><span class="dv2-brush-icon tip-fountain"></span></button>
-        <button type="button" class="dv2-brush" data-brush="pencil" onclick="setDoodleBrush(this,'pencil')"><span class="dv2-brush-icon tip-pencil"></span></button>
-        <button type="button" class="dv2-brush" data-brush="paint" onclick="setDoodleBrush(this,'paint')"><span class="dv2-brush-icon tip-paint"></span></button>
-        <button type="button" class="dv2-brush" data-brush="air" onclick="setDoodleBrush(this,'air')"><span class="dv2-brush-icon tip-air"></span></button>
+      <!-- Brush tools panel -->
+      <div id="dv2PanelBrush" class="dv2-panel">
+        <div class="dv2-brush-row">
+          <button type="button" class="dv2-brush active" data-brush="marker" onclick="setDoodleBrush(this,'marker')"><span class="dv2-brush-icon tip-marker"></span></button>
+          <button type="button" class="dv2-brush" data-brush="pen" onclick="setDoodleBrush(this,'pen')"><span class="dv2-brush-icon tip-pen"></span></button>
+          <button type="button" class="dv2-brush" data-brush="fountain" onclick="setDoodleBrush(this,'fountain')"><span class="dv2-brush-icon tip-fountain"></span></button>
+          <button type="button" class="dv2-brush" data-brush="pencil" onclick="setDoodleBrush(this,'pencil')"><span class="dv2-brush-icon tip-pencil"></span></button>
+          <button type="button" class="dv2-brush" data-brush="paint" onclick="setDoodleBrush(this,'paint')"><span class="dv2-brush-icon tip-paint"></span></button>
+          <button type="button" class="dv2-brush" data-brush="air" onclick="setDoodleBrush(this,'air')"><span class="dv2-brush-icon tip-air"></span></button>
+        </div>
+        <div class="dv2-size-row">
+          <input type="range" id="doodleSizeRange" class="dv2-size-slider" min="2" max="40" value="12" oninput="setDoodleSize(Number(this.value))">
+          <span class="dv2-size-label">Size <b id="doodleSizeLabel">12px</b></span>
+        </div>
+        <div class="dv2-color-row">
+          <button type="button" class="doodle-color active" data-color="#111111" style="background:#111" onclick="setDoodleColor('#111111')"></button>
+          <button type="button" class="doodle-color" data-color="#ffffff" style="background:#fff" onclick="setDoodleColor('#ffffff')"></button>
+          <button type="button" class="doodle-color" data-color="#ef4444" style="background:#ef4444" onclick="setDoodleColor('#ef4444')"></button>
+          <button type="button" class="doodle-color" data-color="#f97316" style="background:#f97316" onclick="setDoodleColor('#f97316')"></button>
+          <button type="button" class="doodle-color" data-color="#eab308" style="background:#eab308" onclick="setDoodleColor('#eab308')"></button>
+          <button type="button" class="doodle-color" data-color="#22c55e" style="background:#22c55e" onclick="setDoodleColor('#22c55e')"></button>
+          <button type="button" class="doodle-color" data-color="#3b82f6" style="background:#3b82f6" onclick="setDoodleColor('#3b82f6')"></button>
+          <button type="button" class="doodle-color" data-color="#a855f7" style="background:#a855f7" onclick="setDoodleColor('#a855f7')"></button>
+          <button type="button" class="doodle-color dv2-rainbow" data-color="#ec4899" style="background:conic-gradient(red,yellow,lime,aqua,blue,magenta,red)" onclick="setDoodleColor('#ec4899')"></button>
+        </div>
       </div>
-      <div class="dv2-size-row">
-        <input type="range" id="doodleSizeRange" class="dv2-size-slider" min="2" max="40" value="12" oninput="setDoodleSize(Number(this.value))">
-        <span class="dv2-size-label">Size <b id="doodleSizeLabel">12px</b></span>
+      <!-- Shapes panel -->
+      <div id="dv2PanelShapes" class="dv2-panel hidden">
+        <div class="dv2-shape-row">
+          <button type="button" class="dv2-shape active" data-shape="rect" onclick="setDoodleShape('rect')">⬜</button>
+          <button type="button" class="dv2-shape" data-shape="circle" onclick="setDoodleShape('circle')">⭕</button>
+          <button type="button" class="dv2-shape" data-shape="line" onclick="setDoodleShape('line')">／</button>
+          <button type="button" class="dv2-shape" data-shape="triangle" onclick="setDoodleShape('triangle')">△</button>
+          <button type="button" class="dv2-shape" data-shape="star" onclick="setDoodleShape('star')">⭐</button>
+          <button type="button" class="dv2-shape" data-shape="heart" onclick="setDoodleShape('heart')">❤️</button>
+        </div>
+        <p class="dv2-hint">Tap on canvas to place shape · drag to size</p>
       </div>
-      <div class="dv2-color-row">
-        <button type="button" class="dv2-eyedrop" aria-label="Eyedropper"><i data-lucide="pipette"></i></button>
-        <button type="button" class="doodle-color active" data-color="#111111" style="background:#111" onclick="setDoodleColor('#111111')"></button>
-        <button type="button" class="doodle-color" data-color="#ffffff" style="background:#fff" onclick="setDoodleColor('#ffffff')"></button>
-        <button type="button" class="doodle-color" data-color="#ef4444" style="background:#ef4444" onclick="setDoodleColor('#ef4444')"></button>
-        <button type="button" class="doodle-color" data-color="#f97316" style="background:#f97316" onclick="setDoodleColor('#f97316')"></button>
-        <button type="button" class="doodle-color" data-color="#eab308" style="background:#eab308" onclick="setDoodleColor('#eab308')"></button>
-        <button type="button" class="doodle-color" data-color="#22c55e" style="background:#22c55e" onclick="setDoodleColor('#22c55e')"></button>
-        <button type="button" class="doodle-color" data-color="#3b82f6" style="background:#3b82f6" onclick="setDoodleColor('#3b82f6')"></button>
-        <button type="button" class="doodle-color dv2-rainbow" data-color="#a855f7" style="background:conic-gradient(red,yellow,lime,aqua,blue,magenta,red)" onclick="setDoodleColor('#a855f7')"></button>
+      <!-- Emoji panel -->
+      <div id="dv2PanelEmoji" class="dv2-panel hidden">
+        <div class="dv2-emoji-grid" id="dv2EmojiGrid"></div>
+        <p class="dv2-hint">Tap an emoji, then tap on canvas to place it</p>
       </div>
       <div class="dv2-actions">
         <button type="button" class="dv2-btn-ghost" onclick="clearDoodleCanvas()"><i data-lucide="trash-2"></i> Clear</button>
@@ -6340,6 +6418,20 @@ function openDoodlePad(){
         <button type="button" class="dv2-btn-ghost" id="doodleShareBtn" onclick="sendDoodleMessage()"><i data-lucide="send"></i> Share</button>
       </div>
     </footer>`;
+  // fill emoji grid
+  setTimeout(()=>{
+    const grid=document.getElementById("dv2EmojiGrid");
+    if(!grid)return;
+    // unique emojis from the string (filter variation selectors)
+    const seen=new Set();
+    const emojis=[];
+    for(const ch of EMOJI_LIST){
+      if(ch.trim() && !seen.has(ch) && ch.codePointAt(0)>255){
+        seen.add(ch);emojis.push(ch);
+      }
+    }
+    grid.innerHTML=emojis.slice(0,200).map(e=>`<button type="button" class="dv2-emoji-btn" onclick="pickDoodleEmoji('${e}')">${e}</button>`).join("");
+  },0);
   document.body.appendChild(root);
   document.body.dataset._doodleOverflow=document.body.style.overflow||"";
   document.body.style.overflow="hidden";
@@ -6352,32 +6444,54 @@ function openDoodlePad(){
 
 function setDoodleTool(tool){
   doodleState.tool=tool||"brush";
+  doodleState.shape=doodleState.shape||"rect";
+  doodleState.emoji=doodleState.emoji||"😀";
   document.querySelectorAll(".dv2-tool").forEach(el=>{
     el.classList.toggle("active", el.getAttribute("data-tool")===doodleState.tool);
   });
+  // panels
+  const brush=document.getElementById("dv2PanelBrush");
+  const shapes=document.getElementById("dv2PanelShapes");
+  const emoji=document.getElementById("dv2PanelEmoji");
+  brush?.classList.toggle("hidden", tool!=="brush" && tool!=="eraser");
+  shapes?.classList.toggle("hidden", tool!=="shapes");
+  emoji?.classList.toggle("hidden", tool!=="emoji");
+
   if(tool==="eraser"){
-    doodleState.prevColor=doodleState.color;
+    doodleState.prevColor=doodleState.color!=="#ffffff"?doodleState.color:doodleState.prevColor;
     doodleState.color="#ffffff";
   }else if(tool==="brush"){
     doodleState.color=doodleState.prevColor||"#111111";
     document.querySelectorAll(".doodle-color").forEach(el=>{
       el.classList.toggle("active", el.getAttribute("data-color")===doodleState.color);
     });
-  }else{
-    // dummy tools — fall back to brush visually
-    doodleState.tool="brush";
   }
+}
+function setDoodleShape(shape){
+  doodleState.shape=shape||"rect";
+  document.querySelectorAll(".dv2-shape").forEach(el=>{
+    el.classList.toggle("active", el.getAttribute("data-shape")===doodleState.shape);
+  });
+  setDoodleTool("shapes");
+}
+function pickDoodleEmoji(e){
+  doodleState.emoji=e||"😀";
+  document.querySelectorAll(".dv2-emoji-btn").forEach(el=>{
+    el.classList.toggle("active", el.textContent===doodleState.emoji);
+  });
+  setDoodleTool("emoji");
 }
 function setDoodleBrush(btn,kind){
   document.querySelectorAll(".dv2-brush").forEach(el=>el.classList.remove("active"));
   if(btn)btn.classList.add("active");
-  // slight size presets per brush tip (visual only)
+  doodleState.brushKind=kind||"marker";
   if(kind==="pencil") setDoodleSize(4);
   else if(kind==="fountain") setDoodleSize(6);
   else if(kind==="pen") setDoodleSize(8);
   else if(kind==="marker") setDoodleSize(12);
   else if(kind==="paint") setDoodleSize(18);
   else if(kind==="air") setDoodleSize(24);
+  if(doodleState.tool!=="brush") setDoodleTool("brush");
 }
 
 
@@ -6497,15 +6611,80 @@ function initDoodleCanvas(){
     ctx.stroke();
   };
 
+  const drawShape=(x0,y0,x1,y1)=>{
+    const color=doodleState.prevColor||doodleState.color||"#111";
+    ctx.strokeStyle=color;
+    ctx.fillStyle=color;
+    ctx.lineWidth=Math.max(2,doodleState.size*0.35);
+    ctx.lineCap="round";
+    ctx.lineJoin="round";
+    const shape=doodleState.shape||"rect";
+    const minX=Math.min(x0,x1), minY=Math.min(y0,y1);
+    const w=Math.abs(x1-x0), h=Math.abs(y1-y0);
+    ctx.beginPath();
+    if(shape==="circle"){
+      const r=Math.max(4,Math.hypot(w,h)/2);
+      ctx.arc((x0+x1)/2,(y0+y1)/2,r,0,Math.PI*2);
+      ctx.stroke();
+    }else if(shape==="line"){
+      ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();
+    }else if(shape==="triangle"){
+      ctx.moveTo(x0+w/2,y0);ctx.lineTo(x0+w,y0+h);ctx.lineTo(x0,y0+h);ctx.closePath();ctx.stroke();
+    }else if(shape==="star"){
+      const cx=(x0+x1)/2, cy=(y0+y1)/2, R=Math.max(8,Math.hypot(w,h)/2), r=R*0.45;
+      for(let i=0;i<10;i++){
+        const ang=-Math.PI/2+i*Math.PI/5;
+        const rad=i%2===0?R:r;
+        const px=cx+Math.cos(ang)*rad, py=cy+Math.sin(ang)*rad;
+        if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+      }
+      ctx.closePath();ctx.stroke();
+    }else if(shape==="heart"){
+      const s=Math.max(12,Math.hypot(w,h)/2);
+      const cx=(x0+x1)/2, cy=(y0+y1)/2;
+      ctx.moveTo(cx,cy+s*0.35);
+      ctx.bezierCurveTo(cx,cy,cx-s,cy-s*0.3,cx-s,cy-s*0.55);
+      ctx.bezierCurveTo(cx-s,cy-s,cx,cy-s*0.7,cx,cy-s*0.3);
+      ctx.bezierCurveTo(cx,cy-s*0.7,cx+s,cy-s,cx+s,cy-s*0.55);
+      ctx.bezierCurveTo(cx+s,cy-s*0.3,cx,cy,cx,cy+s*0.35);
+      ctx.stroke();
+    }else{
+      ctx.strokeRect(minX,minY,Math.max(4,w),Math.max(4,h));
+    }
+  };
+
+  const placeEmoji=(x,y)=>{
+    const e=doodleState.emoji||"😀";
+    const size=Math.max(24,doodleState.size*3);
+    ctx.font=`${size}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+    ctx.textAlign="center";
+    ctx.textBaseline="middle";
+    ctx.fillText(e,x,y);
+    doodleState.strokes++;
+  };
+
   const start=(e)=>{
     e.preventDefault();
     if(e.pointerId!=null && canvas.setPointerCapture){
       try{canvas.setPointerCapture(e.pointerId)}catch(_){}
     }
     const p=pos(e);
-    doodleState.drawing=true;
     doodleState.lastX=p.x;
     doodleState.lastY=p.y;
+    if(doodleState.tool==="emoji"){
+      placeEmoji(p.x,p.y);
+      doodleState.drawing=false;
+      return;
+    }
+    if(doodleState.tool==="shapes"){
+      doodleState.drawing=true;
+      doodleState.shapeStart={x:p.x,y:p.y};
+      // snapshot for live preview
+      try{doodleState._snap=ctx.getImageData(0,0,canvas.width,canvas.height)}catch(_){doodleState._snap=null}
+      return;
+    }
+    // brush / eraser
+    doodleState.drawing=true;
     paintDot(p.x,p.y);
     doodleState.strokes++;
   };
@@ -6514,6 +6693,13 @@ function initDoodleCanvas(){
     if(!doodleState.drawing)return;
     e.preventDefault();
     const p=pos(e);
+    if(doodleState.tool==="shapes" && doodleState.shapeStart){
+      if(doodleState._snap){
+        try{ctx.putImageData(doodleState._snap,0,0)}catch(_){}
+      }
+      drawShape(doodleState.shapeStart.x,doodleState.shapeStart.y,p.x,p.y);
+      return;
+    }
     paintSegment(doodleState.lastX, doodleState.lastY, p.x, p.y);
     doodleState.lastX=p.x;
     doodleState.lastY=p.y;
@@ -6523,6 +6709,16 @@ function initDoodleCanvas(){
     if(e)e.preventDefault();
     if(e && e.pointerId!=null && canvas.releasePointerCapture){
       try{canvas.releasePointerCapture(e.pointerId)}catch(_){}
+    }
+    if(doodleState.tool==="shapes" && doodleState.drawing && doodleState.shapeStart){
+      const p=e?pos(e):{x:doodleState.lastX,y:doodleState.lastY};
+      if(doodleState._snap){
+        try{ctx.putImageData(doodleState._snap,0,0)}catch(_){}
+      }
+      drawShape(doodleState.shapeStart.x,doodleState.shapeStart.y,p.x,p.y);
+      doodleState.strokes++;
+      doodleState.shapeStart=null;
+      doodleState._snap=null;
     }
     doodleState.drawing=false;
   };
