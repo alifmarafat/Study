@@ -371,12 +371,14 @@ img.branding{
   .chart-card{border-radius:22px}.chart-wrap{height:220px} 
   .mobile-nav{ 
     position:fixed;display:grid;grid-template-columns:repeat(5,1fr);align-items:center; 
-    left:14px;right:14px;bottom:calc(12px + env(safe-area-inset-bottom)); 
-    height:66px;padding:5px 6px;border-radius:32px;
-    background:rgba(255,255,255,.28); 
-    border:1px solid rgba(255,255,255,.38);
-    box-shadow:0 18px 40px rgba(25,35,55,.14), inset 0 1px 0 rgba(255,255,255,.72); 
-    backdrop-filter:blur(28px) saturate(1.55);z-index:30; 
+    left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom, 0px)); 
+    height:64px;padding:4px 6px;border-radius:28px;
+    background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.22)); 
+    border:1px solid rgba(255,255,255,.55);
+    box-shadow:0 10px 28px rgba(30,40,55,.12), inset 0 1px 0 rgba(255,255,255,.75); 
+    backdrop-filter:blur(22px) saturate(1.6);-webkit-backdrop-filter:blur(22px) saturate(1.6);
+    z-index:200; 
+    transform:none;-webkit-transform:none;
   } 
   .bottom-item{height:56px;border-radius:18px;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#9ca1aa;font-size:10px;font-weight:800} 
   .bottom-item i{font-size:21px;font-style:normal;line-height:1} 
@@ -601,7 +603,18 @@ img.branding{
 .chat-head-actions{display:flex;gap:6px}.chat-head-btn{width:36px;height:36px;border-radius:11px;background:#f2f3f5;display:grid;place-items:center}.chat-head-btn svg{width:17px;height:17px}.chat-head-btn.danger{color:#ef476f;background:#fff0f2} 
 .chat-messages{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:7px;background:linear-gradient(180deg,rgba(246,251,255,.62),rgba(255,255,255,.62));min-height:0} 
 .chat-empty{margin:auto;text-align:center;color:#8a919b;font-size:12px;line-height:1.55;max-width:260px}.chat-empty strong{display:block;font-family:Nunito;color:#555d68;font-size:15px;margin-bottom:4px} 
-.chat-bubble-row{display:flex}.chat-bubble-row.mine{justify-content:flex-end}.chat-bubble{max-width:min(72%,420px);padding:10px 12px;border-radius:16px 16px 16px 5px;background:#fff;border:1px solid var(--line);font-size:12px;line-height:1.45;box-shadow:0 5px 14px rgba(40,50,70,.06);white-space:pre-wrap;word-break:break-word}.chat-bubble-row.mine .chat-bubble{background:#111;color:#fff;border-color:#111;border-radius:16px 16px 5px 16px}.chat-bubble-time{font-size:8px;opacity:.58;margin-top:4px;text-align:right} 
+.chat-bubble-row{display:flex;flex:0 0 auto;align-items:flex-end;gap:8px;width:100%;contain:layout style}
+.chat-bubble-row.mine{justify-content:flex-end}
+.chat-bubble{max-width:min(72%,420px);padding:10px 12px;border-radius:16px 16px 16px 5px;background:#fff;border:1px solid var(--line);font-size:12px;line-height:1.45;box-shadow:0 5px 14px rgba(40,50,70,.06);white-space:pre-wrap;word-break:break-word}
+.chat-bubble-row.mine .chat-bubble{background:#111;color:#fff;border-color:#111;border-radius:16px 16px 5px 16px}
+.chat-bubble-time{font-size:8px;opacity:.58;margin-top:4px;text-align:right}
+/* Sending / failed — no layout float */
+.chat-bubble.chat-bubble-sending{opacity:.88}
+.chat-bubble.chat-bubble-failed{opacity:1;outline:2px solid #ef476f;outline-offset:1px}
+.chat-messages{scroll-behavior:auto;overflow-anchor:none}
+.chat-compose{flex-shrink:0;position:relative;z-index:2}
+.chat-window-head{flex-shrink:0;position:relative;z-index:2}
+.chat-typing,.chat-reply-preview{flex-shrink:0} 
 .chat-compose{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line);background:#fff;flex:0 0 auto}.chat-compose textarea{flex:1;min-width:0;resize:none;height:44px;border:1px solid var(--line);border-radius:13px;padding:11px 12px;outline:0;font-size:12px;background:#fafbfc}.chat-send{width:46px;height:44px;border-radius:13px;background:#111;color:#fff;display:grid;place-items:center}.chat-send svg{width:18px}.chat-send:disabled{opacity:.45;cursor:not-allowed} 
 
 /* ===== USER VISIT PROFILE — mobile hubohu + PC adaptation ===== */
@@ -1150,7 +1163,17 @@ body:has(.chat-inbox-page){
 /* Keep the newest messages visible while older messages naturally 
    move upward inside the message scroller, Messenger-style. */ 
 .chat-inbox-window .chat-messages{ 
-  scroll-behavior:auto; 
+  scroll-behavior:auto;
+  overflow-anchor:none;
+  -webkit-overflow-scrolling:touch;
+} 
+.chat-inbox-window .chat-compose textarea{
+  max-height:110px;
+  transition:none;
+}
+.chat-inbox-window .chat-bubble-row{
+  animation:none;
+  transform:none;
 } 
  
 /* No page scrollbar caused by the Chats screen itself. */ 
@@ -2656,33 +2679,81 @@ body:has(.chat-inbox-page){
   font-size:12px;color:#9aa1aa;font-weight:700;padding:6px 2px 2px;
 }
 .studying-live-modal{
-  position:fixed;inset:0;z-index:210;display:grid;place-items:center;padding:18px;
-  background:rgba(15,18,24,.34);backdrop-filter:blur(10px);
+  position:fixed;inset:0;z-index:320;display:grid;place-items:center;padding:20px;
+  background:rgba(15,18,24,.40);
+  backdrop-filter:blur(14px) saturate(1.2);
+  -webkit-backdrop-filter:blur(14px) saturate(1.2);
+  overflow:hidden !important;
+  overscroll-behavior:none;
+  /* no page scroll / no scrollbar while modal open */
 }
 .studying-live-box{
-  width:min(380px,100%);background:rgba(255,255,255,.96);
-  border:1px solid rgba(30,35,45,.08);border-radius:26px;
-  box-shadow:0 28px 80px rgba(20,28,40,.25);padding:22px;text-align:center;
+  width:min(360px,100%);
+  max-height:min(86vh,520px);
+  overflow:hidden;
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:28px;
+  box-shadow:
+    0 28px 70px rgba(20,28,40,.22),
+    inset 0 1px 0 rgba(255,255,255,.8);
+  padding:26px 22px 20px;
+  text-align:center;
   animation:dangerIn .28s cubic-bezier(.2,1.2,.35,1);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  scrollbar-width:none;
+  -ms-overflow-style:none;
 }
-.studying-live-box .studying-now-avatar{width:72px;height:72px;margin:0 auto 12px;font-size:32px}
-.studying-live-box h3{font:900 20px Nunito;margin:0}
-.studying-live-box .handle{font-size:12px;color:#8a919b;margin-top:3px}
+.studying-live-box::-webkit-scrollbar{display:none !important;width:0 !important;height:0 !important}
+.studying-live-box .studying-now-avatar{
+  width:76px;height:76px;margin:0 auto 12px;font-size:34px;
+  border-radius:50%;overflow:hidden;
+  box-shadow:0 8px 22px rgba(40,50,70,.14);
+  border:3px solid rgba(255,255,255,.9);
+}
+.studying-live-box .studying-now-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.studying-live-box h3{font:900 20px Nunito;margin:0;letter-spacing:-.2px;color:#111}
+.studying-live-box .handle{font-size:12px;color:#8a919b;margin-top:4px;font-weight:700}
 .studying-live-meta{
-  margin-top:14px;padding:12px;border-radius:16px;background:#f6f8fb;
-  display:grid;gap:8px;text-align:left;
+  margin-top:16px;padding:14px 14px;border-radius:18px;
+  background:rgba(246,248,251,.95);
+  border:1px solid rgba(30,40,50,.05);
+  display:grid;gap:10px;text-align:left;
 }
-.studying-live-meta div{display:flex;justify-content:space-between;gap:10px;font-size:12px;font-weight:800}
-.studying-live-meta span{color:#8a919b}
+.studying-live-meta div{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;font-weight:800}
+.studying-live-meta span{color:#8a919b;font-weight:700}
 .studying-live-meta b{color:#111}
-.studying-live-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
-.studying-live-actions button{height:44px;border-radius:14px;font-weight:900}
-.studying-live-actions .primary{background:#111;color:#fff}
-.studying-live-actions .ghost{background:#f1f3f5}
+.studying-live-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.studying-live-actions button{height:46px;border-radius:14px;font-weight:900;font-size:13px}
+.studying-live-actions .primary{background:#111;color:#fff;box-shadow:0 8px 18px rgba(0,0,0,.12)}
+.studying-live-actions .ghost{background:rgba(241,243,245,.95);color:#333}
+/* List modal ("View all") — internal scroll only, no visible bar */
+.studying-live-box.studying-live-list{
+  text-align:left;
+  max-height:min(80vh,560px);
+  overflow-y:auto;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  padding:18px 14px 12px;
+}
+.studying-live-box.studying-live-list::-webkit-scrollbar{display:none !important;width:0 !important}
+body.studying-modal-open,
+html.studying-modal-open{
+  overflow:hidden !important;
+  overscroll-behavior:none !important;
+  height:100% !important;
+}
+body.studying-modal-open::-webkit-scrollbar,
+html.studying-modal-open::-webkit-scrollbar{
+  display:none !important;width:0 !important;
+}
 @media(max-width:700px){
   .studying-now-card{margin:16px 0 4px;padding:13px 12px 11px;border-radius:20px}
   .studying-now-item{width:72px}
   .studying-now-avatar-wrap,.studying-now-avatar{width:54px;height:54px}
+  .studying-live-modal{padding:16px}
+  .studying-live-box{border-radius:26px;padding:24px 18px 18px}
 }
 
 
@@ -2913,7 +2984,9 @@ button[style*="#fff0f2"]{
   -webkit-backdrop-filter:blur(16px) !important;
 }
 
-/* ===== Apple-style unified bottom glass bar (PHONE ONLY) ===== */
+/* ===== Apple-style unified bottom glass bar (PHONE ONLY) =====
+   Mounted on document.body so position:fixed is never trapped
+   by a parent transform/filter (e.g. .main translateZ). */
 .mobile-nav{
   display:none !important; /* never on desktop */
 }
@@ -2921,55 +2994,100 @@ button[style*="#fff0f2"]{
   .mobile-nav{
     display:grid !important;
     position:fixed !important;
-    left:14px !important;
-    right:14px !important;
-    bottom:calc(12px + env(safe-area-inset-bottom)) !important;
-    height:66px !important;
-    padding:5px 6px !important;
-    border-radius:32px !important;
+    left:16px !important;
+    right:16px !important;
+    bottom:calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+    height:64px !important;
+    padding:4px 6px !important;
+    border-radius:28px !important;
     grid-template-columns:repeat(5,1fr) !important;
     align-items:center !important;
     gap:2px !important;
-    z-index:30 !important;
-    /* Premium transparent frosted glass — iPhone dock vibe */
-    background:rgba(255,255,255,.28) !important;
-    border:1px solid rgba(255,255,255,.38) !important;
+    z-index:200 !important;
+    margin:0 !important;
+    width:auto !important;
+    max-width:none !important;
+    /* Apple liquid-glass dock: very light fill + real blur so content shows through */
+    background:linear-gradient(
+      180deg,
+      rgba(255,255,255,.42) 0%,
+      rgba(255,255,255,.22) 100%
+    ) !important;
+    border:1px solid rgba(255,255,255,.55) !important;
     box-shadow:
-      0 18px 40px rgba(25,35,55,.14),
-      0 4px 12px rgba(25,35,55,.06),
-      inset 0 1px 0 rgba(255,255,255,.72),
-      inset 0 -1px 0 rgba(255,255,255,.18) !important;
-    backdrop-filter:blur(28px) saturate(1.55) brightness(1.05) !important;
-    -webkit-backdrop-filter:blur(28px) saturate(1.55) brightness(1.05) !important;
+      0 10px 28px rgba(30,40,55,.12),
+      0 2px 8px rgba(30,40,55,.06),
+      inset 0 1px 0 rgba(255,255,255,.75),
+      inset 0 -1px 0 rgba(255,255,255,.25) !important;
+    backdrop-filter:blur(22px) saturate(1.6) !important;
+    -webkit-backdrop-filter:blur(22px) saturate(1.6) !important;
+    pointer-events:auto !important;
+    transform:none !important;
+    -webkit-transform:none !important;
+    overflow:visible !important;
+  }
+  /* Soft 3D lift / curve feel under the bar */
+  .mobile-nav::before{
+    content:"" !important;
+    position:absolute !important;
+    left:10% !important;
+    right:10% !important;
+    bottom:-6px !important;
+    height:14px !important;
+    border-radius:50% !important;
+    background:rgba(40,50,70,.10) !important;
+    filter:blur(10px) !important;
+    z-index:-1 !important;
+    pointer-events:none !important;
+  }
+  /* Extra bottom space so last subject / form is never hidden under the bar */
+  .dashboard{
+    padding-bottom:calc(115px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .main{
+    padding-bottom:28px !important;
   }
   .mobile-nav .bottom-item{
-    height:54px !important;
-    border-radius:24px !important;
+    height:52px !important;
+    border-radius:22px !important;
     background:transparent !important;
     border:0 !important;
     box-shadow:none !important;
-    color:#8b929c !important;
+    color:#6b7280 !important;
     gap:2px !important;
     backdrop-filter:none !important;
     -webkit-backdrop-filter:none !important;
+    position:relative !important;
+    z-index:1 !important;
   }
-  .mobile-nav .bottom-item i{font-size:20px !important}
-  .mobile-nav .bottom-item small{font-size:9px !important;font-weight:800 !important}
+  .mobile-nav .bottom-item i{
+    font-size:20px !important;
+    stroke-width:2.2 !important;
+    color:inherit !important;
+    opacity:1 !important;
+  }
+  .mobile-nav .bottom-item small{
+    font-size:9px !important;
+    font-weight:800 !important;
+    color:inherit !important;
+    opacity:1 !important;
+  }
   .mobile-nav .bottom-item.active{
-    background:rgba(255,255,255,.38) !important;
+    background:rgba(255,255,255,.55) !important;
     color:#111 !important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.55) !important;
-    border:1px solid rgba(255,255,255,.28) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.8),
+      0 2px 8px rgba(30,40,55,.06) !important;
+    border:1px solid rgba(255,255,255,.45) !important;
   }
-  /* Add — same transparent style as other items (no white pill) */
   .mobile-nav .bottom-item.add{
     width:auto !important;
-    height:54px !important;
-    border-radius:24px !important;
+    height:52px !important;
+    border-radius:22px !important;
     justify-self:stretch !important;
     align-self:center !important;
     background:transparent !important;
-    color:#8b929c !important;
+    color:#6b7280 !important;
     box-shadow:none !important;
     border:0 !important;
     backdrop-filter:none !important;
@@ -2978,10 +3096,12 @@ button[style*="#fff0f2"]{
   .mobile-nav .bottom-item.add small{color:inherit !important}
   .mobile-nav .bottom-item.add i{color:inherit !important}
   .mobile-nav .bottom-item.add.active{
-    background:rgba(255,255,255,.38) !important;
+    background:rgba(255,255,255,.55) !important;
     color:#111 !important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.55) !important;
-    border:1px solid rgba(255,255,255,.28) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.8),
+      0 2px 8px rgba(30,40,55,.06) !important;
+    border:1px solid rgba(255,255,255,.45) !important;
   }
 }
 
@@ -3589,8 +3709,7 @@ img {
     isolation: isolate;
   }
 }
-/* Mobile nav / fixed chrome */
-.mobile-nav,
+/* Mobile nav / fixed chrome — no transform on .mobile-nav (breaks glass layering) */
 .timer-minimized,
 .persistent-timer-mini {
   transform: translateZ(0);
@@ -4020,11 +4139,11 @@ img {
    – Loader stays EXACTLY as original (blur + 3D spin)
    ============================================================ */
 @media (max-width: 700px) {
-  /* backdrop-filter is the #1 lag source on mid/low-end Android */
+  /* backdrop-filter is the #1 lag source on mid/low-end Android
+     Exception: .mobile-nav keeps light blur for Apple glass dock look */
   .card,
   .subject-card,
   .side-card,
-  .mobile-nav,
   .chat-inbox-shell,
   .chat-list-card,
   .chat-window-card,
@@ -4073,8 +4192,7 @@ img {
   .chat-inbox-item,
   .chat-list-item,
   .chat-user-row,
-  .visit-card,
-  .mobile-nav {
+  .visit-card {
     box-shadow: 0 4px 14px rgba(40, 50, 70, 0.08) !important;
   }
 
@@ -4083,15 +4201,19 @@ img {
     display: none !important;
   }
 
-  /* GPU-friendly scroll containers */
+  /* GPU-friendly scroll containers — no transform on .main
+     (transform creates a containing block and breaks position:fixed children) */
   .chat-messages,
   .chat-inbox-list,
   #chatList,
-  .main,
   .visit-profile-shell {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     transform: translateZ(0);
+  }
+  .main {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
 
   /* Reduce paint for bubbles */
@@ -4156,7 +4278,9 @@ img { content-visibility: auto; }
 </head> 
 <body> 
 <div class="honeycomb"></div> 
-<div id="app" class="app-shell"></div><div id="persistentTimerHost" aria-live="polite"></div>
+<div id="app" class="app-shell"></div>
+<div id="modalHost"></div>
+<div id="persistentTimerHost" aria-live="polite"></div>
 <div id="globalLoader" class="global-loader hidden" aria-live="polite" aria-busy="true"><div class="spinner"><div class="loader l1"></div><div class="loader l2"></div></div></div> 
  
 <script>
@@ -4415,9 +4539,13 @@ function avatarHTML(size="avatar"){
 } 
  
 /* ---------- onboarding ---------- */ 
+function hideMobileNavRoot(){
+  const n=document.getElementById("mobileNavRoot");
+  if(n)n.style.display="none";
+}
 function render(){ 
-  if(state.onboarding!=="done") renderOnboarding();
-  else if(!state.featuresTourSeen) renderFeaturesTour(); 
+  if(state.onboarding!=="done"){ hideMobileNavRoot(); renderOnboarding(); }
+  else if(!state.featuresTourSeen){ hideMobileNavRoot(); renderFeaturesTour(); }
   else renderApp(); 
 }
 
@@ -4517,6 +4645,10 @@ function renderOnboarding(){
             <button class="auth-submit" onclick="emailAuthMode='${mode}';submitEmailAuth()">${mode==="signup"?"Create account":"Login"}</button>
             <div class="auth-or">or</div>
             <button class="auth-google" onclick="startGoogle()"><span class="g">G</span> Continue with Google</button>
+            <button type="button" class="auth-google" style="margin-top:10px;background:#f4f6f8;border:1px solid rgba(0,0,0,.08);color:#222" onclick="startOfflineGuest()">
+              <i data-lucide="wifi-off" style="width:16px;height:16px"></i> Continue offline (no internet)
+            </button>
+            <p style="margin:10px 0 0;font-size:11px;color:#8a919b;line-height:1.4;text-align:center">Subjects, timer &amp; focus data save on this phone. Chats need internet later.</p>
             <div class="auth-switch">
               ${mode==="signup"
                 ? `Already have an account? <button type="button" class="link" onclick="state.authView='login';render()">Login</button>`
@@ -4753,16 +4885,33 @@ function renderApp(){
         ${sideToday()} 
         ${sideTarget()} 
       </aside> 
- 
-      <nav class="mobile-nav"> 
-        <button class="bottom-item ${activePage==="home"?"active":""}" onclick="navigate('home')"><i data-lucide="house"></i><small>Home</small></button> 
-        <button class="bottom-item add ${activePage==="add"?"active":""}" onclick="navigate('add')"><i data-lucide="plus"></i><small>Add</small></button> 
-        <button class="bottom-item ${activePage==="chats"?"active":""}" onclick="navigate('chats')"><i data-lucide="messages-square"></i><small class="chat-nav-wrap">Chats<span class="chat-unread-badge" data-chat-unread-badge></span></small></button> 
-        <button class="bottom-item ${activePage==="target"?"active":""}" onclick="navigate('target')"><i data-lucide="target"></i><small>Target</small></button> 
-        <button class="bottom-item ${activePage==="profile"?"active":""}" onclick="navigate('profile')"><i data-lucide="user-round"></i><small>Profile</small></button> 
-      </nav> 
-    </main> 
-    <div id="modalHost"></div>`; 
+    </main>`; 
+  /* Keep a single modal host on document.body — never inside #app (avoids page scrollbar) */
+  let modalHost=document.getElementById("modalHost");
+  if(!modalHost){
+    modalHost=document.createElement("div");
+    modalHost.id="modalHost";
+    document.body.appendChild(modalHost);
+  }else if(modalHost.parentElement!==document.body){
+    document.body.appendChild(modalHost);
+  }
+  /* Bottom nav lives on document.body so position:fixed always sticks to the viewport
+     (never trapped by .main transform / overflow ancestors). */
+  let mobileNav=document.getElementById("mobileNavRoot");
+  if(!mobileNav){
+    mobileNav=document.createElement("nav");
+    mobileNav.id="mobileNavRoot";
+    mobileNav.className="mobile-nav";
+    document.body.appendChild(mobileNav);
+  }
+  mobileNav.className="mobile-nav";
+  mobileNav.style.display=""; /* let CSS media query control visibility */
+  mobileNav.innerHTML=`
+    <button class="bottom-item ${activePage==="home"?"active":""}" onclick="navigate('home')"><i data-lucide="house"></i><small>Home</small></button>
+    <button class="bottom-item add ${activePage==="add"?"active":""}" onclick="navigate('add')"><i data-lucide="plus"></i><small>Add</small></button>
+    <button class="bottom-item ${activePage==="chats"?"active":""}" onclick="navigate('chats')"><i data-lucide="messages-square"></i><small class="chat-nav-wrap">Chats<span class="chat-unread-badge" data-chat-unread-badge></span></small></button>
+    <button class="bottom-item ${activePage==="target"?"active":""}" onclick="navigate('target')"><i data-lucide="target"></i><small>Target</small></button>
+    <button class="bottom-item ${activePage==="profile"?"active":""}" onclick="navigate('profile')"><i data-lucide="user-round"></i><small>Profile</small></button>`;
   drawChart(); 
   if(window.lucide) lucide.createIcons(); 
   setTimeout(()=>{
@@ -5336,6 +5485,22 @@ async function finishGoogleChooser(realFallback){
   state.onboarding="name";save();render(); 
 } 
 function closeGoogleChooser(){const h=document.getElementById("modalHost");if(h)h.innerHTML=""} 
+
+/* Offline-first: use the app without internet. All study data stays in localStorage. */
+function startOfflineGuest(){
+  if(!state.user)state.user={name:"",username:"",birthday:"",dp:"",bio:""};
+  if(!state.user.name)state.user.name="Student";
+  if(!state.user.username){
+    const localId=("local_"+Math.random().toString(36).slice(2,8));
+    state.user.username=localId;
+  }
+  state.authUid=state.authUid||("offline_"+Date.now().toString(36));
+  state.onboarding="done";
+  if(state.featuresTourSeen===undefined)state.featuresTourSeen=false;
+  save();
+  render();
+}
+window.startOfflineGuest=startOfflineGuest;
  
 async function nextOnboard(){ 
   const v=(document.getElementById("onboardInput")?.value||"").trim(); 
@@ -6213,7 +6378,7 @@ function renderChatWindow(){
       <button type="button" onclick="openUserProfile('${esc(selectedChatUser.uid)}')" style="background:transparent;padding:0">${chatAvatarHTML(selectedChatUser)}</button> 
       <div class="chat-head-copy" onclick="openUserProfile('${esc(selectedChatUser.uid)}')"><b>${esc(selectedChatUser.name||"Study User")}</b><small>@${esc(selectedChatUser.username||"username")} • ${selectedChatUser.studyStatus||"Available"}</small></div> 
       <div class="chat-head-actions"> 
-        <button class="chat-head-btn" title="Profile" onclick="openUserProfile('${esc(selectedChatUser.uid)}')"><i data-lucide="info"></i></button> 
+        <button class="chat-head-btn" title="View profile" onclick="openUserProfile('${esc(selectedChatUser.uid)}')"><i data-lucide="user-round"></i></button> 
         <button class="chat-head-btn danger" title="Block" onclick="toggleBlockSelected()"><i data-lucide="ban"></i></button> 
       </div> 
     </div> 
@@ -6637,49 +6802,87 @@ function subscribeToMessages(forChatId){
  
     chatMessageCache=new Map(docs.map(d=>{
       const base={id:d.id,...d.data()};
-      // Prefer live reaction store; fall back to reactions embedded on the message
       if(chatReactionStore.has(String(d.id))) base.reactions=chatReactionStore.get(String(d.id));
       return [String(d.id),base];
-    })); 
-    h.innerHTML=docs.map(d=>{ 
-      const m=d.data(); 
-      const mine=m.senderId===me; 
-      const reply=m.replyTo; 
-      const reactions=(chatReactionStore.get(String(d.id))||m.reactions||{}); 
-      const reactionHTML=Object.entries(reactions).filter(([_,ids])=>Array.isArray(ids)&&ids.length).map(([emoji,ids])=>{ 
-        const reacted=ids.includes(currentUid()); 
-        return `<button class="chat-reaction-chip ${reacted?"mine-reaction":""}" title="${reacted?"You reacted":"Reaction"}" onclick="reactToChatMessage('${esc(d.id)}','${esc(emoji)}');event.stopPropagation()">${emoji} ${ids.length}</button>`; 
-      }).join(""); 
-      const replyHTML=reply?`<div class="chat-bubble-reply"><b>${esc(reply.senderName||"User")}</b><br>${escapeChatText(reply.text||"")}</div>`:""; 
-      const hoverActions=`<div class="chat-hover-actions" onmouseenter="event.stopPropagation()"> 
-        <button title="React" onclick="openReactionPickerById('${esc(d.id)}',this);event.stopPropagation()">😊</button> 
-        <button class="hover-reply" title="Reply" onclick="setChatReplyById('${esc(d.id)}');event.stopPropagation()">↩</button> 
-        ${mine?`<button class="hover-delete" title="Delete" onclick="deleteChatMessage('${esc(d.id)}');event.stopPropagation()">🗑</button>`:""} 
-      </div>`; 
-      const imgSrc=m.image||m.doodle||"";
-      const isDoodle=isDoodleMessage(m);
-      const ttl=isDoodle?formatDoodleTTL(m):"";
-      const ttlHTML=ttl?`<div class="doodle-ttl" data-doodle-ttl="${esc(d.id)}">🎨 ${ttl}</div>`:"";
-      const imgHTML=imgSrc?`<img class="chat-bubble-img" src="${esc(imgSrc)}" alt="Doodle" loading="lazy" decoding="async" onclick="openDoodleLightbox(this.src);event.stopPropagation()">`:"";
-      const textHTML=String(m.text||"").trim()?`<div class="chat-doodle-caption">${escapeChatText(m.text)}</div>`:(imgSrc?"":escapeChatText(m.text||""));
-      const bubbleClass=imgSrc?"chat-bubble has-doodle":"chat-bubble";
-      const senderName=mine?(state.user?.name||"You"):(selectedChatUser?.name||"User");
-      const avatarUser=mine?{dp:state.user?.dp||""}:selectedChatUser;
-      const avatarHTML=`<div class="msg-avatar">${avatarUser?.dp?`<img src="${esc(avatarUser.dp)}" alt="" loading="lazy" decoding="async">`:`🙂`}</div>`;
-      return `<div class="chat-bubble-row ${mine?"mine":""}" data-message-row="${esc(d.id)}">${avatarHTML}<div class="chat-bubble-wrap"><div class="msg-sender-name">${esc(senderName)}</div><div class="${bubbleClass}" data-message-id="${esc(d.id)}">${replyHTML}${imgHTML}${textHTML}${ttlHTML}<div class="chat-bubble-time">${formatChatTime(m.createdAt)}</div></div>${hoverActions}${reactionHTML?`<div class="chat-reaction-line">${reactionHTML}</div>`:""}<div class="msg-time-out">${formatChatTime(m.createdAt)}</div></div></div>`; 
-    }).join(""); 
-    docs.forEach(d=>{ 
-      const el=h.querySelector(`[data-message-id="${CSS.escape(d.id)}"]`); 
-      if(el){const m={id:d.id,...d.data()};bindChatMessagePress(el,m);} 
-    }); 
-    h.scrollTop=h.scrollHeight; 
+    }));
+
+    const nearBottom=isChatNearBottom(h,120);
+    const hadOptimistic=!!h.querySelector("[data-temp-id]");
+    /* Build stable HTML once */
+    const html=docs.map(d=>buildChatMessageRowHTML(d.id,d.data(),me)).join("");
+    h.innerHTML=html;
+    /* Drop optimistic temps only after real messages rendered (server caught up) */
+    docs.forEach(d=>{
+      const el=h.querySelector(`[data-message-id="${CSS.escape(d.id)}"]`);
+      if(el) bindChatMessagePress(el,{id:d.id,...d.data()});
+    });
+    /* Smooth pin: only when user was at bottom, sent a message, or first load */
+    if(nearBottom || hadOptimistic || initialMessageSnapshot){
+      scrollChatToBottom(h, !!hadOptimistic || initialMessageSnapshot);
+    }
   },err=>{ 
     if(gen!==chatSubGen)return; 
     console.warn("Message listener failed",err); 
     const h=getHost(); 
     if(h)h.innerHTML=`<div class="chat-empty">Messages could not load. Check your Firestore rules.</div>`; 
   }); 
-} 
+}
+
+function buildChatMessageRowHTML(id,m,me){
+  me=me||currentUid();
+  const mine=m.senderId===me;
+  const reply=m.replyTo;
+  const reactions=(chatReactionStore.get(String(id))||m.reactions||{});
+  const reactionHTML=Object.entries(reactions).filter(([_,ids])=>Array.isArray(ids)&&ids.length).map(([emoji,ids])=>{
+    const reacted=ids.includes(currentUid());
+    return `<button class="chat-reaction-chip ${reacted?"mine-reaction":""}" title="${reacted?"You reacted":"Reaction"}" onclick="reactToChatMessage('${esc(id)}','${esc(emoji)}');event.stopPropagation()">${emoji} ${ids.length}</button>`;
+  }).join("");
+  const replyHTML=reply?`<div class="chat-bubble-reply"><b>${esc(reply.senderName||"User")}</b><br>${escapeChatText(reply.text||"")}</div>`:"";
+  const hoverActions=`<div class="chat-hover-actions" onmouseenter="event.stopPropagation()">
+    <button title="React" onclick="openReactionPickerById('${esc(id)}',this);event.stopPropagation()">😊</button>
+    <button class="hover-reply" title="Reply" onclick="setChatReplyById('${esc(id)}');event.stopPropagation()">↩</button>
+    ${mine?`<button class="hover-delete" title="Delete" onclick="deleteChatMessage('${esc(id)}');event.stopPropagation()">🗑</button>`:""}
+  </div>`;
+  const imgSrc=m.image||m.doodle||"";
+  const isDoodle=isDoodleMessage(m);
+  const ttl=isDoodle?formatDoodleTTL(m):"";
+  const ttlHTML=ttl?`<div class="doodle-ttl" data-doodle-ttl="${esc(id)}">🎨 ${ttl}</div>`:"";
+  const imgHTML=imgSrc?`<img class="chat-bubble-img" src="${esc(imgSrc)}" alt="Doodle" loading="lazy" decoding="async" onclick="openDoodleLightbox(this.src);event.stopPropagation()">`:"";
+  const textHTML=String(m.text||"").trim()? (imgSrc?`<div class="chat-doodle-caption">${escapeChatText(m.text)}</div>`:escapeChatText(m.text)) : (imgSrc?"":escapeChatText(m.text||""));
+  const bubbleClass=imgSrc?"chat-bubble has-doodle":"chat-bubble";
+  const senderName=mine?(state.user?.name||"You"):(selectedChatUser?.name||"User");
+  const avatarUser=mine?{dp:state.user?.dp||""}:selectedChatUser;
+  const avatarHTML=`<div class="msg-avatar">${avatarUser?.dp?`<img src="${esc(avatarUser.dp)}" alt="" loading="lazy" decoding="async">`:`🙂`}</div>`;
+  return `<div class="chat-bubble-row ${mine?"mine":""}" data-message-row="${esc(id)}">${avatarHTML}<div class="chat-bubble-wrap"><div class="msg-sender-name">${esc(senderName)}</div><div class="${bubbleClass}" data-message-id="${esc(id)}">${replyHTML}${imgHTML}${textHTML}${ttlHTML}<div class="chat-bubble-time">${formatChatTime(m.createdAt)}</div></div>${hoverActions}${reactionHTML?`<div class="chat-reaction-line">${reactionHTML}</div>`:""}<div class="msg-time-out">${formatChatTime(m.createdAt)}</div></div></div>`;
+}
+
+function isChatNearBottom(host,threshold=100){
+  if(!host)return true;
+  return (host.scrollHeight-host.scrollTop-host.clientHeight)<=threshold;
+}
+
+/* Smooth pin to latest — no multi-timeout bounce */
+function scrollChatToBottom(host,force){
+  const h=host||document.getElementById("chatMessages");
+  if(!h)return;
+  if(!force && !isChatNearBottom(h,140))return;
+  const go=()=>{try{h.scrollTop=h.scrollHeight}catch(e){}};
+  go();
+  requestAnimationFrame(go);
+  /* Only one delayed pass for image height — avoids jump-up/jump-down */
+  const imgs=[...h.querySelectorAll("img.chat-bubble-img")].filter(img=>!img.complete);
+  if(imgs.length){
+    let left=imgs.length;
+    const done=()=>{if(--left<=0)requestAnimationFrame(go)};
+    imgs.forEach(img=>{
+      img.addEventListener("load",done,{once:true});
+      img.addEventListener("error",done,{once:true});
+    });
+    setTimeout(go,120);
+  }
+}
+window.scrollChatToBottom=scrollChatToBottom;
+window.isChatNearBottom=isChatNearBottom; 
 function handleChatKeydown(e){ 
   if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChatMessage()} 
 } 
@@ -7352,7 +7555,7 @@ async function sendDoodleMessage(){
   const cid=chatIdFor(currentUid(),otherUid);
   selectedChatId=cid;
   closeDoodlePad();
-  showLoader();
+  /* No full-screen loader — optimistic bubble feels instant */
 
   // Optimistic preview
   const tempId="local_doodle_"+Date.now();
@@ -7364,7 +7567,7 @@ async function sendDoodleMessage(){
     row.dataset.tempId=tempId;
     row.innerHTML=`<div class="chat-bubble-wrap"><div class="chat-bubble has-doodle chat-bubble-sending"><img class="chat-bubble-img" src="${dataUrl}" alt="Doodle"><div class="chat-bubble-time">Sending…</div></div></div>`;
     host.appendChild(row);
-    host.scrollTop=host.scrollHeight;
+    scrollChatToBottom(host,true);
   }
 
   try{
@@ -7400,19 +7603,13 @@ async function sendDoodleMessage(){
     });
     // schedule local auto-download + delete for this device
     scheduleDoodleExpiryWatch();
+    scrollChatToBottom(document.getElementById("chatMessages"),true);
   }catch(err){
     console.error("Send doodle failed",err);
     chatWarning("Doodle not sent","Check connection / Firestore rules and try again.","⚠️");
-    const fail=document.querySelector(`[data-temp-id="${CSS.escape(tempId)}"]`);
-    // cleanup optimistic
-    document.querySelector(`[data-temp-id="${CSS.escape(tempId)}"]`)?.remove();
-    document.querySelector(`.chat-bubble-row[data-temp-id="${CSS.escape(tempId)}"]`)?.remove();
-    host?.querySelector(`[data-temp-id="${tempId}"]`)?.remove();
     document.querySelectorAll(".chat-bubble-row.mine").forEach(r=>{
       if(r.dataset.tempId===tempId)r.remove();
     });
-  }finally{
-    hideLoader();
   }
 }
 
@@ -7471,7 +7668,7 @@ async function sendChatMessage(){
     row.dataset.tempId=tempId;
     row.innerHTML=`<div class="chat-bubble-wrap"><div class="chat-bubble chat-bubble-sending" data-temp="${esc(tempId)}">${replyHTML}${escapeChatText(text)}<div class="chat-bubble-time">Sending…</div></div></div>`;
     host.appendChild(row);
-    host.scrollTop=host.scrollHeight;
+    scrollChatToBottom(host,true);
   }
 
   try{
@@ -7502,7 +7699,7 @@ async function sendChatMessage(){
       ...(replyTo?{replyTo}:{}),
       createdAt:serverTimestamp()
     });
-    // Snapshot listener will replace optimistic bubble with real message
+    /* Keep optimistic bubble until snapshot replaces the list — no extra scroll here */
   }catch(err){
     console.error("Send message failed",err);
     // Mark optimistic bubble as failed
@@ -8004,6 +8201,19 @@ function studyingElapsedSeconds(u){
   return Math.max(0,Math.floor((Date.now()-started)/1000));
 }
 
+function lockStudyingModalScroll(){
+  document.documentElement.classList.add("studying-modal-open");
+  document.body.classList.add("studying-modal-open");
+  document.body.style.overflow="hidden";
+  document.documentElement.style.overflow="hidden";
+}
+function unlockStudyingModalScroll(){
+  document.documentElement.classList.remove("studying-modal-open");
+  document.body.classList.remove("studying-modal-open");
+  document.body.style.overflow="";
+  document.documentElement.style.overflow="";
+}
+
 function openStudyingLiveCard(uid){
   const u=studyingNowCache.find(x=>x.uid===uid);
   if(!u){openUserProfile(uid);return}
@@ -8011,8 +8221,13 @@ function openStudyingLiveCard(uid){
   const elapsed=studyingElapsedSeconds(u);
   let host=document.getElementById("modalHost");
   if(!host){host=document.createElement("div");host.id="modalHost";document.body.appendChild(host)}
+  /* Prefer body-level host so page scrollbar never appears behind modal */
+  if(host.parentElement!==document.body){
+    document.body.appendChild(host);
+  }
+  lockStudyingModalScroll();
   host.innerHTML=`<div class="studying-live-modal" onclick="if(event.target===this)closeStudyingLiveCard()">
-    <section class="studying-live-box">
+    <section class="studying-live-box" onclick="event.stopPropagation()">
       <div class="studying-now-avatar">${u.dp?`<img src="${esc(u.dp)}" alt="" loading="lazy" decoding="async">`:`🙂`}</div>
       <h3>${esc(u.name||"Student")}</h3>
       <div class="handle">@${esc(u.username||"username")}</div>
@@ -8027,7 +8242,6 @@ function openStudyingLiveCard(uid){
       </div>
     </section>
   </div>`;
-  // live tick while open
   clearInterval(window.__studyingLiveTick);
   window.__studyingLiveTick=setInterval(()=>{
     const el=document.getElementById("studyingLiveElapsed");
@@ -8040,6 +8254,7 @@ function closeStudyingLiveCard(){
   clearInterval(window.__studyingLiveTick);
   const h=document.getElementById("modalHost");
   if(h)h.innerHTML="";
+  unlockStudyingModalScroll();
 }
 
 function openStudyingNowAll(){
@@ -8047,24 +8262,27 @@ function openStudyingNowAll(){
     warn("Studying now","No one is studying right now.",{icon:"users",danger:false});
     return;
   }
-  // reopen strip content as a simple list modal
   let host=document.getElementById("modalHost");
   if(!host){host=document.createElement("div");host.id="modalHost";document.body.appendChild(host)}
+  if(host.parentElement!==document.body){
+    document.body.appendChild(host);
+  }
+  lockStudyingModalScroll();
   host.innerHTML=`<div class="studying-live-modal" onclick="if(event.target===this)closeStudyingLiveCard()">
-    <section class="studying-live-box" style="text-align:left;max-height:80vh;overflow:auto">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <section class="studying-live-box studying-live-list" onclick="event.stopPropagation()">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:0 4px">
         <h3 style="margin:0;font:900 18px Nunito">Studying now</h3>
-        <button class="close-round" onclick="closeStudyingLiveCard()">×</button>
+        <button class="close-round" onclick="closeStudyingLiveCard()" aria-label="Close">×</button>
       </div>
       ${studyingNowCache.map(u=>`
         <button type="button" onclick="closeStudyingLiveCard();openStudyingLiveCard('${esc(u.uid)}')"
-          style="width:100%;display:flex;align-items:center;gap:12px;padding:10px 6px;border:0;background:transparent;border-bottom:1px solid rgba(0,0,0,.05);text-align:left;cursor:pointer">
-          <div class="studying-now-avatar" style="width:44px;height:44px;margin:0;font-size:20px">${u.dp?`<img src="${esc(u.dp)}" alt="" loading="lazy" decoding="async">`:`🙂`}</div>
+          style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 8px;border:0;background:transparent;border-bottom:1px solid rgba(0,0,0,.05);text-align:left;cursor:pointer;border-radius:12px">
+          <div class="studying-now-avatar" style="width:44px;height:44px;margin:0;font-size:20px;flex:0 0 auto">${u.dp?`<img src="${esc(u.dp)}" alt="" loading="lazy" decoding="async">`:`🙂`}</div>
           <div style="min-width:0;flex:1">
             <div style="font-weight:900;font-size:13px">${esc(u.name||"Student")}</div>
             <div style="font-size:11px;color:#8a919b;font-weight:700">${esc(u.activeSubject||"Focus")} • ${fmt(studyingElapsedSeconds(u))}</div>
           </div>
-          <span class="studying-now-live" style="position:static;width:10px;height:10px"></span>
+          <span class="studying-now-live" style="position:static;width:10px;height:10px;flex:0 0 auto"></span>
         </button>
       `).join("")}
     </section>
