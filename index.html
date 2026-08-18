@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>StudyFlow</title>
+<!-- BRAND LOGO: change only the src below (or BRAND_LOGO_SRC in JS) to your wordmark -->
+<!-- All brand images use class="branding" -->
 
 <!--
   ICON / IMAGE NOTES
@@ -99,6 +101,62 @@ button,.card,.subject-card,.nav-item,.bottom-item,.task,.profile-card{transition
 button:active{transform:scale(.965)!important} 
 button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid rgba(70,190,240,.30);outline-offset:2px} 
  
+/* ---------- one-time features tour (new accounts only) ---------- */
+.features-tour-page{
+  min-height:100vh;display:grid;place-items:center;
+  padding:24px 16px;
+  background:
+    radial-gradient(ellipse at 20% 0%,rgba(200,230,255,.55),transparent 50%),
+    radial-gradient(ellipse at 90% 80%,rgba(225,210,255,.4),transparent 45%),
+    #f5fbff;
+}
+.features-tour-card{
+  width:min(440px,100%);
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(30,40,50,.08);
+  border-radius:28px;
+  padding:28px 24px 22px;
+  box-shadow:0 24px 60px rgba(40,55,80,.12);
+  backdrop-filter:blur(16px);
+}
+.features-tour-badge{
+  display:inline-block;
+  font-size:10px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;
+  color:#7c3aed;background:#f3e8ff;border-radius:999px;padding:5px 10px;margin-bottom:12px;
+}
+.features-tour-card h1{
+  font:900 24px Nunito;margin:0 0 8px;letter-spacing:-.3px;color:#111;
+}
+.features-tour-lead{
+  margin:0 0 18px;font-size:13.5px;font-weight:600;color:#6b7280;line-height:1.5;
+}
+.features-tour-list{
+  list-style:none;margin:0 0 20px;padding:0;display:grid;gap:12px;
+}
+.features-tour-list li{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:12px 12px;border-radius:16px;
+  background:#f7f9fc;border:1px solid rgba(30,40,50,.05);
+}
+.features-tour-list .ft-ico{
+  width:40px;height:40px;border-radius:12px;
+  background:#fff;border:1px solid rgba(30,40,50,.06);
+  display:grid;place-items:center;font-size:18px;flex:0 0 auto;
+}
+.features-tour-list b{display:block;font-size:13.5px;font-weight:900;color:#111;margin-bottom:2px}
+.features-tour-list small{display:block;font-size:12px;font-weight:600;color:#7c8490;line-height:1.4}
+.features-tour-btn{
+  width:100%;height:52px;border-radius:16px;border:0;
+  background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;
+  font-weight:900;font-size:15px;
+  box-shadow:0 12px 28px rgba(124,58,237,.28);
+}
+.features-tour-btn:active{transform:scale(.97)}
+@media(max-width:700px){
+  .features-tour-card{padding:22px 18px 18px;border-radius:24px}
+  .features-tour-card h1{font-size:21px}
+}
+
 /* ---------- onboarding ---------- */ 
 .onboarding{min-height:100vh;display:grid;place-items:center;padding:24px} 
 .onboard-card{width:min(520px,100%);text-align:center;min-height:700px;display:flex;flex-direction:column;justify-content:center;padding:34px 28px} 
@@ -131,10 +189,53 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 /* ---------- app ---------- */ 
 .dashboard{display:grid;grid-template-columns:230px minmax(0,1fr) 280px;gap:20px;max-width:1440px;margin:0 auto;min-height:100vh;padding:24px} 
 .rail{position:sticky;top:24px;height:calc(100vh - 48px);display:flex;flex-direction:column;padding:14px} 
-.brand-mini{display:flex;align-items:center;gap:11px;padding:12px 8px 22px} 
+.brand-mini{display:flex;align-items:center;gap:0;padding:10px 8px 20px}
 .brand-logo{width:42px;height:42px;border-radius:13px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-family:Nunito;font-weight:900;font-size:20px;box-shadow:var(--shadow)} 
 .brand-name{font-family:Nunito;font-weight:900} 
-.brand-sub{font-size:9px;color:#7b8490;letter-spacing:1px;margin-top:2px} 
+.brand-sub{font-size:9px;color:#7b8490;letter-spacing:1px;margin-top:2px}
+/* ===== BRANDING IMAGE + tagline — sized to sidebar red-mark area ===== */
+.brand-block{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:3px;
+  min-width:0;
+}
+img.branding{
+  display:block;
+  object-fit:contain;
+  object-position:left center;
+  height:22px;       /* ~ StudyFlow text height in red mark */
+  width:auto;
+  max-width:132px;   /* ~ red-mark width */
+}
+.brand-mini img.branding{height:22px;max-width:132px}
+.brand-tagline{
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:1.4px;
+  color:#8a919b;
+  line-height:1;
+  padding-left:1px;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.auth-brand-row{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:4px;
+}
+.auth-brand-row img.branding{height:28px;max-width:168px;margin:0}
+.auth-mobile-brand{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  margin-bottom:6px;
+}
+.auth-mobile-brand img.branding{margin:0 auto;height:30px;max-width:180px}
+.auth-mobile-brand .brand-tagline{text-align:center;letter-spacing:1.6px} 
 .rail-links{display:grid;gap:7px} 
 .rail-link{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:15px;background:transparent;color:#555d68;font-weight:700} 
 .rail-link.active{background:#fff;box-shadow:var(--shadow);color:#17191e} 
@@ -269,17 +370,19 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   .subject-color{height:56px} 
   .chart-card{border-radius:22px}.chart-wrap{height:220px} 
   .mobile-nav{ 
-    position:fixed;display:grid;grid-template-columns:repeat(4,1fr);align-items:center; 
-    left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom)); 
-    height:68px;padding:6px;border-radius:24px;background:rgba(255,255,255,.90); 
-    border:1px solid rgba(30,35,45,.10);box-shadow:0 14px 38px rgba(39,51,68,.17); 
-    backdrop-filter:blur(22px);z-index:30; 
+    position:fixed;display:grid;grid-template-columns:repeat(5,1fr);align-items:center; 
+    left:14px;right:14px;bottom:calc(12px + env(safe-area-inset-bottom)); 
+    height:66px;padding:5px 6px;border-radius:32px;
+    background:rgba(255,255,255,.28); 
+    border:1px solid rgba(255,255,255,.38);
+    box-shadow:0 18px 40px rgba(25,35,55,.14), inset 0 1px 0 rgba(255,255,255,.72); 
+    backdrop-filter:blur(28px) saturate(1.55);z-index:30; 
   } 
   .bottom-item{height:56px;border-radius:18px;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#9ca1aa;font-size:10px;font-weight:800} 
   .bottom-item i{font-size:21px;font-style:normal;line-height:1} 
   .bottom-item.active{color:#111;background:rgba(80,196,235,.13)} 
-  .bottom-item.add{color:#111;background:rgba(255,255,255,.42);box-shadow:none} 
-  .bottom-item.add small{color:#111} 
+  .bottom-item.add{color:inherit;background:transparent;box-shadow:none} 
+  .bottom-item.add small{color:inherit} 
   .right{display:none} 
   .timer-box{padding:18px;border-radius:28px}.clock{width:235px;height:235px}.clock strong{font-size:35px} 
   .profile-top{align-items:flex-start}.profile-avatar{width:78px;height:78px} 
@@ -1676,6 +1779,13 @@ body:has(.chat-inbox-page){
 .chat-bubble-row.mine .chat-bubble.has-doodle .chat-bubble-time{color:rgba(255,255,255,.55)}
 .chat-doodle-caption{font-size:12px;line-height:1.4;margin-top:4px;padding:0 6px}
 .chat-bubble-row.mine .chat-doodle-caption{color:#fff}
+.doodle-ttl{
+  font-size:10px;font-weight:800;color:#8a919b;
+  margin-top:4px;padding:0 4px;
+  letter-spacing:.2px;
+}
+.chat-bubble-row.mine .doodle-ttl{color:rgba(0,0,0,.45)}
+.chat-bubble.has-doodle .doodle-ttl{opacity:.85}
 
 /* Full-screen Instagram DM doodle */
 .doodle-modal{
@@ -2582,15 +2692,15 @@ body:has(.chat-inbox-page){
    Soft frosted materials, unified bottom bar, no heavy 3D
    ============================================================ */
 :root{
-  --surface:rgba(255,255,255,.52) !important;
-  --surface-solid:rgba(255,255,255,.66) !important;
-  --nav:rgba(255,255,255,.55) !important;
-  --line:rgba(255,255,255,.42) !important;
-  --shadow:0 8px 24px rgba(30,40,60,.06) !important;
-  --glass:rgba(255,255,255,.48);
-  --glass-strong:rgba(255,255,255,.62);
-  --glass-border:rgba(255,255,255,.55);
-  --glass-blur:blur(22px) saturate(1.35);
+  --surface:rgba(255,255,255,.42) !important;
+  --surface-solid:rgba(255,255,255,.58) !important;
+  --nav:rgba(255,255,255,.32) !important;
+  --line:rgba(255,255,255,.38) !important;
+  --shadow:0 12px 32px rgba(30,40,60,.08) !important;
+  --glass:rgba(255,255,255,.38);
+  --glass-strong:rgba(255,255,255,.55);
+  --glass-border:rgba(255,255,255,.48);
+  --glass-blur:blur(26px) saturate(1.5) brightness(1.04);
 }
 
 html,body{
@@ -2651,7 +2761,11 @@ html,body{
 .timer-minimized{
   background:var(--glass) !important;
   border:1px solid var(--glass-border) !important;
-  box-shadow:0 8px 24px rgba(30,40,60,.06), inset 0 1px 0 rgba(255,255,255,.65) !important;
+  box-shadow:
+    0 14px 36px rgba(30,40,60,.09),
+    0 4px 12px rgba(30,40,60,.04),
+    inset 0 1px 0 rgba(255,255,255,.72),
+    inset 0 -0.5px 0 rgba(255,255,255,.2) !important;
   backdrop-filter:var(--glass-blur) !important;
   -webkit-backdrop-filter:var(--glass-blur) !important;
 }
@@ -2807,25 +2921,30 @@ button[style*="#fff0f2"]{
   .mobile-nav{
     display:grid !important;
     position:fixed !important;
-    left:12px !important;
-    right:12px !important;
-    bottom:calc(10px + env(safe-area-inset-bottom)) !important;
-    height:64px !important;
-    padding:6px !important;
-    border-radius:28px !important;
+    left:14px !important;
+    right:14px !important;
+    bottom:calc(12px + env(safe-area-inset-bottom)) !important;
+    height:66px !important;
+    padding:5px 6px !important;
+    border-radius:32px !important;
     grid-template-columns:repeat(5,1fr) !important;
     align-items:center !important;
     gap:2px !important;
     z-index:30 !important;
-    background:rgba(255,255,255,.58) !important;
-    border:1px solid rgba(255,255,255,.55) !important;
-    box-shadow:0 12px 32px rgba(30,40,60,.10), inset 0 1px 0 rgba(255,255,255,.7) !important;
-    backdrop-filter:blur(24px) saturate(1.4) !important;
-    -webkit-backdrop-filter:blur(24px) saturate(1.4) !important;
+    /* Premium transparent frosted glass — iPhone dock vibe */
+    background:rgba(255,255,255,.28) !important;
+    border:1px solid rgba(255,255,255,.38) !important;
+    box-shadow:
+      0 18px 40px rgba(25,35,55,.14),
+      0 4px 12px rgba(25,35,55,.06),
+      inset 0 1px 0 rgba(255,255,255,.72),
+      inset 0 -1px 0 rgba(255,255,255,.18) !important;
+    backdrop-filter:blur(28px) saturate(1.55) brightness(1.05) !important;
+    -webkit-backdrop-filter:blur(28px) saturate(1.55) brightness(1.05) !important;
   }
   .mobile-nav .bottom-item{
-    height:52px !important;
-    border-radius:22px !important;
+    height:54px !important;
+    border-radius:24px !important;
     background:transparent !important;
     border:0 !important;
     box-shadow:none !important;
@@ -2837,29 +2956,32 @@ button[style*="#fff0f2"]{
   .mobile-nav .bottom-item i{font-size:20px !important}
   .mobile-nav .bottom-item small{font-size:9px !important;font-weight:800 !important}
   .mobile-nav .bottom-item.active{
-    background:rgba(120,190,235,.16) !important;
+    background:rgba(255,255,255,.38) !important;
     color:#111 !important;
-    box-shadow:none !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55) !important;
+    border:1px solid rgba(255,255,255,.28) !important;
   }
-  /* Add — normal glass style, not solid black */
+  /* Add — same transparent style as other items (no white pill) */
   .mobile-nav .bottom-item.add{
     width:auto !important;
-    height:52px !important;
-    border-radius:22px !important;
+    height:54px !important;
+    border-radius:24px !important;
     justify-self:stretch !important;
     align-self:center !important;
-    background:rgba(255,255,255,.42) !important;
-    color:#111 !important;
+    background:transparent !important;
+    color:#8b929c !important;
     box-shadow:none !important;
-    border:1px solid rgba(255,255,255,.5) !important;
-    backdrop-filter:blur(12px) !important;
-    -webkit-backdrop-filter:blur(12px) !important;
+    border:0 !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
   }
-  .mobile-nav .bottom-item.add small{color:#111 !important}
-  .mobile-nav .bottom-item.add i{color:#111 !important}
+  .mobile-nav .bottom-item.add small{color:inherit !important}
+  .mobile-nav .bottom-item.add i{color:inherit !important}
   .mobile-nav .bottom-item.add.active{
-    background:rgba(120,190,235,.18) !important;
+    background:rgba(255,255,255,.38) !important;
     color:#111 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55) !important;
+    border:1px solid rgba(255,255,255,.28) !important;
   }
 }
 
@@ -2910,7 +3032,7 @@ input,textarea,select{
 @media(max-width:700px){
   .mobile-nav{
     height:66px !important;
-    border-radius:30px !important;
+    border-radius:32px !important;
   }
 }
 
@@ -3276,7 +3398,7 @@ html,body{
   padding:12px 8px;
 }
 .auth-brand-row{
-  display:flex;align-items:center;gap:12px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:4px;
 }
 .auth-brand-logo{
   width:48px;height:48px;border-radius:16px;
@@ -3350,7 +3472,7 @@ html,body{
 @media(max-width:860px){
   .auth-shell{grid-template-columns:1fr;max-width:420px}
   .auth-visual{display:none !important}
-  .auth-mobile-brand{display:block}
+  .auth-mobile-brand{display:flex;flex-direction:column;align-items:center}
   .auth-page{padding:18px 16px;align-items:flex-start;padding-top:clamp(24px,8vh,56px)}
   .auth-card{padding:22px 18px 18px;border-radius:24px}
   .auth-card h1{font-size:24px}
@@ -3891,6 +4013,144 @@ img {
   }
 }
 
+/* ============================================================
+   MOBILE PERFORMANCE HARDENING (no UI / feature change)
+   – Cuts expensive paints & compositing on phones
+   – Keeps visual language identical
+   – Loader stays EXACTLY as original (blur + 3D spin)
+   ============================================================ */
+@media (max-width: 700px) {
+  /* backdrop-filter is the #1 lag source on mid/low-end Android */
+  .card,
+  .subject-card,
+  .side-card,
+  .mobile-nav,
+  .chat-inbox-shell,
+  .chat-list-card,
+  .chat-window-card,
+  .timer-box,
+  .complete-box,
+  .danger-box,
+  .features-tour-card,
+  .onboard-card,
+  .form-screen,
+  .chat-action-sheet,
+  .chat-reaction-picker,
+  .chat-longpress-menu,
+  .persistent-timer-mini,
+  .timer-minimized,
+  .visit-card,
+  .follow-list-box,
+  .studying-live-box,
+  .email-auth-box,
+  .google-account-box,
+  .chat-dialog,
+  .doodle-modal,
+  .dv2-canvas-card {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Keep original loader exactly as before */
+  .global-loader {
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+  .global-loader .loader::before,
+  .global-loader .loader::after,
+  .global-loader .l1::before,
+  .global-loader .l1::after,
+  .global-loader .l2::before,
+  .global-loader .l2::after {
+    animation-duration: 2.5s !important;
+    animation-iteration-count: infinite !important;
+  }
+
+  /* Soften multi-layer shadows → single light shadow */
+  .card,
+  .subject-card,
+  .side-card,
+  .chat-inbox-item,
+  .chat-list-item,
+  .chat-user-row,
+  .visit-card,
+  .mobile-nav {
+    box-shadow: 0 4px 14px rgba(40, 50, 70, 0.08) !important;
+  }
+
+  /* Decorative honeycomb — pure cost on phone */
+  .honeycomb {
+    display: none !important;
+  }
+
+  /* GPU-friendly scroll containers */
+  .chat-messages,
+  .chat-inbox-list,
+  #chatList,
+  .main,
+  .visit-profile-shell {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    transform: translateZ(0);
+  }
+
+  /* Reduce paint for bubbles */
+  .chat-bubble,
+  .chat-bubble-wrap {
+    contain: layout style;
+  }
+
+  /* No hover transforms on touch */
+  .subject-card:hover,
+  .chat-user-row:hover,
+  .chat-list-item:hover,
+  .chat-inbox-item:hover {
+    transform: none !important;
+    box-shadow: 0 4px 14px rgba(40, 50, 70, 0.08) !important;
+  }
+
+  .chart-wrap,
+  .visit-chart-wrap {
+    contain: strict;
+  }
+}
+
+/* Cheap global wins */
+img { content-visibility: auto; }
+.card,
+.subject-card,
+.chat-list-item,
+.chat-inbox-item,
+.visit-subject-row {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 72px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .confetti { display: none !important; }
+  /* Keep original loader animation even with reduced-motion */
+  .global-loader .loader::before,
+  .global-loader .loader::after,
+  .global-loader .l1::before,
+  .global-loader .l1::after,
+  .global-loader .l2::before,
+  .global-loader .l2::after {
+    animation-duration: 2.5s !important;
+    animation-iteration-count: infinite !important;
+  }
+  .global-loader {
+    transition-duration: 0.45s !important;
+  }
+}
+
 </style>
  
 </head> 
@@ -3903,6 +4163,32 @@ img {
 /* Performance helpers — throttle/rAF without changing app logic */
 window.__rafThrottle=function(fn){let scheduled=false,lastArgs=null;return function(){lastArgs=arguments;if(scheduled)return;scheduled=true;requestAnimationFrame(function(){scheduled=false;fn.apply(null,lastArgs);});};};
 window.__passiveTouch={passive:true};
+
+/* Coalesce rapid lucide.createIcons() calls into one rAF (big mobile win) */
+(function(){
+  let scheduled=false;
+  const realCreate=function(){
+    if(window.lucide && typeof lucide.createIcons==="function"){
+      try{lucide.createIcons()}catch(e){}
+    }
+  };
+  window.__lucideIcons=function(){
+    if(scheduled)return;
+    scheduled=true;
+    requestAnimationFrame(function(){scheduled=false;realCreate();});
+  };
+  // Patch after lucide script loads
+  document.addEventListener("DOMContentLoaded",function(){
+    if(window.lucide && lucide.createIcons){
+      const original=lucide.createIcons.bind(lucide);
+      lucide.createIcons=function(){
+        if(scheduled)return;
+        scheduled=true;
+        requestAnimationFrame(function(){scheduled=false;original();});
+      };
+    }
+  });
+})();
 
  
 /* ============================================================ 
@@ -4059,6 +4345,20 @@ async function syncPublicProfile(){
 } 
 initFirebase(); 
  
+/* ============================================================
+   BRAND LOGO — only change this URL to your wordmark/logo
+   Every brand image uses class="branding"
+   ============================================================ */
+/* >>> CHANGE ONLY THIS LINE to your wordmark image URL or path <<< */
+const BRAND_LOGO_SRC="StudyFlow_home.png";
+/* Example: "https://yoursite.com/logo.png"  or  "assets/my-logo.webp" */
+function brandImg(extraClass=""){
+  return `<img class="branding ${extraClass}" src="${BRAND_LOGO_SRC}" alt="Brand logo" decoding="async" onerror="this.style.opacity='.35';this.alt='Add branding.png'">`;
+}
+function brandBlock(extraClass=""){
+  return `<div class="brand-block ${extraClass}">${brandImg()}<span class="brand-tagline">FOCUS • STUDY</span></div>`;
+}
+
 const DEFAULT_SUBJECTS=[ 
   {id:crypto.randomUUID(),name:"Bangla",icon:"book-open",color:"#8f36c9",seconds:0}, 
   {id:crypto.randomUUID(),name:"English",icon:"graduation-cap",color:"#ef2670",seconds:0}, 
@@ -4067,6 +4367,7 @@ const DEFAULT_SUBJECTS=[
  
 let state=JSON.parse(localStorage.getItem(KEY)||"null")||{ 
   onboarding:"welcome",authView:"login", 
+  featuresTourSeen:false,
   user:{name:"",username:"",birthday:"",dp:"",bio:""}, 
   note:{text:"",expires:0,bg:"sunset"}, 
   target:{minutes:480,done:0,date:"",running:false,startedAt:0}, 
@@ -4083,7 +4384,10 @@ state.subjects = (state.subjects||[]).map(s=>{
   return {...s,icon:map[s.icon]||s.icon||"book-open"}; 
 }); 
 state.target = {...{minutes:480,done:0,date:"",running:false,startedAt:0},...(state.target||{})}; 
- 
+if(state.featuresTourSeen===undefined){
+  state.featuresTourSeen = (state.onboarding==="done");
+}
+
 let chart=null; 
 let timer=null; 
 let timerMinimized=false; 
@@ -4112,9 +4416,59 @@ function avatarHTML(size="avatar"){
  
 /* ---------- onboarding ---------- */ 
 function render(){ 
-  if(state.onboarding!=="done") renderOnboarding(); 
+  if(state.onboarding!=="done") renderOnboarding();
+  else if(!state.featuresTourSeen) renderFeaturesTour(); 
   else renderApp(); 
-} 
+}
+
+/* One-time features card — only for brand-new accounts after signup */
+function renderFeaturesTour(){
+  const root=document.getElementById("app");
+  if(!root)return;
+  root.innerHTML=`
+    <main class="features-tour-page page">
+      <section class="features-tour-card">
+        <div class="features-tour-badge">Welcome</div>
+        <h1>Everything you need to focus</h1>
+        <p class="features-tour-lead">A quick look at what you can do. This screen shows only once.</p>
+        <ul class="features-tour-list">
+          <li>
+            <span class="ft-ico">⏱️</span>
+            <div><b>Timer & Subjects</b><small>Track study time per subject and build daily focus habits.</small></div>
+          </li>
+          <li>
+            <span class="ft-ico">🎯</span>
+            <div><b>Daily Target</b><small>Set a goal, start a session, and watch your progress grow.</small></div>
+          </li>
+          <li>
+            <span class="ft-ico">💬</span>
+            <div><b>Chats & Doodles</b><small>Message friends, react, and send doodles that expire in 12 hours.</small></div>
+          </li>
+          <li>
+            <span class="ft-ico">👥</span>
+            <div><b>Explore & Profile</b><small>Find students, follow friends, and see who is studying live.</small></div>
+          </li>
+          <li>
+            <span class="ft-ico">📊</span>
+            <div><b>Focus breakdown</b><small>Charts and history so you know where your time goes.</small></div>
+          </li>
+        </ul>
+        <button type="button" class="features-tour-btn" onclick="finishFeaturesTour()">Get started</button>
+      </section>
+    </main>`;
+  if(window.lucide)try{lucide.createIcons()}catch(e){}
+}
+async function finishFeaturesTour(){
+  state.featuresTourSeen=true;
+  save();
+  if(firebaseReady&&firestore&&firebaseUser){
+    try{
+      await setDoc(doc(firestore,"users",firebaseUser.uid),{featuresTourSeen:true},{merge:true});
+    }catch(e){console.warn("featuresTourSeen save failed",e)}
+  }
+  render();
+}
+
 function renderOnboarding(){ 
   const root=document.getElementById("app"); 
   if(state.onboarding==="welcome"){
@@ -4124,10 +4478,9 @@ function renderOnboarding(){
         <div class="auth-shell">
           <aside class="auth-visual">
             <div class="auth-brand-row">
-              <div class="auth-brand-logo">S</div>
-              <div><div class="auth-brand-name">StudyFlow</div><div class="auth-brand-sub">FOCUS · STUDY</div></div>
+              ${brandBlock("branding-auth")}
             </div>
-            <img id="signuppic" class="signuppic" src="im.png" alt="StudyFlow illustration">
+            <img id="signuppic" class="signuppic" src="im.png" alt="App illustration">
             <div class="auth-visual-copy">
               <h2>${mode==="signup"?"Start your journey":"Welcome back!"}</h2>
               <p>${mode==="signup"?"Create an account to track focus time and study with friends.":"Login to continue your learning journey."}</p>
@@ -4135,12 +4488,10 @@ function renderOnboarding(){
           </aside>
           <section class="auth-card">
             <div class="auth-mobile-brand">
-              <div class="auth-brand-logo">S</div>
-              <div class="auth-brand-name">StudyFlow</div>
-              <div class="auth-brand-sub">FOCUS · STUDY</div>
+              ${brandBlock("branding-auth-mobile")}
             </div>
             <h1>${mode==="signup"?"Sign up":"Login"}</h1>
-            <p class="auth-sub">${mode==="signup"?"Create your StudyFlow account":"Nice to see you again!"}</p>
+            <p class="auth-sub">${mode==="signup"?"Create your account":"Nice to see you again!"}</p>
             <div class="auth-field">
               <label>Email</label>
               <div class="auth-input-wrap">
@@ -4242,15 +4593,24 @@ async function resolveAuthProfile(user,opts={}){
       const flag=cloud.onboarding||state.onboarding;
       if(profileLooksComplete(state.user,flag)||flag==="done"){
         state.onboarding="done";
+        // Returning / existing accounts: never show features tour again
+        // Missing flag = legacy user → treat as already seen
+        if(cloud.featuresTourSeen===true || cloud.featuresTourSeen===false){
+          state.featuresTourSeen=!!cloud.featuresTourSeen;
+        }else{
+          state.featuresTourSeen=true;
+        }
       }else{
         // Incomplete cloud profile → finish setup only
         state.onboarding=state.user.name?"username":"name";
         if(state.user.name&&state.user.username&&!state.user.birthday)state.onboarding="birthday";
+        state.featuresTourSeen=!!cloud.featuresTourSeen;
       }
     }else{
       // Brand-new account (first Google / first email signup)
       state.user.name=state.user.name||user.displayName||"";
       state.user.username=state.user.username||"";
+      state.featuresTourSeen=false; // show one-time features card after setup
       // Never auto-claim email prefix as username — user must pick unique one
       if(profileLooksComplete(state.user,state.onboarding)){
         state.onboarding="done";
@@ -4373,8 +4733,7 @@ function renderApp(){
     <main class="dashboard page"> 
       <aside class="rail"> 
         <div class="brand-mini"> 
-          <div class="brand-logo">S</div> 
-          <div><div class="brand-name">StudyFlow</div><div class="brand-sub">FOCUS • STUDY</div></div> 
+          ${brandBlock("branding-rail")} 
         </div> 
         <nav class="rail-links"> 
           <button class="rail-link ${activePage==="home"?"active":""}" onclick="navigate('home')"><span class="ico"><i data-lucide="house" class="icon-svg"></i></span>Home</button> 
@@ -4826,7 +5185,7 @@ function startTarget(){
  
  
 /* ---------- reminders / misc ---------- */ 
-function showHelp(){warn("StudyFlow tip","Choose a subject, set a focus time, study, and watch your target grow.",{icon:"sparkles",danger:false})} 
+function showHelp(){warn("Quick tip","Choose a subject, set a focus time, study, and watch your target grow.",{icon:"sparkles",danger:false})} 
  
 /* ===== V3 REQUESTED LOGIC OVERRIDES ===== */ 
 state.filter=state.filter||"1d"; 
@@ -4991,12 +5350,22 @@ async function nextOnboard(){
       if(!ok){hideLoader();return warn("Username taken","This username is already used by another account. Please choose a different username.",{icon:"at-sign",danger:true});} 
     }finally{hideLoader()}
     state.user.username=username;state.onboarding="birthday"; 
-  }else{if(!v)return warn("Birthday required","Please choose your birthday.",{icon:"calendar"});state.user.birthday=v;state.onboarding="done"} 
+  }else{
+    if(!v)return warn("Birthday required","Please choose your birthday.",{icon:"calendar"});
+    state.user.birthday=v;
+    state.onboarding="done";
+    state.featuresTourSeen=false; // first-time only features card
+  } 
   save(); 
   if(state.onboarding==="done"&&firebaseReady&&firebaseUser){
     showLoader();
     try{
-      await setDoc(doc(firestore,"users",firebaseUser.uid),{onboarding:"done",user:state.user,authUid:firebaseUser.uid},{merge:true});
+      await setDoc(doc(firestore,"users",firebaseUser.uid),{
+        onboarding:"done",
+        featuresTourSeen:false,
+        user:state.user,
+        authUid:firebaseUser.uid
+      },{merge:true});
       await publishMyPublicProfile();
     }catch(e){console.warn("Finish onboarding save failed",e)}
     finally{hideLoader()}
@@ -5229,7 +5598,7 @@ function profilePage(){
 async function logoutUser(){
   showChatDialog({
     title:"Log out?",
-    message:"You will be signed out of StudyFlow on this device. Your study data stays saved to your account.",
+    message:"You will be signed out on this device. Your study data stays saved to your account.",
     icon:"🚪",
     danger:true,
     confirmText:"Log out",
@@ -6224,9 +6593,24 @@ function subscribeToMessages(forChatId){
  
     // Only real messages are rendered. Legacy/accidental documents with 
     // missing or blank text must never appear as a timestamp-only bubble. 
-    const docs=snap.docs 
+    // Doodles past 12h are purged (download first if needed).
+    const allDocs=snap.docs 
       .filter(d=>messageBelongsToChat(d.data(), expectedId, me, other)) 
       .filter(d=>{const m=d.data()||{};const hasText=String(m.text??"").trim().length>0;const hasImg=!!(m.image||m.doodle);return hasText||hasImg;}); 
+
+    // process expiry for every doodle (download + delete)
+    allDocs.forEach(d=>{
+      const m=d.data()||{};
+      if(isDoodleMessage(m)) processDoodleExpiry(expectedId,d.id,m);
+    });
+
+    const docs=allDocs.filter(d=>{
+      const m=d.data()||{};
+      if(!isDoodleMessage(m))return true;
+      const exp=doodleExpiryMs(m);
+      // hide if already expired (delete is in flight)
+      return !exp || Date.now()<exp;
+    });
  
     if(!docs.length){ 
       h.innerHTML=`<div class="chat-empty"><strong>Messages exchanged with your friends will be displayed here.</strong></div>`; 
@@ -6273,13 +6657,16 @@ function subscribeToMessages(forChatId){
         ${mine?`<button class="hover-delete" title="Delete" onclick="deleteChatMessage('${esc(d.id)}');event.stopPropagation()">🗑</button>`:""} 
       </div>`; 
       const imgSrc=m.image||m.doodle||"";
+      const isDoodle=isDoodleMessage(m);
+      const ttl=isDoodle?formatDoodleTTL(m):"";
+      const ttlHTML=ttl?`<div class="doodle-ttl" data-doodle-ttl="${esc(d.id)}">🎨 ${ttl}</div>`:"";
       const imgHTML=imgSrc?`<img class="chat-bubble-img" src="${esc(imgSrc)}" alt="Doodle" loading="lazy" decoding="async" onclick="openDoodleLightbox(this.src);event.stopPropagation()">`:"";
       const textHTML=String(m.text||"").trim()?`<div class="chat-doodle-caption">${escapeChatText(m.text)}</div>`:(imgSrc?"":escapeChatText(m.text||""));
       const bubbleClass=imgSrc?"chat-bubble has-doodle":"chat-bubble";
       const senderName=mine?(state.user?.name||"You"):(selectedChatUser?.name||"User");
       const avatarUser=mine?{dp:state.user?.dp||""}:selectedChatUser;
       const avatarHTML=`<div class="msg-avatar">${avatarUser?.dp?`<img src="${esc(avatarUser.dp)}" alt="" loading="lazy" decoding="async">`:`🙂`}</div>`;
-      return `<div class="chat-bubble-row ${mine?"mine":""}" data-message-row="${esc(d.id)}">${avatarHTML}<div class="chat-bubble-wrap"><div class="msg-sender-name">${esc(senderName)}</div><div class="${bubbleClass}" data-message-id="${esc(d.id)}">${replyHTML}${imgHTML}${textHTML}<div class="chat-bubble-time">${formatChatTime(m.createdAt)}</div></div>${hoverActions}${reactionHTML?`<div class="chat-reaction-line">${reactionHTML}</div>`:""}<div class="msg-time-out">${formatChatTime(m.createdAt)}</div></div></div>`; 
+      return `<div class="chat-bubble-row ${mine?"mine":""}" data-message-row="${esc(d.id)}">${avatarHTML}<div class="chat-bubble-wrap"><div class="msg-sender-name">${esc(senderName)}</div><div class="${bubbleClass}" data-message-id="${esc(d.id)}">${replyHTML}${imgHTML}${textHTML}${ttlHTML}<div class="chat-bubble-time">${formatChatTime(m.createdAt)}</div></div>${hoverActions}${reactionHTML?`<div class="chat-reaction-line">${reactionHTML}</div>`:""}<div class="msg-time-out">${formatChatTime(m.createdAt)}</div></div></div>`; 
     }).join(""); 
     docs.forEach(d=>{ 
       const el=h.querySelector(`[data-message-id="${CSS.escape(d.id)}"]`); 
@@ -6537,7 +6924,9 @@ function fitDoodleCanvas(){
   const wrap=canvas?.parentElement;
   if(!canvas||!wrap)return;
   const rect=wrap.getBoundingClientRect();
-  const dpr=Math.min(window.devicePixelRatio||1, 2);
+  // Cap DPR harder on phones → much lighter canvas memory & draw cost
+  const maxDpr = (window.innerWidth <= 700) ? 1.25 : 2;
+  const dpr=Math.min(window.devicePixelRatio||1, maxDpr);
   const cssW=Math.max(1, Math.floor(rect.width));
   const cssH=Math.max(1, Math.floor(rect.height));
   canvas.style.width=cssW+"px";
@@ -6754,18 +7143,142 @@ function clearDoodleCanvas(){
   ctx.fillStyle="#ffffff";
   ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.restore();
-  const dpr=Math.min(window.devicePixelRatio||1, 2);
+  const maxDpr = (window.innerWidth <= 700) ? 1.25 : 2;
+  const dpr=Math.min(window.devicePixelRatio||1, maxDpr);
   ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.lineCap="round";
   ctx.lineJoin="round";
   doodleState.strokes=0;
 }
 
-function undoDoodleStroke(){ clearDoodleCanvas(); }
-
 function undoDoodleStroke(){
   // Full clear is more reliable without stroke history stack on mobile
   clearDoodleCanvas();
+}
+
+/* ============================================================
+   DOODLE 12h AUTO-DELETE
+   - expires after 12 hours from send
+   - ~5 seconds before expiry: auto-download to device
+   - then delete from Firestore + hide from inbox
+   ============================================================ */
+const DOODLE_TTL_MS=12*60*60*1000;
+const DOODLE_PRE_DOWNLOAD_MS=5*1000; // download 5s before delete
+let doodleExpiryTimers=new Map(); // messageId -> timeoutId
+let doodleDownloadedIds=new Set();
+try{
+  const raw=localStorage.getItem("study_circle_doodle_dl_v1")||"[]";
+  JSON.parse(raw).forEach(id=>doodleDownloadedIds.add(String(id)));
+}catch(e){}
+function markDoodleDownloaded(id){
+  doodleDownloadedIds.add(String(id));
+  try{
+    localStorage.setItem("study_circle_doodle_dl_v1",JSON.stringify([...doodleDownloadedIds].slice(-200)));
+  }catch(e){}
+}
+function doodleExpiryMs(m){
+  if(!m)return 0;
+  if(m.expiresAt)return Number(m.expiresAt)||0;
+  // fallback: createdAt + 12h
+  try{
+    const created=m.createdAt?.toMillis?.()||m.createdAt?.seconds*1000||Number(m.createdAt)||0;
+    if(created)return created+DOODLE_TTL_MS;
+  }catch(e){}
+  return 0;
+}
+function isDoodleMessage(m){
+  return m && (m.type==="doodle" || (!!m.image && !String(m.text||"").trim()));
+}
+function downloadDoodleDataUrl(dataUrl,filename){
+  if(!dataUrl)return false;
+  try{
+    const a=document.createElement("a");
+    a.href=dataUrl;
+    a.download=filename||("studyflow-doodle-"+Date.now()+".jpg");
+    a.rel="noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    return true;
+  }catch(e){
+    console.warn("Doodle auto-download failed",e);
+    return false;
+  }
+}
+async function deleteDoodleMessage(chatId,messageId){
+  if(!firestore||!chatId||!messageId)return;
+  try{
+    await deleteDoc(doc(firestore,"chats",chatId,"messages",messageId));
+    // If this was the last message, refresh chat preview
+    try{
+      const chatRef=doc(firestore,"chats",chatId);
+      const chatSnap=await getDoc(chatRef);
+      if(chatSnap.exists && String(chatSnap.data()?.lastMessage||"").includes("Doodle")){
+        await setDoc(chatRef,{
+          lastMessage:"Doodle expired",
+          updatedAt:serverTimestamp()
+        },{merge:true});
+      }
+    }catch(e){}
+  }catch(err){
+    console.warn("Doodle delete failed",err);
+  }
+  if(doodleExpiryTimers.has(messageId)){
+    clearTimeout(doodleExpiryTimers.get(messageId));
+    doodleExpiryTimers.delete(messageId);
+  }
+  // remove bubble from open chat UI immediately
+  document.querySelector(`[data-message-row="${CSS.escape(String(messageId))}"]`)?.remove();
+}
+async function processDoodleExpiry(chatId,messageId,m){
+  if(!isDoodleMessage(m))return;
+  const exp=doodleExpiryMs(m);
+  if(!exp)return;
+  const now=Date.now();
+  const img=m.image||m.doodle||"";
+  // already expired → download (if not yet) then delete
+  if(now>=exp){
+    if(img && !doodleDownloadedIds.has(String(messageId))){
+      downloadDoodleDataUrl(img,"studyflow-doodle-expired-"+messageId+".jpg");
+      markDoodleDownloaded(messageId);
+    }
+    await deleteDoodleMessage(chatId,messageId);
+    return;
+  }
+  // schedule: download a few seconds before, then delete at expiry
+  if(doodleExpiryTimers.has(messageId)){
+    clearTimeout(doodleExpiryTimers.get(messageId));
+  }
+  const msUntilDownload=Math.max(0, exp-DOODLE_PRE_DOWNLOAD_MS-now);
+  const timer=setTimeout(async()=>{
+    try{
+      if(img && !doodleDownloadedIds.has(String(messageId))){
+        downloadDoodleDataUrl(img,"studyflow-doodle-"+messageId+".jpg");
+        markDoodleDownloaded(messageId);
+      }
+    }catch(e){}
+    const waitDelete=Math.max(0, exp-Date.now());
+    setTimeout(()=>deleteDoodleMessage(chatId,messageId), waitDelete+50);
+  }, msUntilDownload);
+  doodleExpiryTimers.set(messageId,timer);
+}
+function scheduleDoodleExpiryWatch(){
+  // re-scan open chat cache
+  if(!selectedChatId||!chatMessageCache)return;
+  chatMessageCache.forEach((m,id)=>{
+    if(isDoodleMessage(m)) processDoodleExpiry(selectedChatId,id,m);
+  });
+}
+function formatDoodleTTL(m){
+  const exp=doodleExpiryMs(m);
+  if(!exp)return "";
+  const left=exp-Date.now();
+  if(left<=0)return "Expiring…";
+  const h=Math.floor(left/3600000);
+  const min=Math.floor((left%3600000)/60000);
+  if(h>0)return `${h}h ${min}m left`;
+  if(min>0)return `${min}m left`;
+  return `${Math.max(1,Math.ceil(left/1000))}s left`;
 }
 
 function compressDoodle(canvas,maxW=720,quality=0.72){
@@ -6874,14 +7387,19 @@ async function sendDoodleMessage(){
       updatedAt:serverTimestamp(),
       createdAt:serverTimestamp()
     },{merge:true});
+    const expiresAtMs=Date.now()+12*60*60*1000; // 12 hours
     await addDoc(collection(firestore,"chats",cid,"messages"),{
       senderId:currentUid(),
       receiverId:otherUid,
       text:"",
       image:dataUrl,
       type:"doodle",
+      expiresAt:expiresAtMs,
+      expiresAtTs:serverTimestamp(),
       createdAt:serverTimestamp()
     });
+    // schedule local auto-download + delete for this device
+    scheduleDoodleExpiryWatch();
   }catch(err){
     console.error("Send doodle failed",err);
     chatWarning("Doodle not sent","Check connection / Firestore rules and try again.","⚠️");
