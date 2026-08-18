@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>StudyFlow</title>
+<title>StyFlow</title>
 
 <!--
   ICON / IMAGE NOTES
@@ -1923,13 +1923,17 @@ body:has(.chat-inbox-page){
 }
 .doodle-v2 .dv2-tool{
   width:100%;border:0;background:transparent;
-  border-radius:14px;padding:10px 4px;
-  display:flex;flex-direction:column;align-items:center;gap:3px;
+  border-radius:14px;padding:11px 4px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
   cursor:pointer;color:#6b7280;font-size:9px;font-weight:800;
+  transition:background .15s,color .15s,transform .15s;
 }
-.doodle-v2 .dv2-tool svg{width:18px;height:18px}
+.doodle-v2 .dv2-tool svg{width:20px;height:20px;stroke-width:2.1}
+.doodle-v2 .dv2-tool:active{transform:scale(.94)}
 .doodle-v2 .dv2-tool.active{
-  background:#e8f3ff;color:#2563eb;
+  background:linear-gradient(180deg,#eef6ff,#e0efff);
+  color:#2563eb;
+  box-shadow:inset 0 0 0 1.5px rgba(37,99,235,.18);
 }
 .doodle-v2 .dv2-canvas-area{
   flex:1 1 auto;min-width:0;min-height:0;
@@ -1983,15 +1987,32 @@ body:has(.chat-inbox-page){
   background:#e8f3ff;box-shadow:inset 0 0 0 2px #3b82f6;
 }
 .doodle-v2 .dv2-brush-icon{
-  display:block;width:18px;height:24px;border-radius:3px;
-  background:#333;
+  display:block;width:22px;height:26px;
+  background-size:contain;background-repeat:no-repeat;background-position:center;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.15));
 }
-.doodle-v2 .tip-marker{width:14px;height:22px;border-radius:3px 3px 6px 6px;background:linear-gradient(#222 70%,#555)}
-.doodle-v2 .tip-pen{width:10px;height:22px;border-radius:2px;background:linear-gradient(#888 40%,#333)}
-.doodle-v2 .tip-fountain{width:12px;height:22px;clip-path:polygon(50% 0,100% 30%,80% 100%,20% 100%,0 30%);background:#222}
-.doodle-v2 .tip-pencil{width:10px;height:22px;clip-path:polygon(50% 0,100% 25%,100% 100%,0 100%,0 25%);background:linear-gradient(#f59e0b 30%,#333)}
-.doodle-v2 .tip-paint{width:16px;height:20px;border-radius:50% 50% 40% 40%;background:linear-gradient(#444,#222)}
-.doodle-v2 .tip-air{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#999,#333)}
+/* Premium pen tips via inline SVG data-URIs */
+.doodle-v2 .tip-marker{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 32'%3E%3Crect x='7' y='2' width='10' height='18' rx='2' fill='%23111'/%3E%3Cpath d='M7 20h10l-2 10H9z' fill='%23333'/%3E%3Crect x='7' y='2' width='10' height='4' rx='1' fill='%23444'/%3E%3C/svg%3E");
+}
+.doodle-v2 .tip-pen{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 32'%3E%3Crect x='9' y='2' width='6' height='16' rx='1.5' fill='%23555'/%3E%3Cpath d='M9 18h6l-2.2 12h-1.6z' fill='%23111'/%3E%3Crect x='9' y='2' width='6' height='5' fill='%23888'/%3E%3C/svg%3E");
+}
+.doodle-v2 .tip-fountain{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 32'%3E%3Crect x='8' y='2' width='8' height='12' rx='1.5' fill='%23222'/%3E%3Cpath d='M8 14h8l-1 4H9z' fill='%23444'/%3E%3Cpath d='M10 18h4l-1.2 12h-1.6z' fill='%23111'/%3E%3Ccircle cx='12' cy='8' r='1.5' fill='%23666'/%3E%3C/svg%3E");
+}
+.doodle-v2 .tip-pencil{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 32'%3E%3Cpath d='M9 2h6l1 14H8z' fill='%23f59e0b'/%3E%3Cpath d='M8 16h8l-2.5 8h-3z' fill='%23e7c9a0'/%3E%3Cpath d='M10.5 24h3L12 30z' fill='%23333'/%3E%3Crect x='9' y='2' width='6' height='3' fill='%23d97706'/%3E%3C/svg%3E");
+}
+.doodle-v2 .tip-paint{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 32'%3E%3Cpath d='M8 2h8v10c0 2-1 4-4 6s-4-4-4-6V2z' fill='%23333'/%3E%3Cellipse cx='12' cy='22' rx='5' ry='7' fill='%23222'/%3E%3Cpath d='M9 18c1 3 5 3 6 0' fill='%23555'/%3E%3C/svg%3E");
+}
+.doodle-v2 .tip-air{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 32'%3E%3Ccircle cx='12' cy='16' r='9' fill='%23444'/%3E%3Ccircle cx='12' cy='16' r='6' fill='%23666'/%3E%3Ccircle cx='10' cy='13' r='2.5' fill='%23999'/%3E%3C/svg%3E");
+}
+.doodle-v2 .dv2-brush.active .dv2-brush-icon{
+  filter:drop-shadow(0 2px 4px rgba(37,99,235,.25));
+}
 
 .doodle-v2 .dv2-size-row{
   display:flex;align-items:center;gap:12px;
@@ -6315,8 +6336,8 @@ function openDoodlePad(){
       </div>
       <div class="dv2-actions">
         <button type="button" class="dv2-btn-ghost" onclick="clearDoodleCanvas()"><i data-lucide="trash-2"></i> Clear</button>
-        <button type="button" class="dv2-btn-primary" id="doodleSendBtn" onclick="sendDoodleMessage()"><i data-lucide="download"></i> Save</button>
-        <button type="button" class="dv2-btn-ghost" onclick="sendDoodleMessage()"><i data-lucide="send"></i> Share</button>
+        <button type="button" class="dv2-btn-primary" id="doodleSaveBtn" onclick="saveDoodleToDevice()"><i data-lucide="download"></i> Save</button>
+        <button type="button" class="dv2-btn-ghost" id="doodleShareBtn" onclick="sendDoodleMessage()"><i data-lucide="send"></i> Share</button>
       </div>
     </footer>`;
   document.body.appendChild(root);
@@ -6562,6 +6583,35 @@ function compressDoodle(canvas,maxW=720,quality=0.72){
   c.fillRect(0,0,w,h);
   c.drawImage(canvas,0,0,w,h);
   return out.toDataURL("image/jpeg", quality);
+}
+
+function saveDoodleToDevice(){
+  const pair=getDoodleCtx();
+  if(!pair)return;
+  if(!doodleState.strokes){
+    chatWarning("Empty doodle","Draw something before saving.","✏️");
+    return;
+  }
+  try{
+    const {canvas}=pair;
+    const dataUrl=compressDoodle(canvas,1080,0.92);
+    const a=document.createElement("a");
+    a.href=dataUrl;
+    a.download="studyflow-doodle-"+Date.now()+".jpg";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    // brief toast
+    showChatDialog({
+      title:"Saved",
+      message:"Doodle saved to your device downloads.",
+      icon:"💾",
+      confirmText:"OK"
+    });
+  }catch(e){
+    console.warn(e);
+    chatWarning("Save failed","Could not save the doodle. Try again.","⚠️");
+  }
 }
 
 async function sendDoodleMessage(){
@@ -7003,12 +7053,29 @@ async function toggleBlockUser(uid,isBlocked){
  
 /* Better Google-like account chooser when using the local/demo mode. */ 
  
-/* MOBILE PULL-TO-REFRESH — reload only when the page is at the top */ 
+/* MOBILE PULL-TO-REFRESH — only on main Home/Target/Profile, never in chats/doodle/modals */
 let pullStartY=null; 
-let pullTracking=false; 
+let pullTracking=false;
+function shouldBlockPullReload(){
+  // Doodle pad open
+  if(document.getElementById("doodlePadRoot")) return true;
+  // Chat conversation full-screen
+  if(document.querySelector(".chat-mobile-open")) return true;
+  // Chats / Explore page (inbox)
+  if(typeof activePage==="string" && (activePage==="chats"||activePage==="explore")) return true;
+  // Any modal / dialog / profile visit / follow list
+  if(document.getElementById("chatDialogRoot")) return true;
+  if(document.getElementById("followListHost")?.innerHTML?.trim()) return true;
+  if(document.querySelector(".chat-profile-modal,.timer-modal,.complete-modal,.email-auth-modal,.google-account-modal,.studying-live-modal,.danger-modal,.persistent-timer-modal")) return true;
+  // Inside scrollable chat lists / messages
+  const t=document.elementFromPoint?.(window.innerWidth/2, 80);
+  if(t && t.closest?.(".chat-inbox-page,.chat-messages,.chat-inbox-list,#chatList,.doodle-modal,.dv2-canvas-card,#doodleCanvas")) return true;
+  return false;
+}
 document.addEventListener("touchstart",e=>{ 
   if(window.innerWidth>700)return; 
-  if(window.scrollY>0)return; 
+  if(window.scrollY>0)return;
+  if(shouldBlockPullReload())return;
   const touch=e.touches?.[0]; 
   if(!touch)return; 
   pullStartY=touch.clientY; 
@@ -7020,7 +7087,8 @@ document.addEventListener("touchend",e=>{
   const touch=e.changedTouches?.[0]; 
   const endY=touch?.clientY; 
   const distance=(endY??pullStartY)-pullStartY; 
-  pullTracking=false; 
+  pullTracking=false;
+  if(shouldBlockPullReload())return;
   if(window.scrollY<=0 && distance>85){ 
     window.location.reload(); 
   } 
