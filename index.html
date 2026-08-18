@@ -1068,7 +1068,17 @@ body:has(.chat-inbox-page){
   .chats-page.chat-inbox-page{
     height:calc(100dvh - 88px) !important;
     overflow:hidden !important;
-  } 
+  }
+  /* When a conversation is open — full screen, no bottom gap */
+  .chats-page.chat-inbox-page.chat-mobile-open{
+    height:100dvh !important;
+    max-height:100dvh !important;
+    position:fixed !important;
+    inset:0 !important;
+    z-index:80 !important;
+    padding:0 !important;
+    margin:0 !important;
+  }
  
   .chat-inbox-shell{ 
     min-height:0 !important; 
@@ -1486,6 +1496,7 @@ body:has(.chat-inbox-page){
     overflow:hidden !important;
   }
   .chat-inbox-page.chat-mobile-open .chat-inbox-top,
+  .chat-inbox-page.chat-mobile-open .chat-mobile-pills,
   .chat-inbox-page.chat-mobile-open .chat-inbox-sidebar,
   .chat-inbox-page.chat-mobile-open .chat-inbox-search,
   .chat-inbox-page.chat-mobile-open .chat-explore-panel,
@@ -1551,9 +1562,9 @@ body:has(.chat-inbox-page){
     flex:0 0 auto !important;
     display:flex !important;
     gap:8px !important;
-    align-items:flex-end !important;
+    align-items:center !important;
     padding:8px 10px !important;
-    padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom:max(8px, env(safe-area-inset-bottom, 0px)) !important;
     background:#fff !important;
     border-top:1px solid rgba(0,0,0,.08) !important;
     margin:0 !important;
@@ -1574,6 +1585,15 @@ body:has(.chat-inbox-page){
     border-radius:50% !important;
     flex:0 0 42px !important;
   }
+
+  .chat-inbox-page.chat-mobile-open .chat-doodle-btn{
+    width:40px !important;height:40px !important;flex:0 0 40px !important;
+    border-radius:50% !important;background:#f0f2f5 !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-compose{
+    align-items:flex-end !important;
+  }
+
   /* Combined reaction + action menu */
   .chat-action-sheet{
     position:fixed;
@@ -1615,6 +1635,456 @@ body:has(.chat-inbox-page){
 }
 .chat-reaction-picker{z-index:300 !important}
 .chat-longpress-menu{z-index:301 !important}
+
+
+
+
+/* ===== Instagram-style chat doodle (v2 – mobile-first) ===== */
+.chat-compose{
+  display:flex !important;
+  align-items:flex-end !important;
+  gap:8px !important;
+}
+.chat-doodle-btn{
+  width:42px;height:42px;border-radius:50%;
+  background:#f0f2f5;border:0;flex:0 0 42px;
+  display:grid;place-items:center;cursor:pointer;
+  color:#555d68;transition:transform .15s ease,background .15s ease,color .15s ease;
+}
+.chat-doodle-btn:hover{background:#efe6ff;color:#8f36c9;transform:scale(1.06)}
+.chat-doodle-btn:disabled{opacity:.4;cursor:not-allowed}
+.chat-doodle-btn svg{width:20px;height:20px}
+.chat-bubble-img{
+  display:block;max-width:min(260px,72vw);max-height:320px;
+  border-radius:16px;margin:2px 0 4px;cursor:zoom-in;
+  background:#f3f4f6;object-fit:contain;
+  box-shadow:0 4px 16px rgba(20,28,38,.10);
+}
+.chat-bubble-row.mine .chat-bubble-img{background:rgba(255,255,255,.08)}
+.chat-bubble.has-doodle{
+  padding:4px !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+.chat-bubble-row.mine .chat-bubble.has-doodle{
+  background:transparent !important;border:0 !important;
+}
+.chat-bubble.has-doodle .chat-bubble-time{
+  color:#8a919b;text-align:right;padding:2px 6px 0;font-size:9px;
+}
+.chat-bubble-row.mine .chat-bubble.has-doodle .chat-bubble-time{color:rgba(255,255,255,.55)}
+.chat-doodle-caption{font-size:12px;line-height:1.4;margin-top:4px;padding:0 6px}
+.chat-bubble-row.mine .chat-doodle-caption{color:#fff}
+
+/* Full-screen Instagram DM doodle */
+.doodle-modal{
+  position:fixed;inset:0;z-index:320;
+  display:flex;flex-direction:column;
+  background:#000;
+  animation:doodleIn .22s cubic-bezier(.2,.9,.2,1) both;
+}
+@keyframes doodleIn{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:none}
+}
+.doodle-top{
+  position:absolute;top:0;left:0;right:0;z-index:5;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;padding:10px 12px;
+  padding-top:calc(10px + env(safe-area-inset-top,0px));
+  background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);
+  pointer-events:none;
+}
+.doodle-top > *{pointer-events:auto}
+.doodle-top h3{
+  margin:0;font:800 15px/1 "DM Sans",system-ui,sans-serif;
+  color:#fff;letter-spacing:.2px;text-shadow:0 1px 8px rgba(0,0,0,.35);
+}
+.doodle-top-actions{display:flex;gap:8px;align-items:center}
+.doodle-icon-btn{
+  width:36px;height:36px;border-radius:50%;border:0;
+  background:rgba(255,255,255,.14);color:#fff;
+  display:grid;place-items:center;cursor:pointer;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  transition:transform .15s ease,background .15s ease;
+}
+.doodle-icon-btn:active{transform:scale(.92)}
+.doodle-icon-btn svg{width:17px;height:17px}
+.doodle-icon-btn.danger{background:rgba(255,77,104,.22)}
+
+.doodle-stage{
+  flex:1 1 auto;min-height:0;
+  display:flex;align-items:stretch;justify-content:center;
+  position:relative;overflow:hidden;
+  background:#0a0a0b;
+}
+.doodle-canvas-wrap{
+  width:100%;height:100%;
+  max-width:100%;
+  border-radius:0;
+  overflow:hidden;
+  background:#fff;
+  touch-action:none;
+  position:relative;
+  box-shadow:none;
+}
+#doodleCanvas{
+  width:100%;height:100%;display:block;cursor:crosshair;
+  touch-action:none;-ms-touch-action:none;
+  background:#fff;
+  user-select:none;-webkit-user-select:none;
+}
+
+/* Bottom glass toolbar – Instagram style */
+.doodle-tools{
+  position:absolute;left:0;right:0;bottom:0;z-index:6;
+  padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(0deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.42) 55%,transparent 100%);
+  display:flex;flex-direction:column;gap:12px;
+  pointer-events:none;
+}
+.doodle-tools > *{pointer-events:auto}
+.doodle-hint{display:none}
+
+.doodle-colors{
+  display:flex;justify-content:center;gap:11px;flex-wrap:nowrap;
+  align-items:center;padding:0 4px;
+}
+.doodle-color{
+  width:28px;height:28px;border-radius:50%;border:0;
+  cursor:pointer;
+  box-shadow:0 0 0 2px rgba(255,255,255,.18);
+  transition:transform .18s cubic-bezier(.2,1.2,.3,1),box-shadow .18s ease;
+  flex:0 0 auto;
+  position:relative;
+}
+.doodle-color:active{transform:scale(.88)}
+.doodle-color.active{
+  transform:scale(1.28);
+  box-shadow:0 0 0 3px #fff, 0 0 0 5px rgba(255,255,255,.28), 0 6px 18px rgba(0,0,0,.4);
+}
+.doodle-color[data-color="#ffffff"]{
+  box-shadow:0 0 0 2px rgba(255,255,255,.35), inset 0 0 0 1px rgba(0,0,0,.12);
+}
+.doodle-color[data-color="#ffffff"].active{
+  box-shadow:0 0 0 2.5px #fff, inset 0 0 0 1px rgba(0,0,0,.15), 0 4px 14px rgba(0,0,0,.35);
+}
+
+.doodle-sizes{
+  display:flex;justify-content:center;gap:14px;align-items:center;
+}
+.doodle-size{
+  width:36px;height:36px;border-radius:50%;border:0;
+  background:rgba(255,255,255,.12);color:#fff;
+  display:grid;place-items:center;cursor:pointer;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  transition:transform .16s ease,background .16s ease,box-shadow .16s ease;
+}
+.doodle-size:active{transform:scale(.9)}
+.doodle-size.active{background:#fff;color:#111;box-shadow:0 4px 14px rgba(0,0,0,.28)}
+.doodle-size i{
+  display:block;border-radius:50%;background:currentColor;
+}
+
+.doodle-actions{
+  display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;
+  max-width:520px;width:100%;margin:0 auto;
+}
+.doodle-actions button{
+  height:46px;border-radius:999px;border:0;font-weight:800;font-size:14px;cursor:pointer;
+  font-family:"DM Sans",system-ui,sans-serif;
+  transition:transform .15s ease,opacity .15s ease;
+}
+.doodle-actions button:active{transform:scale(.97)}
+.doodle-cancel{
+  width:46px;height:46px;padding:0;
+  background:rgba(255,255,255,.14);color:#fff;
+  display:grid;place-items:center;
+  backdrop-filter:blur(10px);
+}
+.doodle-cancel span{display:none}
+.doodle-send{
+  background:linear-gradient(180deg,#ffffff 0%,#f0f2f5 100%);
+  color:#111;
+  box-shadow:0 8px 28px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.9);
+  letter-spacing:.2px;
+}
+.doodle-send:hover{filter:brightness(1.04)}
+.doodle-send:disabled{opacity:.45}
+
+.doodle-lightbox{
+  position:fixed;inset:0;z-index:340;background:rgba(0,0,0,.92);
+  display:grid;place-items:center;padding:18px;
+  backdrop-filter:blur(10px);
+  animation:doodleIn .18s ease both;
+}
+.doodle-lightbox img{
+  max-width:min(920px,96vw);max-height:90vh;border-radius:18px;
+  box-shadow:0 30px 80px rgba(0,0,0,.55);
+}
+
+/* Desktop: slightly inset canvas card for elegance */
+@media(min-width:701px){
+  .doodle-stage{
+    padding:56px 24px 140px;
+    background:
+      radial-gradient(ellipse at 30% 20%,rgba(143,54,201,.2),transparent 50%),
+      radial-gradient(ellipse at 80% 80%,rgba(38,135,255,.14),transparent 45%),
+      #0a0a0b;
+  }
+  .doodle-canvas-wrap{
+    width:min(420px,100%);
+    height:auto;
+    aspect-ratio:3/4;
+    max-height:min(70vh,680px);
+    border-radius:20px;
+    box-shadow:0 28px 80px rgba(0,0,0,.55);
+    align-self:center;
+  }
+  .doodle-tools{
+    background:linear-gradient(0deg,rgba(0,0,0,.78),rgba(0,0,0,.35) 70%,transparent);
+    padding-bottom:20px;
+  }
+  .doodle-actions{max-width:420px}
+  .doodle-cancel{width:auto;padding:0 22px}
+  .doodle-cancel span{display:inline}
+}
+
+@media(max-width:700px){
+  .doodle-canvas-wrap{
+    width:100%;height:100%;
+    border-radius:0;max-height:none;
+  }
+  .doodle-stage{padding:0}
+  .doodle-colors{gap:12px}
+  .doodle-color{width:28px;height:28px}
+  .chat-doodle-btn{width:40px;height:40px;flex-basis:40px}
+  .chat-inbox-page.chat-mobile-open .chat-doodle-btn{
+    width:40px !important;height:40px !important;flex:0 0 40px !important;
+    border-radius:50% !important;background:#f0f2f5 !important;
+  }
+}
+
+/* ============================================================
+   DOODLE V2 — carbon copy of reference UI (mobile-first)
+   ============================================================ */
+.doodle-modal.doodle-v2{
+  background:
+    radial-gradient(circle at 12% 0%,rgba(255,255,255,.98),transparent 40%),
+    radial-gradient(circle at 100% 20%,rgba(200,230,255,.35),transparent 42%),
+    #f4f7fb !important;
+  color:#111;
+  animation:doodleIn .22s cubic-bezier(.2,.9,.2,1) both;
+}
+.doodle-v2 .dv2-top{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  padding-top:calc(10px + env(safe-area-inset-top,0px));
+  background:transparent;
+  position:relative;
+  z-index:5;
+}
+.doodle-v2 .dv2-title-wrap{flex:1;min-width:0}
+.doodle-v2 .dv2-title-wrap h2{
+  margin:0;font:900 20px/1.1 Nunito,system-ui,sans-serif;color:#111;
+}
+.doodle-v2 .dv2-title-wrap span{
+  display:block;font-size:11px;font-weight:600;color:#8a919b;margin-top:2px;
+}
+.doodle-v2 .dv2-top-right{display:flex;gap:8px}
+.doodle-v2 .dv2-icon-btn{
+  width:40px;height:40px;border-radius:14px;border:0;
+  background:#fff;color:#333;
+  box-shadow:0 4px 14px rgba(40,50,70,.08);
+  display:grid;place-items:center;cursor:pointer;
+}
+.doodle-v2 .dv2-icon-btn svg{width:18px;height:18px}
+
+.doodle-v2 .dv2-body{
+  flex:1 1 auto;min-height:0;
+  display:flex;gap:10px;
+  padding:4px 12px 8px;
+  position:relative;
+}
+.doodle-v2 .dv2-sidebar{
+  flex:0 0 64px;
+  display:flex;flex-direction:column;gap:4px;
+  padding:8px 6px;
+  background:#fff;
+  border-radius:20px;
+  box-shadow:0 8px 28px rgba(40,50,70,.08);
+  align-self:flex-start;
+  max-height:100%;
+  overflow:auto;
+}
+.doodle-v2 .dv2-tool{
+  width:100%;border:0;background:transparent;
+  border-radius:14px;padding:10px 4px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;color:#6b7280;font-size:9px;font-weight:800;
+}
+.doodle-v2 .dv2-tool svg{width:18px;height:18px}
+.doodle-v2 .dv2-tool.active{
+  background:#e8f3ff;color:#2563eb;
+}
+.doodle-v2 .dv2-canvas-area{
+  flex:1 1 auto;min-width:0;min-height:0;
+  position:relative;
+  display:flex;
+}
+.doodle-v2 .dv2-canvas-card{
+  flex:1;min-height:0;
+  border-radius:22px !important;
+  background:#fff !important;
+  box-shadow:0 12px 40px rgba(40,50,70,.10) !important;
+  /* dotted paper */
+  background-image:radial-gradient(circle,#d8dee8 1px,transparent 1px) !important;
+  background-size:18px 18px !important;
+  background-color:#fafbfd !important;
+  overflow:hidden;
+}
+.doodle-v2 #doodleCanvas{
+  background:transparent !important;
+}
+.doodle-v2 .dv2-undo-stack{
+  position:absolute;right:10px;bottom:10px;
+  display:flex;flex-direction:column;gap:8px;z-index:4;
+}
+.doodle-v2 .dv2-fab{
+  width:40px;height:40px;border-radius:14px;border:0;
+  background:#fff;color:#444;
+  box-shadow:0 6px 18px rgba(40,50,70,.12);
+  display:grid;place-items:center;cursor:pointer;
+}
+.doodle-v2 .dv2-fab svg{width:16px;height:16px}
+
+.doodle-v2 .dv2-bottom{
+  flex:0 0 auto;
+  background:#fff;
+  border-radius:24px 24px 0 0;
+  box-shadow:0 -8px 32px rgba(40,50,70,.08);
+  padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px));
+  display:flex;flex-direction:column;gap:12px;
+  position:relative;z-index:6;
+}
+.doodle-v2 .dv2-brush-row{
+  display:flex;justify-content:space-between;gap:6px;
+}
+.doodle-v2 .dv2-brush{
+  flex:1;height:48px;border-radius:14px;border:0;
+  background:#f3f5f8;display:grid;place-items:center;cursor:pointer;
+  transition:background .15s,box-shadow .15s;
+}
+.doodle-v2 .dv2-brush.active{
+  background:#e8f3ff;box-shadow:inset 0 0 0 2px #3b82f6;
+}
+.doodle-v2 .dv2-brush-icon{
+  display:block;width:18px;height:24px;border-radius:3px;
+  background:#333;
+}
+.doodle-v2 .tip-marker{width:14px;height:22px;border-radius:3px 3px 6px 6px;background:linear-gradient(#222 70%,#555)}
+.doodle-v2 .tip-pen{width:10px;height:22px;border-radius:2px;background:linear-gradient(#888 40%,#333)}
+.doodle-v2 .tip-fountain{width:12px;height:22px;clip-path:polygon(50% 0,100% 30%,80% 100%,20% 100%,0 30%);background:#222}
+.doodle-v2 .tip-pencil{width:10px;height:22px;clip-path:polygon(50% 0,100% 25%,100% 100%,0 100%,0 25%);background:linear-gradient(#f59e0b 30%,#333)}
+.doodle-v2 .tip-paint{width:16px;height:20px;border-radius:50% 50% 40% 40%;background:linear-gradient(#444,#222)}
+.doodle-v2 .tip-air{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#999,#333)}
+
+.doodle-v2 .dv2-size-row{
+  display:flex;align-items:center;gap:12px;
+}
+.doodle-v2 .dv2-size-slider{
+  flex:1;height:6px;-webkit-appearance:none;appearance:none;
+  background:linear-gradient(90deg,#3b82f6 0%,#e5e7eb 0%);
+  border-radius:999px;outline:0;
+}
+.doodle-v2 .dv2-size-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+  background:#3b82f6;border:3px solid #fff;
+  box-shadow:0 2px 8px rgba(59,130,246,.45);cursor:pointer;
+}
+.doodle-v2 .dv2-size-label{
+  font-size:12px;font-weight:700;color:#6b7280;white-space:nowrap;
+}
+.doodle-v2 .dv2-size-label b{color:#111;font-weight:900}
+
+.doodle-v2 .dv2-color-row{
+  display:flex;align-items:center;gap:10px;justify-content:flex-start;
+  overflow-x:auto;padding:2px 0;
+}
+.doodle-v2 .dv2-eyedrop{
+  width:34px;height:34px;border-radius:50%;border:0;
+  background:#f3f5f8;display:grid;place-items:center;flex:0 0 auto;cursor:pointer;
+}
+.doodle-v2 .dv2-eyedrop svg{width:16px;height:16px;color:#555}
+.doodle-v2 .doodle-color{
+  width:28px;height:28px;border-radius:50%;border:0;flex:0 0 auto;
+  box-shadow:0 0 0 2px rgba(0,0,0,.06);cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+}
+.doodle-v2 .doodle-color.active{
+  transform:scale(1.15);
+  box-shadow:0 0 0 3px #fff,0 0 0 5px #3b82f6;
+}
+.doodle-v2 .doodle-color[data-color="#ffffff"]{
+  box-shadow:0 0 0 1px rgba(0,0,0,.12);
+}
+.doodle-v2 .doodle-color[data-color="#ffffff"].active{
+  box-shadow:0 0 0 3px #fff,0 0 0 5px #3b82f6,inset 0 0 0 1px rgba(0,0,0,.08);
+}
+
+.doodle-v2 .dv2-actions{
+  display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:8px;
+}
+.doodle-v2 .dv2-btn-ghost,
+.doodle-v2 .dv2-btn-primary{
+  height:48px;border-radius:16px;border:0;font-weight:800;font-size:14px;
+  display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;
+  font-family:"DM Sans",system-ui,sans-serif;
+}
+.doodle-v2 .dv2-btn-ghost{
+  background:#f3f5f8;color:#333;
+}
+.doodle-v2 .dv2-btn-primary{
+  background:#2563eb;color:#fff;
+  box-shadow:0 8px 22px rgba(37,99,235,.35);
+}
+.doodle-v2 .dv2-btn-ghost svg,
+.doodle-v2 .dv2-btn-primary svg{width:16px;height:16px}
+
+/* Desktop: keep elegant centered card, still use v2 chrome */
+@media(min-width:701px){
+  .doodle-modal.doodle-v2{
+    background:
+      radial-gradient(ellipse at 30% 10%,rgba(200,230,255,.5),transparent 50%),
+      radial-gradient(ellipse at 80% 80%,rgba(225,210,255,.35),transparent 45%),
+      #eef3f9 !important;
+  }
+  .doodle-v2 .dv2-body{
+    max-width:920px;margin:0 auto;width:100%;
+    padding:8px 24px;
+  }
+  .doodle-v2 .dv2-sidebar{flex-basis:72px}
+  .doodle-v2 .dv2-canvas-card{
+    max-width:520px;margin:0 auto;
+    aspect-ratio:3/4;height:auto !important;
+    max-height:min(58vh,620px);
+  }
+  .doodle-v2 .dv2-bottom{
+    max-width:640px;margin:0 auto 16px;
+    border-radius:24px;
+    box-shadow:0 12px 40px rgba(40,50,70,.12);
+  }
+  .doodle-v2 .dv2-top{max-width:920px;margin:0 auto;width:100%}
+}
+
+/* Hide legacy absolute toolbars when v2 is active */
+.doodle-modal.doodle-v2 .doodle-top,
+.doodle-modal.doodle-v2 .doodle-tools{display:none!important}
+.doodle-modal.doodle-v2 .doodle-stage{display:none!important}
 
 
 /* From Uiverse.io by gagan-gv — global loading spinner */
@@ -2828,14 +3298,524 @@ html,body{
 .chat-dialog-btn.primary{background:linear-gradient(135deg,#8b5cf6,#7c3aed) !important;border:0 !important}
 .chat-dialog-btn.danger{background:rgba(239,68,68,.92) !important}
 
-</style> 
+
+/* ============================================================
+   PERFORMANCE LAYER — scroll / paint / composite (no visual redesign)
+   ============================================================ */
+html, body {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+.app-shell, .page, .main, .dashboard {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+/* Promote scroll surfaces to their own compositor layers */
+.chat-messages,
+.chat-inbox-list,
+#chatList,
+.chat-explore-panel #chatExploreResults,
+#chatExploreResults,
+.follow-list-body,
+.visit-profile-shell,
+.subject-list,
+.donut-legend,
+.chat-inbox-window .chat-messages {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  will-change: scroll-position;
+  transform: translateZ(0);
+  contain: layout style;
+}
+/* Skip work for off-screen cards/rows while preserving layout */
+.card,
+.subject-card,
+.chat-list-item,
+.chat-inbox-item,
+.chat-user-row,
+.visit-card,
+.follow-list-row,
+.activity-row,
+.task {
+  contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 72px;
+}
+/* Keep hover transitions cheap; avoid animating box-shadow on every frame */
+.subject-card,
+.chat-list-item,
+.chat-inbox-item,
+.chat-user-row,
+.bottom-item,
+.rail-link {
+  will-change: transform;
+}
+/* Images: avoid layout shift + decode on main thread */
+img {
+  content-visibility: auto;
+  decoding: async;
+}
+.chat-avatar img,
+.avatar img,
+.profile-avatar img,
+.visit-avatar img,
+.studying-now-avatar img,
+.photo-picker-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* Honeycomb is decorative — never participate in hit-testing or heavy paint */
+.honeycomb {
+  contain: strict;
+  pointer-events: none;
+  transform: translateZ(0);
+}
+/* Reduce backdrop-filter cost on non-critical layers during scroll (keep visual) */
+@supports (backdrop-filter: blur(1px)) {
+  .card {
+    /* keep blur but isolate */
+    isolation: isolate;
+  }
+}
+/* Mobile nav / fixed chrome */
+.mobile-nav,
+.timer-minimized,
+.persistent-timer-mini {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card, .subject-card, .chat-list-item, .chat-inbox-item {
+    content-visibility: visible;
+  }
+}
+
+/* Desktop: hide mobile-only chat chrome; keep existing desktop UI */
+.chat-mobile-pills{display:none}
+.msg-avatar,.msg-sender-name,.msg-time-out{display:none}
+.chat-list-meta{display:none}
+.chat-list-time,.chat-list-badge,.chat-list-checks{display:none}
+@media (min-width:701px){
+  .chat-tab-label{display:inline}
+  .chat-inbox-action{font-size:11px!important;width:auto!important;height:42px!important;padding:0 15px!important;border-radius:14px!important}
+}
+
+/* ============================================================
+   MOBILE CHAT UI — 100% match reference screenshots
+   Only applies at max-width 700px. Desktop stays unchanged.
+   ============================================================ */
+@media (max-width: 700px) {
+  .chat-tab-label{display:none!important}
+  .msg-avatar,.msg-sender-name,.msg-time-out{display:block}
+  .chat-list-meta{display:flex}
+  .chat-list-time,.chat-list-badge,.chat-list-checks{display:block}
+  .chat-mobile-pills{display:grid!important}
+  .chat-list-time-desk{display:none!important}
+
+
+  /* ---- Chats list page shell ---- */
+  .chat-inbox-page:not(.chat-mobile-open) {
+    background: transparent !important;
+    padding: 0 2px 0 !important;
+    gap: 0 !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-inbox-top {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 6px 4px 10px !important;
+    margin: 0 !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-inbox-title {
+    font: 900 32px/1.1 Nunito, system-ui, sans-serif !important;
+    letter-spacing: -0.5px !important;
+    color: #111 !important;
+    margin: 0 !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-inbox-sub {
+    display: none !important;
+  }
+  /* Top-right circular icon buttons */
+  .chat-inbox-page:not(.chat-mobile-open) .chat-inbox-actions {
+    display: flex !important;
+    gap: 8px !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-inbox-action {
+    width: 42px !important;
+    height: 42px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    background: #fff !important;
+    border: 1.5px solid rgba(20, 25, 35, 0.10) !important;
+    box-shadow: 0 4px 12px rgba(40, 50, 70, 0.06) !important;
+    font-size: 0 !important;
+    color: #111 !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-inbox-action svg,
+  .chat-inbox-page:not(.chat-mobile-open) .chat-inbox-action i {
+    width: 18px !important;
+    height: 18px !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-inbox-action.active {
+    background: #fff !important;
+    color: #111 !important;
+    border-color: rgba(20, 25, 35, 0.10) !important;
+  }
+
+  /* Search + Explore soft pills */
+  .chat-inbox-page:not(.chat-mobile-open) .chat-mobile-pills {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    padding: 0 2px 14px !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-mobile-pills .pill-search {
+    height: 44px !important;
+    border-radius: 999px !important;
+    background: #e8f4fc !important;
+    border: 0 !important;
+    font-weight: 800 !important;
+    font-size: 14px !important;
+    color: #2a4a6a !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-mobile-pills .pill-explore {
+    height: 44px !important;
+    border-radius: 999px !important;
+    background: #f0e8ff !important;
+    border: 0 !important;
+    font-weight: 800 !important;
+    font-size: 14px !important;
+    color: #5a3a8a !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-mobile-pills .pill-search.active {
+    box-shadow: inset 0 0 0 2px rgba(47,128,237,.25);
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-mobile-pills .pill-explore.active {
+    box-shadow: inset 0 0 0 2px rgba(143,54,201,.25);
+  }
+
+  /* Hide old search bar / section head on mobile list */
+  .chat-inbox-page:not(.chat-mobile-open) .chat-inbox-search {
+    display: none !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-inbox-section-head {
+    display: none !important;
+  }
+  /* When searching via the pill we show a floating search */
+  .chat-inbox-page:not(.chat-mobile-open).show-mobile-search .chat-inbox-search {
+    display: block !important;
+    padding: 0 2px 12px !important;
+    grid-column: 1 / -1;
+  }
+  .chat-inbox-page:not(.chat-mobile-open).show-mobile-search .chat-inbox-search .chats-search-wrap {
+    height: 44px !important;
+    border-radius: 999px !important;
+    background: #f0f2f5 !important;
+    border: 0 !important;
+    padding: 0 16px !important;
+  }
+
+  .chat-inbox-page:not(.chat-mobile-open) .chat-inbox-shell {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-inbox-sidebar {
+    background: transparent !important;
+    border: 0 !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-inbox-list,
+  .chat-inbox-page:not(.chat-mobile-open) #chatList {
+    padding: 0 0 20px !important;
+    background: transparent !important;
+  }
+
+  /* Chat list rows */
+  .chat-inbox-page:not(.chat-mobile-open) .chat-list-item {
+    display: grid !important;
+    grid-template-columns: 54px minmax(0,1fr) auto !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 13px 4px !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(20, 25, 35, 0.06) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    position: relative !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-list-item:active {
+    background: rgba(0, 0, 0, 0.03) !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-list-item .chat-avatar {
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: 16px !important;
+    font-size: 24px !important;
+    background: #e8f0ff !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-list-item .chat-list-copy b {
+    font: 800 15px/1.25 "DM Sans", system-ui, sans-serif !important;
+    color: #111 !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-list-item .chat-list-copy small {
+    display: block !important;
+    margin-top: 3px !important;
+    font-size: 12.5px !important;
+    font-weight: 500 !important;
+    color: #8a919b !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-list-item .chat-list-meta {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    gap: 6px !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-list-item .chat-list-time {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #9aa1aa !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-list-item .chat-list-badge {
+    min-width: 20px !important;
+    height: 20px !important;
+    padding: 0 6px !important;
+    border-radius: 999px !important;
+    background: #2f80ed !important;
+    color: #fff !important;
+    font: 800 11px/20px Nunito, system-ui, sans-serif !important;
+    text-align: center !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-list-item .chat-list-checks {
+    color: #2f80ed !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    letter-spacing: -1px !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-list-item .chat-list-unread-dot {
+    display: none !important;
+  }
+  .chat-inbox-page:not(.chat-mobile-open) .chat-list-item.unread {
+    background: transparent !important;
+  }
+
+  /* Explore list clean rows */
+  .chat-inbox-page.explore-mode:not(.chat-mobile-open) .chat-explore-panel {
+    background: transparent !important;
+    padding: 0 !important;
+  }
+  .chat-inbox-page.explore-mode:not(.chat-mobile-open) .chat-user-row {
+    border: 0 !important;
+    border-bottom: 1px solid rgba(20, 25, 35, 0.06) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 12px 4px !important;
+  }
+
+  /* ---- Conversation full-screen ---- */
+  .chat-inbox-page.chat-mobile-open .chat-mobile-pills,
+  .chat-inbox-page.chat-mobile-open .chat-inbox-top {
+    display: none !important;
+  }
+  .chat-inbox-page.chat-mobile-open {
+    background: #f7f9fc !important;
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 80 !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+  }
+  body:has(.chat-mobile-open) .mobile-nav {
+    display: none !important;
+  }
+  body:has(.chat-mobile-open) .dashboard,
+  body:has(.chat-mobile-open) .main {
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-window-head {
+    background: #fff !important;
+    border-bottom: 1px solid rgba(20, 25, 35, 0.06) !important;
+    padding: 10px 12px !important;
+    padding-top: calc(10px + env(safe-area-inset-top, 0px)) !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-window-head .chat-avatar {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 14px !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-window-head .chat-head-copy b {
+    font: 800 16px Nunito, system-ui, sans-serif !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-messages {
+    background:
+      radial-gradient(circle at 12% 0%, rgba(255,255,255,.95), transparent 38%),
+      radial-gradient(circle at 90% 18%, rgba(200,230,255,.22), transparent 42%),
+      #f7f9fc !important;
+    padding: 18px 14px 14px !important;
+    gap: 20px !important;
+  }
+
+  /* Bubble layout with avatar + name */
+  .chat-inbox-page.chat-mobile-open .chat-bubble-row {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-bubble-row.mine {
+    flex-direction: row-reverse !important;
+    justify-content: flex-start !important;
+  }
+  .chat-inbox-page.chat-mobile-open .msg-avatar {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 14px !important;
+    flex: 0 0 42px !important;
+    background: #e8f0ff !important;
+    display: grid !important;
+    place-items: center !important;
+    font-size: 20px !important;
+    overflow: hidden !important;
+  }
+  .chat-inbox-page.chat-mobile-open .msg-avatar img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-bubble-wrap {
+    max-width: calc(100% - 56px) !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-bubble-row.mine .chat-bubble-wrap {
+    align-items: flex-end !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-bubble-row:not(.mine) .chat-bubble-wrap {
+    align-items: flex-start !important;
+  }
+  .chat-inbox-page.chat-mobile-open .msg-sender-name {
+    font: 700 13px/1.2 "DM Sans", system-ui, sans-serif !important;
+    color: #111 !important;
+    padding: 0 4px !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-bubble {
+    max-width: 100% !important;
+    width: fit-content !important;
+    padding: 11px 14px !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+    box-shadow: none !important;
+    border: 1.5px solid rgba(20, 25, 35, 0.08) !important;
+    background: #fff !important;
+    color: #111 !important;
+    border-radius: 18px 18px 18px 6px !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-bubble-row.mine .chat-bubble {
+    background: #c8e0f8 !important;
+    border-color: transparent !important;
+    color: #111 !important;
+    border-radius: 18px 18px 6px 18px !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-bubble .chat-bubble-time {
+    display: none !important;
+  }
+  .chat-inbox-page.chat-mobile-open .msg-time-out {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #9aa1aa !important;
+    padding: 0 4px !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-hover-actions {
+    display: none !important;
+  }
+
+  /* Compose bar */
+  .chat-inbox-page.chat-mobile-open .chat-compose {
+    background: #fff !important;
+    border-top: 1px solid rgba(0,0,0,.06) !important;
+    padding: 8px 12px !important;
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
+    gap: 8px !important;
+    align-items: center !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-doodle-btn {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    background: #f0f2f5 !important;
+    flex: 0 0 40px !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-compose textarea {
+    flex: 1 !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    border-radius: 22px !important;
+    background: #f0f2f5 !important;
+    border: 0 !important;
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-send {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 50% !important;
+    background: #2f80ed !important;
+    color: #fff !important;
+    flex: 0 0 42px !important;
+    box-shadow: 0 4px 14px rgba(47, 128, 237, 0.35) !important;
+  }
+  /* Kill any leftover gap under the input (Messenger-tight) */
+  .chat-inbox-page.chat-mobile-open .chat-inbox-window,
+  .chat-inbox-page.chat-mobile-open .chat-window {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  .chat-inbox-page.chat-mobile-open .chat-typing {
+    min-height: 0 !important;
+    padding: 0 14px !important;
+  }
+}
+
+</style>
+ 
 </head> 
 <body> 
 <div class="honeycomb"></div> 
 <div id="app" class="app-shell"></div><div id="persistentTimerHost" aria-live="polite"></div>
 <div id="globalLoader" class="global-loader hidden" aria-live="polite" aria-busy="true"><div class="spinner"><div class="loader l1"></div><div class="loader l2"></div></div></div> 
  
-<script> 
+<script>
+/* Performance helpers — throttle/rAF without changing app logic */
+window.__rafThrottle=function(fn){let scheduled=false,lastArgs=null;return function(){lastArgs=arguments;if(scheduled)return;scheduled=true;requestAnimationFrame(function(){scheduled=false;fn.apply(null,lastArgs);});};};
+window.__passiveTouch={passive:true};
+
  
 /* ============================================================ 
    STUDY CIRCLE — PREMIUM SINGLE FILE APP V2 
@@ -2968,22 +3948,16 @@ function initFirebase(){
     onAuthStateChanged(auth,async user=>{ 
       firebaseUser=user||null; 
       if(user){ 
-        const ref=doc(firestore,"users",user.uid); 
-        const snap=await getDoc(ref); 
-        if(snap.exists){ 
-          const cloud=snap.data(); 
-          state={...state,...cloud,authUid:user.uid,onboarding:cloud.onboarding||"done"}; 
-          save(); 
-          render(); 
-        }else{ 
-          state.authUid=user.uid; 
-          state.user.name=state.user.name||user.displayName||""; 
-          state.user.username=state.user.username||((user.email||"").split("@")[0]||"student"); 
-          state.user.dp=state.user.dp||user.photoURL||""; 
-          save(); 
-        } 
-        await syncPublicProfile(); 
-      } 
+        // Returning sessions: load cloud profile once. Manual login handlers
+        // also call resolveAuthProfile — guard against double-render races.
+        if(window.__authResolving)return;
+        await resolveAuthProfile(user,{fromListener:true});
+      } else {
+        // Signed out elsewhere
+        if(state.onboarding==="done"||state.authUid){
+          /* keep local offline data; welcome only if explicit logout */
+        }
+      }
     }); 
   }catch(err){console.warn("Firebase disabled:",err);firebaseReady=false;} 
 } 
@@ -3044,7 +4018,7 @@ function fmtClock(sec){
 function totalFocus(){return state.subjects.reduce((a,s)=>a+(s.seconds||0),0)} 
 function todayKey(){return new Date().toISOString().slice(0,10)} 
 function avatarHTML(size="avatar"){ 
-  if(state.user.dp)return `<img class="${size}" src="${esc(state.user.dp)}" alt="Profile">`; 
+  if(state.user.dp)return `<img class="${size}" src="${esc(state.user.dp)}" alt="Profile" loading="lazy" decoding="async">`; 
   return `<div class="${size}">🙂</div>`; 
 } 
  
@@ -3142,44 +4116,101 @@ function renderOnboarding(){
     if(inp)inp.addEventListener("input",()=>{const c=document.getElementById("charCount");if(c)c.textContent=inp.value.length}); 
   } 
 } 
-async function startGoogle(){
-  if(firebaseReady&&auth){
-    showLoader();
-    try{
-      const provider=new GoogleAuthProvider();
-      provider.setCustomParameters({prompt:"select_account"});
-      await signInWithPopup(auth,provider);
-      const u=auth.currentUser;
-      state.authUid=u?.uid||"";
-      state.user=state.user||{};
-      state.user.email=u?.email||state.user.email||"";
-      state.user.dp=state.user.dp||u?.photoURL||"";
-      let existingProfile=false;
-      if(firestore&&u?.uid){
-        try{
-          const snap=await getDoc(doc(firestore,"users",u.uid));
-          if(snap.exists){
-            const cloud=snap.data()||{};
-            state={...state,...cloud,authUid:u.uid};
-            state.user=state.user||{};
-            state.user.email=u?.email||state.user.email||"";
-            state.user.dp=state.user.dp||u?.photoURL||"";
-            existingProfile=!!(state.user.name&&state.user.username&&state.user.birthday);
-          }
-        }catch(e){console.warn("Google profile lookup failed",e)}
-      }
-      if(existingProfile){state.onboarding="done";}
-      else{state.user.name=state.user.name||u?.displayName||"";state.user.username=state.user.username||"";state.onboarding="name";}
-      save();render();
-      return;
-    }catch(err){
-      console.error(err);
-      warn("Google sign-in failed","Check your Firebase Google provider and authorized domain.",{danger:true,icon:"alert-triangle"});
-      return;
-    }finally{hideLoader()}
-  }
-  state.onboarding="name";save();render();
+
+/* ---------- auth profile routing (new vs returning) ---------- */
+function profileLooksComplete(user,onboardingFlag){
+  const u=user||{};
+  if(onboardingFlag==="done")return true;
+  // Require core identity fields for a finished first-time setup
+  return !!(String(u.name||"").trim() && String(u.username||"").trim() && String(u.birthday||"").trim());
 }
+async function resolveAuthProfile(user,opts={}){
+  if(!user)return false;
+  const fromListener=!!opts.fromListener;
+  window.__authResolving=true;
+  try{
+    firebaseUser=user;
+    state.authUid=user.uid||"";
+    state.user=state.user||{};
+    state.user.email=user.email||state.user.email||"";
+    state.user.dp=state.user.dp||user.photoURL||"";
+
+    let cloud=null;
+    if(firestore&&user.uid){
+      try{
+        const snap=await getDoc(doc(firestore,"users",user.uid));
+        if(snap.exists)cloud=snap.data()||{};
+      }catch(e){console.warn("Profile lookup failed",e)}
+    }
+
+    if(cloud){
+      // Merge cloud over local — cloud is source of truth for returning accounts
+      const cloudUser=cloud.user||{};
+      state={...state,...cloud,authUid:user.uid};
+      state.user={...(state.user||{}),...cloudUser};
+      state.user.email=user.email||state.user.email||"";
+      state.user.dp=state.user.dp||user.photoURL||cloudUser.dp||"";
+      // Prefer explicit onboarding flag, else infer from fields
+      const flag=cloud.onboarding||state.onboarding;
+      if(profileLooksComplete(state.user,flag)||flag==="done"){
+        state.onboarding="done";
+      }else{
+        // Incomplete cloud profile → finish setup only
+        state.onboarding=state.user.name?"username":"name";
+        if(state.user.name&&state.user.username&&!state.user.birthday)state.onboarding="birthday";
+      }
+    }else{
+      // Brand-new account (first Google / first email signup)
+      state.user.name=state.user.name||user.displayName||"";
+      state.user.username=state.user.username||"";
+      // Never auto-claim email prefix as username — user must pick unique one
+      if(profileLooksComplete(state.user,state.onboarding)){
+        state.onboarding="done";
+      }else{
+        state.onboarding=state.user.name?"username":"name";
+      }
+    }
+
+    save();
+    // Listener should not fight a login handler already rendering
+    if(!fromListener || !opts.skipRender){
+      render();
+    }
+    if(state.onboarding==="done"){
+      try{await syncPublicProfile()}catch(e){}
+    }
+    return state.onboarding==="done";
+  }finally{
+    window.__authResolving=false;
+  }
+}
+
+async function startGoogle(){
+  if(!firebaseReady||!auth){
+    return warn("Firebase not connected","Enable Google Sign-in and check your Firebase configuration.",{danger:true,icon:"wifi-off"});
+  }
+  showLoader();
+  try{
+    const provider=new GoogleAuthProvider();
+    provider.setCustomParameters({prompt:"select_account"});
+    await signInWithPopup(auth,provider);
+    const u=auth.currentUser;
+    if(!u)throw new Error("No Google user returned");
+    await resolveAuthProfile(u,{fromListener:false});
+  }catch(err){
+    console.error("Google auth",err);
+    const code=err?.code||"";
+    if(code==="auth/popup-closed-by-user"||code==="auth/cancelled-popup-request")return;
+    warn("Google sign-in failed","Check Firebase Authentication > Google and your authorized domain.",{danger:true,icon:"alert-triangle"});
+  }finally{hideLoader()}
+}
+
+
+
+
+
+
+
 
 let emailAuthMode="login";
 function openEmailAuth(mode="login"){
@@ -3210,22 +4241,26 @@ async function submitEmailAuth(){
   if(!firebaseReady||!auth){showChatDialog({title:"Email login unavailable",message:"Firebase Authentication is not connected. Enable Email/Password in Firebase Authentication first.",icon:"⚠️",danger:true,confirmText:"OK"});return}
   showLoader();
   try{
-    const credential=emailAuthMode==="signup"?await auth.createUserWithEmailAndPassword(email,password):await auth.signInWithEmailAndPassword(email,password);
-    const u=credential.user;state.authUid=u?.uid||"";state.user=state.user||{};state.user.email=u?.email||email;state.user.dp=state.user.dp||u?.photoURL||"";
-    let existingProfile=false;
-    if(firestore&&u?.uid){
-      try{
-        const snap=await getDoc(doc(firestore,"users",u.uid));
-        if(snap.exists){const cloud=snap.data()||{};state={...state,...cloud,authUid:u.uid};state.user=state.user||{};state.user.email=u?.email||state.user.email||email;state.user.dp=state.user.dp||u?.photoURL||"";existingProfile=!!(state.user.name&&state.user.username&&state.user.birthday)}
-      }catch(e){console.warn("Email profile lookup failed",e)}
-    }
-    closeEmailAuth();state.onboarding=existingProfile?"done":"name";save();render();
+    const credential=emailAuthMode==="signup"
+      ? await auth.createUserWithEmailAndPassword(email,password)
+      : await auth.signInWithEmailAndPassword(email,password);
+    const u=credential.user;
+    closeEmailAuth();
+    // New accounts → name/username/birthday. Returning accounts → straight into app.
+    await resolveAuthProfile(u,{fromListener:false});
   }catch(err){
-    console.error("Email auth failed",err);const code=err?.code||"";
-    const msg=code==="auth/email-already-in-use"?"This email is already used by another account. Please log in, or use a different email.":code==="auth/invalid-credential"||code==="auth/wrong-password"||code==="auth/user-not-found"?"Email or password is incorrect.":code==="auth/weak-password"?"Choose a stronger password.":err?.message||"Email authentication could not be completed.";
-    showChatDialog({title:emailAuthMode==="signup"?"Sign up failed":"Login failed",message:msg,icon:"⚠️",danger:true,confirmText:"OK"});
+    console.error("Email auth",err);
+    const code=err?.code||"";
+    let msg="Could not sign in. Please try again.";
+    if(code==="auth/email-already-in-use")msg="This email already has an account. Switch to Login.";
+    else if(code==="auth/wrong-password"||code==="auth/invalid-credential")msg="Incorrect email or password.";
+    else if(code==="auth/user-not-found")msg="No account found. Please sign up first.";
+    else if(code==="auth/too-many-requests")msg="Too many attempts. Try again later.";
+    else if(err?.message)msg=err.message;
+    showChatDialog({title:"Sign-in failed",message:msg,icon:"⚠️",danger:true,confirmText:"OK"});
   }finally{hideLoader()}
 }
+
 
 /* nextOnboard handled by verified async version */
  
@@ -3839,19 +4874,6 @@ async function isUsernameAvailable(username){
   }catch(e){return true}
 } 
  
-async function startGoogle(){
-  if(!firebaseReady||!auth){return warn("Firebase not connected","Enable Google Sign-in and check your Firebase configuration.",{danger:true,icon:"wifi-off"})}
-  showLoader();
-  try{
-    const provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:"select_account"});await signInWithPopup(auth,provider);
-    const u=auth.currentUser;state.authUid=u?.uid||"";state.user=state.user||{};state.user.email=u?.email||state.user.email||"";state.user.dp=state.user.dp||u?.photoURL||"";
-    let existingProfile=false;
-    if(firestore&&u?.uid){try{const snap=await getDoc(doc(firestore,"users",u.uid));if(snap.exists){const cloud=snap.data()||{};state={...state,...cloud,authUid:u.uid};state.user=state.user||{};state.user.email=u?.email||state.user.email||"";state.user.dp=state.user.dp||u?.photoURL||"";existingProfile=!!(state.user.name&&state.user.username&&state.user.birthday)}}catch(e){console.warn("Google profile lookup failed",e)}}
-    if(existingProfile)state.onboarding="done";else{state.user.name=state.user.name||u?.displayName||"";state.user.username=state.user.username||"";state.onboarding="name"}
-    save();render();
-  }catch(err){console.error("Google auth",err);warn("Google sign-in failed","Check Firebase Authentication > Google and your authorized domain.",{danger:true,icon:"alert-triangle"})}
-  finally{hideLoader()}
-}
 function showGoogleChooser(realFallback){ 
   document.getElementById("modalHost").innerHTML=`<div class="google-account-modal" onclick="if(event.target===this)closeGoogleChooser()"><section class="google-account-box"> 
     <div class="google-account-brand"><span class="google-mark">G</span><div><b style="font-size:13px">Sign in with Google</b><div style="font-size:9px;color:#89909a">Study Circle</div></div></div> 
@@ -3883,7 +4905,14 @@ async function nextOnboard(){
     state.user.username=username;state.onboarding="birthday"; 
   }else{if(!v)return warn("Birthday required","Please choose your birthday.",{icon:"calendar"});state.user.birthday=v;state.onboarding="done"} 
   save(); 
-  if(state.onboarding==="done"&&firebaseReady&&firebaseUser){showLoader();try{await publishMyPublicProfile()}finally{hideLoader()}} 
+  if(state.onboarding==="done"&&firebaseReady&&firebaseUser){
+    showLoader();
+    try{
+      await setDoc(doc(firestore,"users",firebaseUser.uid),{onboarding:"done",user:state.user,authUid:firebaseUser.uid},{merge:true});
+      await publishMyPublicProfile();
+    }catch(e){console.warn("Finish onboarding save failed",e)}
+    finally{hideLoader()}
+  } 
   render(); 
 } 
  
@@ -4105,7 +5134,7 @@ function profilePage(){
     </button>
   </div>
   </section> 
-  <section class="card profile-card"><div class="section-title">Edit profile</div><div class="edit-grid"><div class="profile-field"><label>NAME</label><input id="editName" value="${esc(state.user.name)}"></div><div class="profile-field"><label>USERNAME • UNIQUE</label><input id="editUsername" value="${esc(state.user.username)}" maxlength="20"></div><div class="profile-field"><label>BIO</label><textarea id="editBio" placeholder="Tell people a little about you...">${esc(state.user.bio)}</textarea></div><div class="profile-field"><label>PROFILE PHOTO</label><div class="photo-picker"><div id="photoPickerPreview" class="photo-picker-preview">${state.user.dp?`<img src="${esc(state.user.dp)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`:"🙂"}</div><div class="photo-picker-copy"><b>Choose a profile picture</b><span>Upload from your device • JPG, PNG, WebP</span></div><button type="button" onclick="document.getElementById('dpFile').click()">Choose photo</button><input id="dpFile" class="hidden" type="file" accept="image/*" onchange="previewDP(event)"></div></div><button class="save-btn" onclick="saveProfile()">Save profile</button></div></section> 
+  <section class="card profile-card"><div class="section-title">Edit profile</div><div class="edit-grid"><div class="profile-field"><label>NAME</label><input id="editName" value="${esc(state.user.name)}"></div><div class="profile-field"><label>USERNAME • UNIQUE</label><input id="editUsername" value="${esc(state.user.username)}" maxlength="20"></div><div class="profile-field"><label>BIO</label><textarea id="editBio" placeholder="Tell people a little about you...">${esc(state.user.bio)}</textarea></div><div class="profile-field"><label>PROFILE PHOTO</label><div class="photo-picker"><div id="photoPickerPreview" class="photo-picker-preview">${state.user.dp?`<img src="${esc(state.user.dp)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit" loading="lazy" decoding="async">`:"🙂"}</div><div class="photo-picker-copy"><b>Choose a profile picture</b><span>Upload from your device • JPG, PNG, WebP</span></div><button type="button" onclick="document.getElementById('dpFile').click()">Choose photo</button><input id="dpFile" class="hidden" type="file" accept="image/*" onchange="previewDP(event)"></div></div><button class="save-btn" onclick="saveProfile()">Save profile</button></div></section> 
   <section class="card profile-card"><div class="section-title">24h note</div><div class="hero-sub" style="margin:5px 0 12px">Write a short note. Only the text you write will appear above your profile photo.</div><div class="edit-grid"><div class="profile-field"><label>NOTE</label><input id="noteInput" maxlength="80" value="${esc(state.note.text)}" placeholder="Write your note..."></div><div><div class="note-color-label">NOTE COLOUR</div><div class="note-color-row">${colors.map(bg=>`<button type="button" class="note-color-btn ${noteBg===bg?"active":""}" title="${bg}" aria-label="${bg}" onclick="selectNoteBg('${bg}')" style="background:${noteBgStyle(bg)}"></button>`).join("")}</div></div><button class="upload-btn" onclick="saveNote()">${noteActive?'Update note':'Post for 24 hours'}</button></div></section>
     <section class="card profile-card"><button class="upload-btn" type="button" onclick="logoutUser()" style="background:#fff0f2;color:#ef476f;border:1px solid rgba(239,71,111,.18)">Log out</button></section>`; 
 } 
@@ -4145,7 +5174,7 @@ function previewDP(e){
       const ctx=canvas.getContext("2d");ctx.drawImage(img,0,0,canvas.width,canvas.height); 
       const data=canvas.toDataURL("image/jpeg",0.82); 
       state.user.dp=data; 
-      const box=document.getElementById("photoPickerPreview");if(box)box.innerHTML=`<img src="${esc(data)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`; 
+      const box=document.getElementById("photoPickerPreview");if(box)box.innerHTML=`<img src="${esc(data)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit" decoding="async">`; 
       save(); 
     }; 
     img.src=reader.result; 
@@ -4376,6 +5405,12 @@ async function setTypingStatus(isTyping){
   }catch(e){} 
 } 
  
+function autoGrowChatInput(el){
+  if(!el)return;
+  el.style.height="42px";
+  const next=Math.min(110, Math.max(42, el.scrollHeight));
+  el.style.height=next+"px";
+}
 function onChatInputTyping(){ 
   clearTimeout(typingTimeout); 
   setTypingStatus(true); 
@@ -4420,7 +5455,7 @@ function messageBelongsToChat(m, chatId, me, other){
 } 
 let chatSubGen=0; 
 function chatAvatarHTML(user,cls="chat-avatar"){ 
-  return `<div class="${cls}">${user?.dp?`<img src="${esc(user.dp)}" alt="">`:`🙂`}</div>` 
+  return `<div class="${cls}">${user?.dp?`<img src="${esc(user.dp)}" alt="" loading="lazy" decoding="async">`:`🙂`}</div>` 
 } 
 function formatChatTime(ts){ 
   try{ 
@@ -4435,10 +5470,14 @@ function chatsPage(){
     <div class="chat-inbox-top"> 
       <div><h1 class="chat-inbox-title">Chats</h1><div class="chat-inbox-sub">Stay connected with your study partners</div></div> 
       <div class="chat-inbox-actions"> 
-        <button class="chat-inbox-action active" id="tabSearch" onclick="switchChatTab('search')"><i data-lucide="message-circle" style="width:16px;height:16px"></i> Chats</button> 
-        <button class="chat-inbox-action" id="tabExplore" onclick="switchChatTab('explore')"><i data-lucide="compass" style="width:16px;height:16px"></i> Explore</button> 
+        <button class="chat-inbox-action active" id="tabSearch" onclick="switchChatTab('search')" title="Chats"><i data-lucide="user-plus" style="width:18px;height:18px"></i><span class="chat-tab-label"> Chats</span></button> 
+        <button class="chat-inbox-action" id="tabExplore" onclick="switchChatTab('explore')" title="Explore"><i data-lucide="menu" style="width:18px;height:18px"></i><span class="chat-tab-label"> Explore</span></button> 
       </div> 
     </div> 
+    <div class="chat-mobile-pills">
+      <button type="button" class="pill-search active" id="mobilePillSearch" onclick="switchChatTab('search');document.getElementById('chatUserSearch')?.focus()"><i data-lucide="search" style="width:16px;height:16px"></i> Search</button>
+      <button type="button" class="pill-explore" id="mobilePillExplore" onclick="switchChatTab('explore')"><i data-lucide="compass" style="width:16px;height:16px"></i> Explore</button>
+    </div>
     <div class="chat-inbox-shell"> 
       <aside class="chat-inbox-sidebar"> 
         <div class="chat-inbox-search"> 
@@ -4465,18 +5504,24 @@ function switchChatTab(tab){
   const exploreBtn=document.getElementById("tabExplore"); 
   const panel=document.getElementById("chatExplorePanel"); 
   const page=document.querySelector(".chat-inbox-page"); 
+  const pillSearch=document.getElementById("mobilePillSearch");
+  const pillExplore=document.getElementById("mobilePillExplore");
   if(!panel)return; 
   if(tab==="explore"){ 
     page?.classList.add("explore-mode"); 
     panel.classList.remove("hidden"); 
     searchBtn?.classList.remove("active"); 
     exploreBtn?.classList.add("active"); 
+    pillSearch?.classList.remove("active");
+    pillExplore?.classList.add("active");
     loadExploreUsers(); 
   }else{ 
     page?.classList.remove("explore-mode"); 
     panel.classList.add("hidden"); 
     exploreBtn?.classList.remove("active"); 
     searchBtn?.classList.add("active"); 
+    pillExplore?.classList.remove("active");
+    pillSearch?.classList.add("active");
     loadChatList(); 
   } 
   if(window.lucide)lucide.createIcons(); 
@@ -4604,10 +5649,18 @@ function loadChatList(){
       } 
       host.innerHTML=merged.map(({row,user})=>{ 
         const unread=isChatUnread(row); 
+        const timeStr=row?.updatedAt?formatChatTime(row.updatedAt):"";
+        const statusHTML=unread
+          ?`<span class="chat-list-badge">1</span>`
+          :(row?`<span class="chat-list-checks">✓✓</span>`:"");
         return `<div class="chat-list-item ${selectedChatId===row?.id?"active":""} ${unread?"unread":""}" onclick="openChat('${esc(user.uid)}')"> 
           ${chatAvatarHTML(user)} 
           <div class="chat-list-copy"><b>${esc(user.name||"Study User")}</b><small>${esc(row?.lastMessage||"Start a conversation")}</small></div> 
-          ${row?.updatedAt?`<small style="font-size:9px;color:#9aa1aa;align-self:flex-start">${formatChatTime(row.updatedAt)}</small>`:""} 
+          ${timeStr?`<small class="chat-list-time-desk" style="font-size:9px;color:#9aa1aa;align-self:flex-start">${timeStr}</small>`:""}
+          <div class="chat-list-meta">
+            ${timeStr?`<span class="chat-list-time">${timeStr}</span>`:""}
+            ${statusHTML}
+          </div>
           <span class="chat-list-unread-dot" aria-label="Unread message"></span> 
         </div>`; 
       }).join(""); 
@@ -4632,31 +5685,44 @@ async function openChat(otherUid){
     activePage="chats"; 
     try{sessionStorage.setItem("study_circle_active_page","chats")}catch(e){} 
     renderApp(); 
-    await new Promise(r=>setTimeout(r,60)); 
   } 
  
   try{switchChatTab("search")}catch(e){} 
  
-  showLoader();
-  let user;
-  try{
-    user=chatListProfilesCache[otherUid] || await fetchPublicProfile(otherUid);
-  }finally{hideLoader()}
-  if(!user){alert("This user profile could not be loaded.");return;} 
- 
+  // Instant open: use cache first, never block UI on network
+  let user=chatListProfilesCache[otherUid] || {uid:otherUid,name:"Study User",username:"user",dp:""};
   selectedChatUser=user; 
   selectedChatId=chatIdFor(currentUid(),otherUid); 
   markChatRead(selectedChatId); 
- 
-  await refreshBlockState(otherUid); 
+  chatBlockedByMe=false;chatBlockedMe=false;
+
+  // Open conversation UI immediately (Messenger-style)
+  setMobileChatOpen(true); 
   renderChatWindow(); 
- 
   const msgHost=document.getElementById("chatMessages"); 
   if(msgHost)msgHost.innerHTML=`<div class="chat-empty">Loading messages…</div>`; 
- 
   subscribeToMessages(selectedChatId); 
-  loadChatList(); 
-  setMobileChatOpen(true); 
+
+  // Background: refresh profile + block state without blocking
+  (async()=>{
+    try{
+      if(!chatListProfilesCache[otherUid]){
+        const fresh=await fetchPublicProfile(otherUid);
+        if(fresh && selectedChatUser?.uid===otherUid){
+          selectedChatUser=fresh;
+          chatListProfilesCache[otherUid]=fresh;
+          // soft-update header name/avatar if still on same chat
+          const head=document.querySelector(".chat-window-head .chat-head-copy b");
+          if(head)head.textContent=fresh.name||"Study User";
+        }
+      }
+      await refreshBlockState(otherUid);
+      if(selectedChatUser?.uid===otherUid && (chatBlockedByMe||chatBlockedMe)){
+        renderChatWindow();
+        subscribeToMessages(selectedChatId);
+      }
+    }catch(e){console.warn("openChat background",e)}
+  })();
 } 
  
 async function fetchPublicProfile(uid){ 
@@ -4702,7 +5768,11 @@ function renderChatWindow(){
       <div class="chat-reply-preview-copy"><b id="chatReplyPreviewName">Replying</b><span id="chatReplyPreviewText"></span></div> 
       <button class="chat-reply-cancel" onclick="clearChatReply()">×</button> 
     </div> 
-    <div class="chat-compose"><textarea id="chatMessageInput" maxlength="2000" placeholder="Write a message…" ${blocked?"disabled":""} onkeydown="handleChatKeydown(event)" oninput="onChatInputTyping()"></textarea><button class="chat-send" id="chatSendBtn" onclick="sendChatMessage()" ${blocked?"disabled":""}><i data-lucide="send"></i></button></div>`; 
+    <div class="chat-compose">
+      <button type="button" class="chat-doodle-btn" id="chatDoodleBtn" title="Draw a doodle" onclick="openDoodlePad()" ${blocked?"disabled":""}><i data-lucide="pencil"></i></button>
+      <textarea id="chatMessageInput" maxlength="2000" placeholder="Write a message…" ${blocked?"disabled":""} onkeydown="handleChatKeydown(event)" oninput="onChatInputTyping();autoGrowChatInput(this)"></textarea>
+      <button class="chat-send" id="chatSendBtn" onclick="sendChatMessage()" ${blocked?"disabled":""}><i data-lucide="send"></i></button>
+    </div>`; 
   if(window.lucide)lucide.createIcons(); 
   subscribeTyping(selectedChatId); 
 } 
@@ -5068,7 +6138,7 @@ function subscribeToMessages(forChatId){
     // missing or blank text must never appear as a timestamp-only bubble. 
     const docs=snap.docs 
       .filter(d=>messageBelongsToChat(d.data(), expectedId, me, other)) 
-      .filter(d=>String(d.data()?.text??"").trim().length>0); 
+      .filter(d=>{const m=d.data()||{};const hasText=String(m.text??"").trim().length>0;const hasImg=!!(m.image||m.doodle);return hasText||hasImg;}); 
  
     if(!docs.length){ 
       h.innerHTML=`<div class="chat-empty"><strong>Messages exchanged with your friends will be displayed here.</strong></div>`; 
@@ -5114,7 +6184,14 @@ function subscribeToMessages(forChatId){
         <button class="hover-reply" title="Reply" onclick="setChatReplyById('${esc(d.id)}');event.stopPropagation()">↩</button> 
         ${mine?`<button class="hover-delete" title="Delete" onclick="deleteChatMessage('${esc(d.id)}');event.stopPropagation()">🗑</button>`:""} 
       </div>`; 
-      return `<div class="chat-bubble-row ${mine?"mine":""}" data-message-row="${esc(d.id)}"><div class="chat-bubble-wrap"><div class="chat-bubble" data-message-id="${esc(d.id)}">${replyHTML}${escapeChatText(m.text)}<div class="chat-bubble-time">${formatChatTime(m.createdAt)}</div></div>${hoverActions}${reactionHTML?`<div class="chat-reaction-line">${reactionHTML}</div>`:""}</div></div>`; 
+      const imgSrc=m.image||m.doodle||"";
+      const imgHTML=imgSrc?`<img class="chat-bubble-img" src="${esc(imgSrc)}" alt="Doodle" loading="lazy" decoding="async" onclick="openDoodleLightbox(this.src);event.stopPropagation()">`:"";
+      const textHTML=String(m.text||"").trim()?`<div class="chat-doodle-caption">${escapeChatText(m.text)}</div>`:(imgSrc?"":escapeChatText(m.text||""));
+      const bubbleClass=imgSrc?"chat-bubble has-doodle":"chat-bubble";
+      const senderName=mine?(state.user?.name||"You"):(selectedChatUser?.name||"User");
+      const avatarUser=mine?{dp:state.user?.dp||""}:selectedChatUser;
+      const avatarHTML=`<div class="msg-avatar">${avatarUser?.dp?`<img src="${esc(avatarUser.dp)}" alt="" loading="lazy" decoding="async">`:`🙂`}</div>`;
+      return `<div class="chat-bubble-row ${mine?"mine":""}" data-message-row="${esc(d.id)}">${avatarHTML}<div class="chat-bubble-wrap"><div class="msg-sender-name">${esc(senderName)}</div><div class="${bubbleClass}" data-message-id="${esc(d.id)}">${replyHTML}${imgHTML}${textHTML}<div class="chat-bubble-time">${formatChatTime(m.createdAt)}</div></div>${hoverActions}${reactionHTML?`<div class="chat-reaction-line">${reactionHTML}</div>`:""}<div class="msg-time-out">${formatChatTime(m.createdAt)}</div></div></div>`; 
     }).join(""); 
     docs.forEach(d=>{ 
       const el=h.querySelector(`[data-message-id="${CSS.escape(d.id)}"]`); 
@@ -5131,56 +6208,559 @@ function subscribeToMessages(forChatId){
 function handleChatKeydown(e){ 
   if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChatMessage()} 
 } 
-async function sendChatMessage(){ 
-  const input=document.getElementById("chatMessageInput");if(!input||!selectedChatUser||!currentUid()||!firestore)return; 
-  const text=input.value.trim();if(!text)return; 
-  if(chatBlockedByMe||chatBlockedMe){chatWarning("Messaging unavailable","You cannot send messages to this user right now.","🚫");return;} 
-  const otherUid=selectedChatUser.uid; 
-  const cid=chatIdFor(currentUid(),otherUid); 
-  selectedChatId=cid; 
-  if(!cid||!otherUid)return; 
-  const btn=document.getElementById("chatSendBtn"); 
-  if(btn)btn.disabled=true; 
-  input.value=""; 
-  try{ 
-    const [mine,theirs]=await Promise.all([ 
-      getDoc(doc(firestore,"blocks",`${currentUid()}_${otherUid}`)), 
-      getDoc(doc(firestore,"blocks",`${otherUid}_${currentUid()}`)) 
-    ]); 
-    if(mine.exists||theirs.exists){await refreshBlockState(otherUid);renderChatWindow();subscribeToMessages(selectedChatId);if(btn)btn.disabled=false;chatWarning("Messaging unavailable","Messaging is unavailable because one of you has blocked the other.","🚫");return;} 
-    const chatRef=doc(firestore,"chats",cid); 
-    // Create/update chat first 
-    await setDoc(chatRef,{ 
-      participants:[currentUid(),otherUid].sort(), 
-      lastMessage:text.slice(0,200), 
-      lastMessageSenderId:currentUid(), 
-      updatedAt:serverTimestamp(), 
-      createdAt:serverTimestamp() 
-    },{merge:true}); 
-    // Then add message 
-    const replyTo=pendingChatReply?{ 
-      id:pendingChatReply.id, 
-      text:pendingChatReply.text, 
-      senderId:pendingChatReply.senderId, 
-      senderName:pendingChatReply.senderName 
-    }:null; 
-    await addDoc(collection(firestore,"chats",cid,"messages"),{ 
-      senderId:currentUid(), 
-      receiverId:otherUid, 
-      text, 
-      ...(replyTo?{replyTo}:{}), 
-      createdAt:serverTimestamp() 
-    }); 
-    clearChatReply(); 
-    setTypingStatus(false); 
-  }catch(err){ 
-    console.error("Send message failed",err); 
-    alert("Message could not be sent. Please update Firestore rules (see latest rules).\n\nError: "+(err.message||err)); 
-    input.value=text; 
+
+/* ===== Instagram-style doodle pad ===== */
+let doodleState={
+  drawing:false,
+  color:"#111111",
+  size:5,
+  lastX:0,
+  lastY:0,
+  strokes:0
+};
+const DOODLE_COLORS=["#111111","#ffffff","#ef4444","#f97316","#eab308","#22c55e","#3b82f6","#rainbow"];
+const DOODLE_SIZES=[3,5,9,12,18];
+doodleState.tool="brush";
+doodleState.prevColor="#111111";
+
+function openDoodlePad(){
+  if(chatBlockedByMe||chatBlockedMe){
+    chatWarning("Messaging unavailable","You cannot send messages to this user right now.","🚫");
+    return;
+  }
+  if(!selectedChatUser||!currentUid()){
+    chatWarning("Open a chat first","Select a conversation before drawing a doodle.","✏️");
+    return;
+  }
+  closeDoodlePad();
+  doodleState.color="#111111";
+  doodleState.prevColor="#111111";
+  doodleState.size=12;
+  doodleState.strokes=0;
+  doodleState.drawing=false;
+  doodleState.tool="brush";
+
+  const root=document.createElement("div");
+  root.id="doodlePadRoot";
+  root.className="doodle-modal doodle-v2";
+  root.innerHTML=`
+    <header class="dv2-top">
+      <button type="button" class="dv2-icon-btn" onclick="closeDoodlePad()" aria-label="Back"><i data-lucide="chevron-left"></i></button>
+      <div class="dv2-title-wrap">
+        <h2>Doodle</h2>
+        <span>Create your art</span>
+      </div>
+      <div class="dv2-top-right">
+        <button type="button" class="dv2-icon-btn" aria-label="Layers"><i data-lucide="layers"></i></button>
+        <button type="button" class="dv2-icon-btn" aria-label="More"><i data-lucide="more-horizontal"></i></button>
+      </div>
+    </header>
+
+    <div class="dv2-body">
+      <aside class="dv2-sidebar">
+        <button type="button" class="dv2-tool active" data-tool="brush" onclick="setDoodleTool('brush')">
+          <i data-lucide="pen-tool"></i><span>Brush</span>
+        </button>
+        <button type="button" class="dv2-tool" data-tool="eraser" onclick="setDoodleTool('eraser')">
+          <i data-lucide="eraser"></i><span>Eraser</span>
+        </button>
+        <button type="button" class="dv2-tool" data-tool="shapes" onclick="setDoodleTool('shapes')">
+          <i data-lucide="square"></i><span>Shapes</span>
+        </button>
+        <button type="button" class="dv2-tool" data-tool="text" onclick="setDoodleTool('text')">
+          <i data-lucide="type"></i><span>Text</span>
+        </button>
+        <button type="button" class="dv2-tool" data-tool="sticker" onclick="setDoodleTool('sticker')">
+          <i data-lucide="smile"></i><span>Sticker</span>
+        </button>
+        <button type="button" class="dv2-tool" data-tool="image" onclick="setDoodleTool('image')">
+          <i data-lucide="image"></i><span>Image</span>
+        </button>
+      </aside>
+
+      <div class="dv2-canvas-area">
+        <div class="doodle-canvas-wrap dv2-canvas-card">
+          <canvas id="doodleCanvas" width="1080" height="1440"></canvas>
+        </div>
+        <div class="dv2-undo-stack">
+          <button type="button" class="dv2-fab" onclick="clearDoodleCanvas()" title="Clear"><i data-lucide="rotate-ccw"></i></button>
+          <button type="button" class="dv2-fab" onclick="clearDoodleCanvas()" title="Redo"><i data-lucide="rotate-cw"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="dv2-bottom">
+      <div class="dv2-brush-row">
+        <button type="button" class="dv2-brush active" data-brush="marker" onclick="setDoodleBrush(this,'marker')"><span class="dv2-brush-icon tip-marker"></span></button>
+        <button type="button" class="dv2-brush" data-brush="pen" onclick="setDoodleBrush(this,'pen')"><span class="dv2-brush-icon tip-pen"></span></button>
+        <button type="button" class="dv2-brush" data-brush="fountain" onclick="setDoodleBrush(this,'fountain')"><span class="dv2-brush-icon tip-fountain"></span></button>
+        <button type="button" class="dv2-brush" data-brush="pencil" onclick="setDoodleBrush(this,'pencil')"><span class="dv2-brush-icon tip-pencil"></span></button>
+        <button type="button" class="dv2-brush" data-brush="paint" onclick="setDoodleBrush(this,'paint')"><span class="dv2-brush-icon tip-paint"></span></button>
+        <button type="button" class="dv2-brush" data-brush="air" onclick="setDoodleBrush(this,'air')"><span class="dv2-brush-icon tip-air"></span></button>
+      </div>
+      <div class="dv2-size-row">
+        <input type="range" id="doodleSizeRange" class="dv2-size-slider" min="2" max="40" value="12" oninput="setDoodleSize(Number(this.value))">
+        <span class="dv2-size-label">Size <b id="doodleSizeLabel">12px</b></span>
+      </div>
+      <div class="dv2-color-row">
+        <button type="button" class="dv2-eyedrop" aria-label="Eyedropper"><i data-lucide="pipette"></i></button>
+        <button type="button" class="doodle-color active" data-color="#111111" style="background:#111" onclick="setDoodleColor('#111111')"></button>
+        <button type="button" class="doodle-color" data-color="#ffffff" style="background:#fff" onclick="setDoodleColor('#ffffff')"></button>
+        <button type="button" class="doodle-color" data-color="#ef4444" style="background:#ef4444" onclick="setDoodleColor('#ef4444')"></button>
+        <button type="button" class="doodle-color" data-color="#f97316" style="background:#f97316" onclick="setDoodleColor('#f97316')"></button>
+        <button type="button" class="doodle-color" data-color="#eab308" style="background:#eab308" onclick="setDoodleColor('#eab308')"></button>
+        <button type="button" class="doodle-color" data-color="#22c55e" style="background:#22c55e" onclick="setDoodleColor('#22c55e')"></button>
+        <button type="button" class="doodle-color" data-color="#3b82f6" style="background:#3b82f6" onclick="setDoodleColor('#3b82f6')"></button>
+        <button type="button" class="doodle-color dv2-rainbow" data-color="#a855f7" style="background:conic-gradient(red,yellow,lime,aqua,blue,magenta,red)" onclick="setDoodleColor('#a855f7')"></button>
+      </div>
+      <div class="dv2-actions">
+        <button type="button" class="dv2-btn-ghost" onclick="clearDoodleCanvas()"><i data-lucide="trash-2"></i> Clear</button>
+        <button type="button" class="dv2-btn-primary" id="doodleSendBtn" onclick="sendDoodleMessage()"><i data-lucide="download"></i> Save</button>
+        <button type="button" class="dv2-btn-ghost" onclick="sendDoodleMessage()"><i data-lucide="send"></i> Share</button>
+      </div>
+    </footer>`;
+  document.body.appendChild(root);
+  document.body.dataset._doodleOverflow=document.body.style.overflow||"";
+  document.body.style.overflow="hidden";
+  if(window.lucide)try{lucide.createIcons()}catch(e){}
+  requestAnimationFrame(()=>{
+    fitDoodleCanvas();
+    initDoodleCanvas();
+  });
+}
+
+function setDoodleTool(tool){
+  doodleState.tool=tool||"brush";
+  document.querySelectorAll(".dv2-tool").forEach(el=>{
+    el.classList.toggle("active", el.getAttribute("data-tool")===doodleState.tool);
+  });
+  if(tool==="eraser"){
+    doodleState.prevColor=doodleState.color;
+    doodleState.color="#ffffff";
+  }else if(tool==="brush"){
+    doodleState.color=doodleState.prevColor||"#111111";
+    document.querySelectorAll(".doodle-color").forEach(el=>{
+      el.classList.toggle("active", el.getAttribute("data-color")===doodleState.color);
+    });
+  }else{
+    // dummy tools — fall back to brush visually
+    doodleState.tool="brush";
+  }
+}
+function setDoodleBrush(btn,kind){
+  document.querySelectorAll(".dv2-brush").forEach(el=>el.classList.remove("active"));
+  if(btn)btn.classList.add("active");
+  // slight size presets per brush tip (visual only)
+  if(kind==="pencil") setDoodleSize(4);
+  else if(kind==="fountain") setDoodleSize(6);
+  else if(kind==="pen") setDoodleSize(8);
+  else if(kind==="marker") setDoodleSize(12);
+  else if(kind==="paint") setDoodleSize(18);
+  else if(kind==="air") setDoodleSize(24);
+}
+
+
+function closeDoodlePad(){
+  document.getElementById("doodlePadRoot")?.remove();
+  doodleState.drawing=false;
+  doodleState.strokes=0;
+  if(document.body.dataset._doodleOverflow!==undefined){
+    document.body.style.overflow=document.body.dataset._doodleOverflow;
+    delete document.body.dataset._doodleOverflow;
+  }
+}
+
+
+function setDoodleColor(c){
+  doodleState.color=c;
+  if(doodleState.tool!=="eraser") doodleState.prevColor=c;
+  document.querySelectorAll(".doodle-color").forEach(el=>{
+    el.classList.toggle("active", el.getAttribute("data-color")===c);
+  });
+  // picking a color switches back to brush
+  if(doodleState.tool==="eraser"){
+    doodleState.tool="brush";
+    document.querySelectorAll(".dv2-tool").forEach(el=>{
+      el.classList.toggle("active", el.getAttribute("data-tool")==="brush");
+    });
+  }
+}
+function setDoodleSize(s){
+  s=Math.max(2,Math.min(40,Number(s)||12));
+  doodleState.size=s;
+  const label=document.getElementById("doodleSizeLabel");
+  if(label)label.textContent=s+"px";
+  const range=document.getElementById("doodleSizeRange");
+  if(range && Number(range.value)!==s) range.value=String(s);
+  document.querySelectorAll(".doodle-size").forEach((el,i)=>{
+    el.classList.toggle("active", DOODLE_SIZES[i]===s);
+  });
+}
+
+function fitDoodleCanvas(){
+  const canvas=document.getElementById("doodleCanvas");
+  const wrap=canvas?.parentElement;
+  if(!canvas||!wrap)return;
+  const rect=wrap.getBoundingClientRect();
+  const dpr=Math.min(window.devicePixelRatio||1, 2);
+  const cssW=Math.max(1, Math.floor(rect.width));
+  const cssH=Math.max(1, Math.floor(rect.height));
+  canvas.style.width=cssW+"px";
+  canvas.style.height=cssH+"px";
+  canvas.width=Math.floor(cssW*dpr);
+  canvas.height=Math.floor(cssH*dpr);
+  const ctx=canvas.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle="#ffffff";
+  ctx.fillRect(0,0,cssW,cssH);
+  ctx.lineCap="round";
+  ctx.lineJoin="round";
+}
+
+function getDoodleCtx(){
+  const canvas=document.getElementById("doodleCanvas");
+  if(!canvas)return null;
+  const ctx=canvas.getContext("2d");
+  ctx.lineCap="round";
+  ctx.lineJoin="round";
+  return {canvas,ctx};
+}
+
+function initDoodleCanvas(){
+  const pair=getDoodleCtx();
+  if(!pair)return;
+  const {canvas,ctx}=pair;
+  doodleState.strokes=0;
+  doodleState.drawing=false;
+  doodleState.lastX=0;
+  doodleState.lastY=0;
+
+  // Continuous smooth pen — no midpoint gaps
+  const pos=(e)=>{
+    const r=canvas.getBoundingClientRect();
+    const t=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e;
+    return {x:t.clientX-r.left, y:t.clientY-r.top};
+  };
+
+  const paintDot=(x,y)=>{
+    ctx.beginPath();
+    ctx.fillStyle=doodleState.color;
+    ctx.arc(x,y,Math.max(0.6,doodleState.size/2),0,Math.PI*2);
+    ctx.fill();
+  };
+
+  const paintSegment=(x0,y0,x1,y1)=>{
+    ctx.strokeStyle=doodleState.color;
+    ctx.fillStyle=doodleState.color;
+    ctx.lineWidth=doodleState.size;
+    ctx.lineCap="round";
+    ctx.lineJoin="round";
+    // Interpolate if pointer jumped (fast swipe) so the line never breaks
+    const dx=x1-x0, dy=y1-y0;
+    const dist=Math.hypot(dx,dy);
+    const step=Math.max(1, doodleState.size*0.35);
+    if(dist<=step){
+      ctx.beginPath();
+      ctx.moveTo(x0,y0);
+      ctx.lineTo(x1,y1);
+      ctx.stroke();
+      return;
+    }
+    const n=Math.ceil(dist/step);
+    ctx.beginPath();
+    ctx.moveTo(x0,y0);
+    for(let i=1;i<=n;i++){
+      const t=i/n;
+      ctx.lineTo(x0+dx*t, y0+dy*t);
+    }
+    ctx.stroke();
+  };
+
+  const start=(e)=>{
+    e.preventDefault();
+    if(e.pointerId!=null && canvas.setPointerCapture){
+      try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+    }
+    const p=pos(e);
+    doodleState.drawing=true;
+    doodleState.lastX=p.x;
+    doodleState.lastY=p.y;
+    paintDot(p.x,p.y);
+    doodleState.strokes++;
+  };
+
+  const move=(e)=>{
+    if(!doodleState.drawing)return;
+    e.preventDefault();
+    const p=pos(e);
+    paintSegment(doodleState.lastX, doodleState.lastY, p.x, p.y);
+    doodleState.lastX=p.x;
+    doodleState.lastY=p.y;
+  };
+
+  const end=(e)=>{
+    if(e)e.preventDefault();
+    if(e && e.pointerId!=null && canvas.releasePointerCapture){
+      try{canvas.releasePointerCapture(e.pointerId)}catch(_){}
+    }
+    doodleState.drawing=false;
+  };
+
+  canvas.style.touchAction="none";
+  // Use Pointer Events when available (avoids double-firing with mouse+touch)
+  if(window.PointerEvent){
+    canvas.onpointerdown=start;
+    canvas.onpointermove=move;
+    canvas.onpointerup=end;
+    canvas.onpointercancel=end;
+    canvas.onpointerleave=(e)=>{ if(doodleState.drawing) end(e); };
+  }else{
+    canvas.onmousedown=start;
+    canvas.onmousemove=move;
+    canvas.onmouseup=end;
+    canvas.onmouseleave=end;
+    canvas.ontouchstart=start;
+    canvas.ontouchmove=move;
+    canvas.ontouchend=end;
+    canvas.ontouchcancel=end;
+  }
+}
+
+function clearDoodleCanvas(){
+  const canvas=document.getElementById("doodleCanvas");
+  if(!canvas)return;
+  const ctx=canvas.getContext("2d");
+  const r=canvas.getBoundingClientRect();
+  // account for current transform (dpr)
+  ctx.save();
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.fillStyle="#ffffff";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.restore();
+  const dpr=Math.min(window.devicePixelRatio||1, 2);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.lineCap="round";
+  ctx.lineJoin="round";
+  doodleState.strokes=0;
+}
+
+function undoDoodleStroke(){ clearDoodleCanvas(); }
+
+function undoDoodleStroke(){
+  // Full clear is more reliable without stroke history stack on mobile
+  clearDoodleCanvas();
+}
+
+function compressDoodle(canvas,maxW=720,quality=0.72){
+  const scale=Math.min(1, maxW/canvas.width);
+  const w=Math.max(1,Math.round(canvas.width*scale));
+  const h=Math.max(1,Math.round(canvas.height*scale));
+  const out=document.createElement("canvas");
+  out.width=w;out.height=h;
+  const c=out.getContext("2d");
+  c.fillStyle="#fff";
+  c.fillRect(0,0,w,h);
+  c.drawImage(canvas,0,0,w,h);
+  return out.toDataURL("image/jpeg", quality);
+}
+
+async function sendDoodleMessage(){
+  const pair=getDoodleCtx();
+  if(!pair||!selectedChatUser||!currentUid()||!firestore)return;
+  if(!doodleState.strokes){
+    chatWarning("Empty doodle","Draw something before sending.","✏️");
+    return;
+  }
+  const {canvas}=pair;
+  let dataUrl;
+  try{
+    dataUrl=compressDoodle(canvas,720,0.72);
+  }catch(e){
+    console.warn(e);
+    chatWarning("Could not export doodle","Please try a simpler drawing.","⚠️");
+    return;
+  }
+  // Firestore practical limit ~1MB; keep under ~900KB
+  if(dataUrl.length>900000){
+    try{dataUrl=compressDoodle(canvas,540,0.58)}catch(e){}
+  }
+  if(dataUrl.length>950000){
+    chatWarning("Doodle too large","Try a simpler doodle or fewer colors.","⚠️");
+    return;
+  }
+
+  const otherUid=selectedChatUser.uid;
+  const cid=chatIdFor(currentUid(),otherUid);
+  selectedChatId=cid;
+  closeDoodlePad();
+  showLoader();
+
+  // Optimistic preview
+  const tempId="local_doodle_"+Date.now();
+  const host=document.getElementById("chatMessages");
+  if(host){
+    host.querySelector(".chat-empty")?.remove();
+    const row=document.createElement("div");
+    row.className="chat-bubble-row mine";
+    row.dataset.tempId=tempId;
+    row.innerHTML=`<div class="chat-bubble-wrap"><div class="chat-bubble has-doodle chat-bubble-sending"><img class="chat-bubble-img" src="${dataUrl}" alt="Doodle"><div class="chat-bubble-time">Sending…</div></div></div>`;
+    host.appendChild(row);
+    host.scrollTop=host.scrollHeight;
+  }
+
+  try{
+    const [mine,theirs]=await Promise.all([
+      getDoc(doc(firestore,"blocks",`${currentUid()}_${otherUid}`)),
+      getDoc(doc(firestore,"blocks",`${otherUid}_${currentUid()}`))
+    ]);
+    if(mine.exists||theirs.exists){
+      await refreshBlockState(otherUid);
+      renderChatWindow();
+      subscribeToMessages(selectedChatId);
+      chatWarning("Messaging unavailable","Messaging is unavailable because one of you has blocked the other.","🚫");
+      return;
+    }
+    const chatRef=doc(firestore,"chats",cid);
+    await setDoc(chatRef,{
+      participants:[currentUid(),otherUid].sort(),
+      lastMessage:"🎨 Doodle",
+      lastMessageSenderId:currentUid(),
+      updatedAt:serverTimestamp(),
+      createdAt:serverTimestamp()
+    },{merge:true});
+    await addDoc(collection(firestore,"chats",cid,"messages"),{
+      senderId:currentUid(),
+      receiverId:otherUid,
+      text:"",
+      image:dataUrl,
+      type:"doodle",
+      createdAt:serverTimestamp()
+    });
+  }catch(err){
+    console.error("Send doodle failed",err);
+    chatWarning("Doodle not sent","Check connection / Firestore rules and try again.","⚠️");
+    const fail=document.querySelector(`[data-temp-id="${CSS.escape(tempId)}"]`);
+    // cleanup optimistic
+    document.querySelector(`[data-temp-id="${CSS.escape(tempId)}"]`)?.remove();
+    document.querySelector(`.chat-bubble-row[data-temp-id="${CSS.escape(tempId)}"]`)?.remove();
+    host?.querySelector(`[data-temp-id="${tempId}"]`)?.remove();
+    document.querySelectorAll(".chat-bubble-row.mine").forEach(r=>{
+      if(r.dataset.tempId===tempId)r.remove();
+    });
+  }finally{
+    hideLoader();
+  }
+}
+
+function openDoodleLightbox(src){
+  if(!src)return;
+  document.getElementById("doodleLightbox")?.remove();
+  const box=document.createElement("div");
+  box.id="doodleLightbox";
+  box.className="doodle-lightbox";
+  box.onclick=()=>box.remove();
+  box.innerHTML=`<img src="${esc(src)}" alt="Doodle">`;
+  document.body.appendChild(box);
+}
+
+
+async function sendChatMessage(){
+  const input=document.getElementById("chatMessageInput");
+  if(!input||!selectedChatUser||!currentUid()||!firestore)return;
+  const text=input.value.trim();
+  if(!text)return;
+  if(chatBlockedByMe||chatBlockedMe){
+    chatWarning("Messaging unavailable","You cannot send messages to this user right now.","🚫");
+    return;
+  }
+  const otherUid=selectedChatUser.uid;
+  const cid=chatIdFor(currentUid(),otherUid);
+  selectedChatId=cid;
+  if(!cid||!otherUid)return;
+
+  const btn=document.getElementById("chatSendBtn");
+  if(btn)btn.disabled=true;
+  input.value="";
+  // Keep compose height compact after send
+  input.style.height="42px";
+  setTypingStatus(false);
+
+  const replyTo=pendingChatReply?{
+    id:pendingChatReply.id,
+    text:pendingChatReply.text,
+    senderId:pendingChatReply.senderId,
+    senderName:pendingChatReply.senderName
+  }:null;
+  clearChatReply();
+
+  // Optimistic bubble — feels instant like Messenger
+  const tempId="local_"+Date.now()+"_"+Math.random().toString(36).slice(2,7);
+  const host=document.getElementById("chatMessages");
+  if(host){
+    const empty=host.querySelector(".chat-empty");
+    if(empty)empty.remove();
+    const replyHTML=replyTo
+      ?`<div class="chat-bubble-reply"><b>${esc(replyTo.senderName||"User")}</b><br>${escapeChatText(replyTo.text||"")}</div>`
+      :"";
+    const row=document.createElement("div");
+    row.className="chat-bubble-row mine";
+    row.dataset.tempId=tempId;
+    row.innerHTML=`<div class="chat-bubble-wrap"><div class="chat-bubble chat-bubble-sending" data-temp="${esc(tempId)}">${replyHTML}${escapeChatText(text)}<div class="chat-bubble-time">Sending…</div></div></div>`;
+    host.appendChild(row);
+    host.scrollTop=host.scrollHeight;
+  }
+
+  try{
+    const [mine,theirs]=await Promise.all([
+      getDoc(doc(firestore,"blocks",`${currentUid()}_${otherUid}`)),
+      getDoc(doc(firestore,"blocks",`${otherUid}_${currentUid()}`))
+    ]);
+    if(mine.exists||theirs.exists){
+      await refreshBlockState(otherUid);
+      renderChatWindow();
+      subscribeToMessages(selectedChatId);
+      if(btn)btn.disabled=false;
+      chatWarning("Messaging unavailable","Messaging is unavailable because one of you has blocked the other.","🚫");
+      return;
+    }
+    const chatRef=doc(firestore,"chats",cid);
+    await setDoc(chatRef,{
+      participants:[currentUid(),otherUid].sort(),
+      lastMessage:text.slice(0,200),
+      lastMessageSenderId:currentUid(),
+      updatedAt:serverTimestamp(),
+      createdAt:serverTimestamp()
+    },{merge:true});
+    await addDoc(collection(firestore,"chats",cid,"messages"),{
+      senderId:currentUid(),
+      receiverId:otherUid,
+      text,
+      ...(replyTo?{replyTo}:{}),
+      createdAt:serverTimestamp()
+    });
+    // Snapshot listener will replace optimistic bubble with real message
+  }catch(err){
+    console.error("Send message failed",err);
+    // Mark optimistic bubble as failed
+    const fail=document.querySelector(`[data-temp="${CSS.escape(tempId)}"]`);
+    if(fail){
+      fail.classList.add("chat-bubble-failed");
+      const t=fail.querySelector(".chat-bubble-time");
+      if(t)t.textContent="Failed — tap to retry";
+      fail.onclick=()=>{
+        const row=fail.closest(".chat-bubble-row");
+        if(row)row.remove();
+        const inp=document.getElementById("chatMessageInput");
+        if(inp){inp.value=text;inp.focus()}
+      };
+    }
+    chatWarning("Message not sent","Please check your connection and try again.","⚠️");
   }finally{
     if(btn)btn.disabled=false;
-  } 
-} 
+    input.focus();
+  }
+}
+ 
  
 /* Follow system: store each follower under the target public profile. 
    This avoids the old top-level `follows` permission problem and lets the 
@@ -5309,7 +6889,7 @@ async function openUserProfile(uid){
       <div class="visit-profile-shell">
         <section class="visit-card">
           <div class="visit-head">
-            <div class="visit-avatar">${u.dp?`<img src="${esc(u.dp)}" alt="">`:`🙂`}</div>
+            <div class="visit-avatar">${u.dp?`<img src="${esc(u.dp)}" alt="" loading="lazy" decoding="async">`:`🙂`}</div>
             <div class="visit-head-copy">
               <h1 class="visit-name">${esc(u.name||"Study User")}</h1>
               <div class="visit-handle">@${esc(u.username||"username")}</div>
@@ -5651,7 +7231,7 @@ function openStudyingLiveCard(uid){
   if(!host){host=document.createElement("div");host.id="modalHost";document.body.appendChild(host)}
   host.innerHTML=`<div class="studying-live-modal" onclick="if(event.target===this)closeStudyingLiveCard()">
     <section class="studying-live-box">
-      <div class="studying-now-avatar">${u.dp?`<img src="${esc(u.dp)}" alt="">`:`🙂`}</div>
+      <div class="studying-now-avatar">${u.dp?`<img src="${esc(u.dp)}" alt="" loading="lazy" decoding="async">`:`🙂`}</div>
       <h3>${esc(u.name||"Student")}</h3>
       <div class="handle">@${esc(u.username||"username")}</div>
       <div class="studying-live-meta">
@@ -5697,7 +7277,7 @@ function openStudyingNowAll(){
       ${studyingNowCache.map(u=>`
         <button type="button" onclick="closeStudyingLiveCard();openStudyingLiveCard('${esc(u.uid)}')"
           style="width:100%;display:flex;align-items:center;gap:12px;padding:10px 6px;border:0;background:transparent;border-bottom:1px solid rgba(0,0,0,.05);text-align:left;cursor:pointer">
-          <div class="studying-now-avatar" style="width:44px;height:44px;margin:0;font-size:20px">${u.dp?`<img src="${esc(u.dp)}" alt="">`:`🙂`}</div>
+          <div class="studying-now-avatar" style="width:44px;height:44px;margin:0;font-size:20px">${u.dp?`<img src="${esc(u.dp)}" alt="" loading="lazy" decoding="async">`:`🙂`}</div>
           <div style="min-width:0;flex:1">
             <div style="font-weight:900;font-size:13px">${esc(u.name||"Student")}</div>
             <div style="font-size:11px;color:#8a919b;font-weight:700">${esc(u.activeSubject||"Focus")} • ${fmt(studyingElapsedSeconds(u))}</div>
